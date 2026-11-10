@@ -26,6 +26,7 @@ from tenglish_lm.movie_harvester import (
     blocks_to_clean_srt,
     parse_srt_content,
 )
+from tenglish_lm.ncm_concept_hierarchy import build_ncm_scene_representation
 
 
 # ---------------------------------------------------------------------------
@@ -187,6 +188,11 @@ def slice_movie_blocks_with_timestamps(
         scene_emotion, scene_dialect = detect_scene_emotion_and_dialect(
             turns, default_dialect=dialect_hint
         )
+        ncm_rep = build_ncm_scene_representation(
+            turns=turns,
+            scene_emotion=scene_emotion,
+            scene_dialect=scene_dialect,
+        )
         tagged_scenes.append(
             {
                 "scene_id": f"{movie_name}_SC_{idx:04d}",
@@ -196,6 +202,9 @@ def slice_movie_blocks_with_timestamps(
                 "movie_genre": movie_genre,
                 "scene_emotion": scene_emotion,
                 "scene_dialect": scene_dialect,
+                "ncm_rvq_code": ncm_rep["ncm_rvq_code"],
+                "ncm_r1_coarse_trajectory": ncm_rep["ncm_r1_coarse_trajectory"],
+                "ncm_r2_semantic_anchors": ncm_rep["ncm_r2_semantic_anchors"],
                 "start_time": format_seconds_to_hms(st_sec),
                 "end_time": format_seconds_to_hms(end_sec),
                 "duration_sec": round(max(0.0, end_sec - st_sec), 1),
@@ -240,7 +249,7 @@ def export_movie_to_csv_txt_jsonl(
     # 1. Write cleaned Telugu .SRT
     clean_srt_file.write_text(blocks_to_clean_srt(blocks), encoding="utf-8")
 
-    # 2. Write .CSV (Movie Metadata + Scene Tags + Pure Telugu Dialogue)
+    # 2. Write .CSV (Movie Metadata + Scene Tags + NCM Coarse-to-Fine Hierarchy + Pure Telugu Dialogue)
     csv_columns = [
         "scene_id",
         "movie_name",
@@ -249,6 +258,9 @@ def export_movie_to_csv_txt_jsonl(
         "movie_genre",
         "scene_emotion",
         "scene_dialect",
+        "ncm_rvq_code",
+        "ncm_r1_coarse_trajectory",
+        "ncm_r2_semantic_anchors",
         "start_time",
         "end_time",
         "duration_sec",
@@ -269,6 +281,9 @@ def export_movie_to_csv_txt_jsonl(
                     "movie_genre": sc["movie_genre"],
                     "scene_emotion": sc["scene_emotion"],
                     "scene_dialect": sc["scene_dialect"],
+                    "ncm_rvq_code": sc["ncm_rvq_code"],
+                    "ncm_r1_coarse_trajectory": sc["ncm_r1_coarse_trajectory"],
+                    "ncm_r2_semantic_anchors": sc["ncm_r2_semantic_anchors"],
                     "start_time": sc["start_time"],
                     "end_time": sc["end_time"],
                     "duration_sec": sc["duration_sec"],
@@ -278,7 +293,7 @@ def export_movie_to_csv_txt_jsonl(
                 }
             )
 
-    # 3. Write .TXT (Clean Scene-by-Scene Tagged Telugu Script)
+    # 3. Write .TXT (Clean Scene-by-Scene Tagged Telugu Script with NCM Coarse-to-Fine Levels)
     with open(txt_file, "w", encoding="utf-8") as f:
         f.write("================================================================================\n")
         f.write(f"TELUGU MOVIE SCENE CORPUS: {movie_name} ({len(scenes)} Scenes)\n")
@@ -290,12 +305,16 @@ def export_movie_to_csv_txt_jsonl(
             header = (
                 f"[{sc['scene_id']}] [{sc['start_time']} -> {sc['end_time']}] "
                 f"[DIRECTOR: {sc['director']}] [MOVIE_GENRE: {sc['movie_genre']}] "
-                f"[SCENE_EMOTION: {sc['scene_emotion']}] [DIALECT: {sc['scene_dialect']}]"
+                f"[SCENE_EMOTION: {sc['scene_emotion']}] [DIALECT: {sc['scene_dialect']}] "
+                f"[NCM_RVQ: {sc['ncm_rvq_code']}]"
             )
             f.write(header + "\n")
             f.write("-" * len(header) + "\n")
+            f.write(f"  [NCM Level-1 Coarse Beat Trajectory (r_1)] : {sc['ncm_r1_coarse_trajectory']}\n")
+            f.write(f"  [NCM Level-2 Semantic/Morph Anchors (r_2)] : {sc['ncm_r2_semantic_anchors']}\n")
+            f.write("  [NCM Level-3 Fine Surface Dialogue  (r_3)] :\n")
             for i, line in enumerate(sc["turns_telugu"], start=1):
-                f.write(f"  Speaker {i}: {line}\n")
+                f.write(f"    Speaker {i}: {line}\n")
             f.write("\n")
 
     # 4. Write .JSONL

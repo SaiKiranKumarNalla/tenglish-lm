@@ -48,9 +48,11 @@ if str(REPO_DIR) not in sys.path:
 
 # Reload modules so any GitHub changes take effect immediately in this Colab session
 import tenglish_lm.movie_harvester
+import tenglish_lm.ncm_concept_hierarchy
 import extract_youtube_movie
 
 importlib.reload(tenglish_lm.movie_harvester)
+importlib.reload(tenglish_lm.ncm_concept_hierarchy)
 importlib.reload(extract_youtube_movie)
 
 from extract_youtube_movie import (
@@ -80,7 +82,7 @@ except Exception:
 
 CORPUS_DIR.mkdir(parents=True, exist_ok=True)"""
 
-CELL_3_RUNNER = """# @title Step 2: Attach YouTube Link + Movie Name, Year, Director & Genre -> Extract Telugu Corpus
+CELL_3_RUNNER = """# @title Step 2: Attach YouTube Link + Movie Name, Year, Director & Genre -> Extract Telugu Corpus + NCM Hierarchy
 import json
 import pandas as pd
 
@@ -146,10 +148,11 @@ if batch_summary["results"]:
                 "director",
                 "movie_genre",
                 "scene_emotion",
-                "scene_dialect",
+                "ncm_rvq_code",
+                "ncm_r1_coarse_trajectory",
+                "ncm_r2_semantic_anchors",
                 "start_time",
                 "end_time",
-                "turn_count",
                 "dialogue_telugu",
             ]
         ].head(20)
