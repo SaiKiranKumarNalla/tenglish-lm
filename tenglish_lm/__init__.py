@@ -1,7 +1,17 @@
 """
-Tenglish-LM & Tenglish-Evo: Core Package
-A Morphologically-Aware Small Language Model & Era-Calibrated Code-Mixing Pipeline
-for Colloquial Telugu Movie Dialogues, Memes, and Broken Gen-Z Tenglish.
+Telugu Movie Subtitle & Scene Corpus Extractor (`tenglish_lm`).
 """
 
-__version__ = "0.1.0"
+from tenglish_lm.movie_harvester import (
+    SubtitleBlock,
+    blocks_to_clean_srt,
+    clean_utterance,
+    parse_srt_content,
+)
+
+__all__ = [
+    "SubtitleBlock",
+    "blocks_to_clean_srt",
+    "clean_utterance",
+    "parse_srt_content",
+]

@@ -1,92 +1,88 @@
 """
-YouTube Full-Movie Extractor & Auto-Tagger CLI (`extract_youtube_movie.py`).
+Generic YouTube Movie Subtitle & Scene Corpus Extractor (`extract_youtube_movie.py`).
 
-Usage (in Google Colab or local terminal):
-  python3 extract_youtube_movie.py \
-      --url "https://www.youtube.com/watch?v=..." \
-      --movie-name "Bommarillu_2006" \
-      --era "2000s" \
-      --director-style "BHASKAR_ABBURI_RAVI" \
-      --out-dir "./drive_mirror/Tenglish_LM/extracted_movies"
+Extracts raw and cleaned Telugu `.srt` subtitles from YouTube movie URLs (manual or YouTube auto-generated captions),
+slices the movie into timestamped conversational scenes, auto-tags [EMOTION], [GENRE], and [DIALECT],
+and stores ONLY the clean Telugu movie files (no synthetic Tenglish expansion):
 
-Or test on a local .srt file:
-  python3 extract_youtube_movie.py \
-      --srt-file "./drive_mirror/Tenglish_LM/bommarillu_2006/bommarillu_2006.srt" \
-      --movie-name "Bommarillu_2006" \
-      --era "2000s" \
-      --director-style "BHASKAR_ABBURI_RAVI"
-
-Outputs 3 files automatically:
-1. `<movie_name>_scenes.csv`   -> Spreadsheet-ready CSV with Scene_ID, Start_Time, End_Time, Emotion_Tag,
-                                 Genre_Tag, Dialect_Tag, English_CMI_Pct, Original_Telugu,
-                                 P1_Standard_Tenglish, P2_Minimal_Tenglish, P4_Broken_Acrophonic_Tenglish.
-2. `<movie_name>_scenes.txt`   -> Clean, human-readable scene-by-scene script with control tags (`[EMOTION: ...]`).
-3. `<movie_name>_scenes.jsonl` -> Machine-ready JSONL for SLM training.
+Outputs per movie in `<out_dir>/<movie_name>/`:
+  1. `<movie_name>_raw.srt`     -> Raw subtitle track downloaded from YouTube
+  2. `<movie_name>_clean.srt`   -> Cleaned Telugu `.srt` ([సంగీతం], [బెల్], disclaimers & BGM humming removed)
+  3. `<movie_name>_scenes.csv`  -> Scene-based CSV (`scene_id`, `start_time`, `end_time`, `emotion`, `genre`, `dialect`, `turn_count`, `dialogue_telugu`)
+  4. `<movie_name>_scenes.txt`  -> Clean human-readable Telugu scene script with control tags
+  5. `<movie_name>_scenes.jsonl`-> Structured JSONL for downstream corpus storage
 """
 
 import argparse
-import asyncio
 import csv
 import json
-import os
 import re
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from tenglish_lm.movie_harvester import SubtitleBlock, parse_srt_content
-from tenglish_lm.tenglish_evo import compute_utterance_cmi, romanize_with_persona
+from tenglish_lm.movie_harvester import (
+    SubtitleBlock,
+    blocks_to_clean_srt,
+    parse_srt_content,
+)
 
 
 # ---------------------------------------------------------------------------
-# 1. Automated Scene Emotion & Dialect Classifier (Lexical + Optional Gemini Flash API)
+# 1. Automated Telugu Scene Emotion, Genre & Dialect Classifier
 # ---------------------------------------------------------------------------
 
 EMOTION_KEYWORDS: Dict[str, List[str]] = {
-    "HEARTBREAK": [
+    "EMOTIONAL_HEARTBREAK": [
         "బాధ", "ఏడుపు", "మోసం", "వదిలేసి", "మర్చిపోవడం", "మర్చిపోలేను", "చచ్చిపోతా",
-        "ఒంటరి", "తట్టుకోలేను", "వద్దు", "నచ్చట్లేదు", "వెళ్ళిపోతున్నాను", "నాటకం",
-        "కోరుకున్నది", "దొరక్కపోతే", "pain", "hurt", "cry", "breakup", "sorry",
+        "ఒంటరి", "తట్టుకోలేను", "వద్దు", "నచ్చట్లేదు", "వెళ్ళిపోతున్నాను", "కన్నీళ్లు",
+        "ప్రేమ", "గుండె", "విడిపో", "క్షమించు", "సారీ",
     ],
-    "ANGRY_WARNING": [
+    "ANGER_WARNING": [
         "చంపేస్తా", "నరికేస్తా", "కత్తి", "రక్తం", "ఎదురు", "జాగ్రత్త", "వార్నింగ్",
-        "కోపం", "తప్పు", "ఏంట్రా", "ఏందిరా", "మూసుకో", "కొడతా", "warning", "dare",
+        "కోపం", "తప్పు", "ఏంట్రా", "ఏందిరా", "మూసుకో", "కొడతా", "అరెస్ట్", "పోలీస్",
+        "ప్రాణభయం", "చంపు", "దమ్ము",
     ],
-    "COMIC_TIMING": [
+    "COMEDY": [
         "నవ్వు", "సరదా", "ఐస్", "క్రీమ్", "కిక్", "సెలవు", "పుట్టింటికి", "డబ్బా",
-        "ఉప్పు", "కారం", "మెస్", "ఫైన్", "బొమ్మరిల్లు", "సంతకం", "లోన్", "కాఫీ",
-        "funny", "joke", "ice", "cream", "kitchen", "mess",
+        "ఉప్పు", "కారం", "మెస్", "ఫైన్", "సంతకం", "లోన్", "కాఫీ", "పెళ్లి", "అల్లుడు",
+        "మామ", "బిల్డప్", "కామెడీ", "జోక్",
     ],
     "SARCASTIC_ROAST": [
-        "అంతేగా", "బిల్డప్", "హ్యాండ్", "సాకు", "మునిగిపోతవ్", "లైట్", "డెలులు",
-        "ఘోస్ట్", "వైబ్", "ఆప్షన్", "ఇంకో నాన్న", "డిసైడ్", "షర్ట్", "షూ",
-        "buildup", "ghost", "delulu", "vibe", "hand", "lite",
+        "అంతేగా", "సాకు", "మునిగిపోతవ్", "లైట్", "ఆప్షన్", "డిసైడ్", "షర్ట్", "షూ",
+        "ఓవర్", "యాక్షన్", "సోది", "బిల్డప్",
     ],
     "PHILOSOPHICAL": [
         "జీవితం", "మనిషికి", "మాటే", "ప్రాణం", "విలువ", "యుద్ధం", "యుద్ధంలో",
         "గెలవడం", "శత్రువు", "ఓడిపోయినా", "ధైర్యం", "నిజాయితీ", "బాధ్యత",
-        "సొంతంగా", "నడవడం", "వీలైతే", "నాలుగు మాటలు",
+        "సొంతంగా", "నడవడం", "వీలైతే", "నాలుగు మాటలు", "నిజం", "ధర్మం",
     ],
-    "ELEVATION_PUNCH": [
-        "కమిట్", "భయం", "ఆపరేషన్", "హ్యాపీగా", "హ్యాపీనెస్", "లైఫ్ లాంగ్",
-        "లెక్క", "చరిత్ర", "రికార్డ్", "పవర్", "commit", "power", "record",
+    "ELEVATION_MASS": [
+        "కమిట్", "భయం", "ఆపరేషన్", "లెక్క", "చరిత్ర", "రికార్డ్", "పవర్", "రాజు",
+        "సింహం", "వేట", "సామ్రాజ్యం",
     ],
 }
 
 DIALECT_KEYWORDS: Dict[str, List[str]] = {
-    "TELANGANA": ["ఏంది", "భయ్యా", "అంటున్నవ్", "చెప్పిండు", "చేసిండు", "అయితది", "అయితంది", "దోస్తు", "బై", "గట్ల", "కూసున్నవ్"],
-    "RAYALASEEMA": ["ఏందిరా", "పొలిమేర", "కత్తి", "రక్తం", "నరికేస్తా", "సామి", "అప్పా"],
-    "COASTAL_ANDHRA": ["ఏమండోయ్", "గారూ", "అబ్బాయ్", "ఆవిడ", "కదండీ", "చెప్పమంటారు"],
+    "TELANGANA": [
+        "ఏంది", "భయ్యా", "అంటున్నవ్", "చెప్పిండు", "చేసిండు", "అయితది", "అయితంది",
+        "దోస్తు", "బై", "గట్ల", "కూసున్నవ్", "వస్తుండు", "పోతుండు", "మల్ల", "గిట్ల",
+    ],
+    "RAYALASEEMA": [
+        "ఏందిరా", "పొలిమేర", "కత్తి", "రక్తం", "నరికేస్తా", "సామి", "అప్పా", "బిడ్డ",
+    ],
+    "COASTAL_ANDHRA": [
+        "ఏమండోయ్", "గారూ", "అబ్బాయ్", "ఆవిడ", "కదండీ", "చెప్పమంటారు", "అండి",
+    ],
 }
 
 
-def detect_scene_emotion_and_dialect(turns: List[str], cmi_pct: float) -> Tuple[str, str, str]:
+def detect_scene_emotion_and_dialect(turns: List[str]) -> Tuple[str, str, str]:
     """
-    Classifies a scene's [EMOTION], [GENRE], and [DIALECT] from its Telugu/Tenglish dialogue turns.
+    Classifies a scene's [EMOTION], [GENRE], and [DIALECT] directly from its Telugu dialogue turns.
     """
     joined = " ".join(turns).lower()
 
-    # 1. Score Emotions
     scores: Dict[str, int] = {emo: 0 for emo in EMOTION_KEYWORDS}
     for emo, kw_list in EMOTION_KEYWORDS.items():
         for kw in kw_list:
@@ -97,20 +93,18 @@ def detect_scene_emotion_and_dialect(turns: List[str], cmi_pct: float) -> Tuple[
     if scores[best_emotion] == 0:
         best_emotion = "CONVERSATIONAL_DRAMA"
 
-    # 2. Map Emotion -> Genre
     genre_map = {
-        "HEARTBREAK": "FAMILY_DRAMA",
-        "ANGRY_WARNING": "MASS_ACTION",
-        "COMIC_TIMING": "SATIRE_COMEDY",
-        "SARCASTIC_ROAST": "ROMCOM",
-        "PHILOSOPHICAL": "FAMILY_DRAMA",
-        "ELEVATION_PUNCH": "MASS_ACTION",
-        "CONVERSATIONAL_DRAMA": "ROMCOM" if cmi_pct >= 12.0 else "FAMILY_DRAMA",
+        "EMOTIONAL_HEARTBREAK": "FAMILY_DRAMA",
+        "ANGER_WARNING": "ACTION_THRILLER",
+        "COMEDY": "COMEDY_ENTERTAINER",
+        "SARCASTIC_ROAST": "ROMCOM_YOUTH",
+        "PHILOSOPHICAL": "DRAMA",
+        "ELEVATION_MASS": "MASS_ACTION",
+        "CONVERSATIONAL_DRAMA": "DRAMA",
     }
-    best_genre = genre_map.get(best_emotion, "FAMILY_DRAMA")
+    best_genre = genre_map.get(best_emotion, "DRAMA")
 
-    # 3. Detect Dialect
-    best_dialect = "URBAN_HYDERABAD" if cmi_pct >= 10.0 else "STANDARD_TELUGU"
+    best_dialect = "STANDARD_TELUGU"
     for dial, kw_list in DIALECT_KEYWORDS.items():
         if any(kw in joined for kw in kw_list):
             best_dialect = dial
@@ -128,24 +122,28 @@ def format_seconds_to_hms(seconds: float) -> str:
     return f"{hrs:02d}:{mins:02d}:{secs:02d}"
 
 
+def sanitize_movie_slug(title: str) -> str:
+    """Converts a raw YouTube video title into a clean folder/file name."""
+    slug = re.sub(r"[^A-Za-z0-9_]+", "_", title.strip()).strip("_")
+    return slug[:60] if slug else "Telugu_Movie"
+
+
 # ---------------------------------------------------------------------------
-# 2. Timestamped Scene Slicer (Preserves Start & End Timestamps per Scene)
+# 2. Timestamped Scene Slicer (Pure Telugu Only)
 # ---------------------------------------------------------------------------
 
 def slice_movie_blocks_with_timestamps(
     blocks: List[SubtitleBlock],
     movie_name: str,
-    era: str,
-    director_style: str,
+    youtube_url: str = "",
     same_turn_gap_sec: float = 1.2,
     new_scene_gap_sec: float = 4.5,
     max_turns_per_scene: int = 4,
     max_words_per_turn: int = 16,
 ) -> List[Dict[str, Any]]:
     """
-    Slices an entire movie's subtitle blocks into timestamped 2-to-4 turn scenes,
-    auto-tags Emotion/Genre/Dialect/CMI %, and generates all 4 Tenglish Personas.
-    Handles both manual .srt subtitles and continuous YouTube auto-generated captions.
+    Slices an entire movie's cleaned subtitle blocks into timestamped 2-to-4 turn scenes
+    and tags [EMOTION], [GENRE], and [DIALECT].
     """
     if not blocks:
         return []
@@ -183,46 +181,26 @@ def slice_movie_blocks_with_timestamps(
     if len(cur_turns) >= 2:
         raw_grouped_scenes.append((scene_start, prev_end, cur_turns[:max_turns_per_scene]))
     elif len(cur_turns) == 1 and raw_grouped_scenes:
-        # Append trailing single turn to the last scene if room permits
         last_st, _, last_turns = raw_grouped_scenes[-1]
         if len(last_turns) < max_turns_per_scene:
             raw_grouped_scenes[-1] = (last_st, prev_end, last_turns + cur_turns)
 
-    # Process each scene into rich tagged dictionary
     tagged_scenes: List[Dict[str, Any]] = []
     for idx, (st_sec, end_sec, turns) in enumerate(raw_grouped_scenes, start=1):
-        joined_te = " ".join(turns)
-        cmi_info = compute_utterance_cmi(joined_te)
-        cmi_pct = cmi_info["en_lexeme_pct"]
-
-        emotion, genre, dialect = detect_scene_emotion_and_dialect(turns, cmi_pct)
-
-        p1_turns = [romanize_with_persona(t, "P1_STANDARD", "ERA_2025") for t in turns]
-        p2_turns = [romanize_with_persona(t, "P2_MINIMAL", "ERA_2025") for t in turns]
-        p3_turns = [romanize_with_persona(t, "P3_EXPRESS", "ERA_2025") for t in turns]
-        p4_turns = [romanize_with_persona(t, "P4_ACROPHON", "ERA_2025") for t in turns]
-
+        emotion, genre, dialect = detect_scene_emotion_and_dialect(turns)
         tagged_scenes.append(
             {
                 "scene_id": f"{movie_name}_SC_{idx:04d}",
                 "movie_name": movie_name,
+                "youtube_url": youtube_url,
                 "start_time": format_seconds_to_hms(st_sec),
                 "end_time": format_seconds_to_hms(end_sec),
-                "era": era,
-                "director_style": director_style,
+                "duration_sec": round(max(0.0, end_sec - st_sec), 1),
                 "emotion": emotion,
                 "genre": genre,
                 "dialect": dialect,
-                "en_cmi_pct": cmi_pct,
-                "en_word_count": cmi_info["counts"]["EN"],
-                "hybrid_word_count": cmi_info["counts"]["HYBRID_FUSED"],
-                "light_verb_count": cmi_info["counts"]["LIGHT_VERB"],
                 "turn_count": len(turns),
                 "turns_telugu": turns,
-                "turns_p1_standard": p1_turns,
-                "turns_p2_minimal": p2_turns,
-                "turns_p3_expressive": p3_turns,
-                "turns_p4_acrophonic": p4_turns,
             }
         )
 
@@ -230,44 +208,46 @@ def slice_movie_blocks_with_timestamps(
 
 
 # ---------------------------------------------------------------------------
-# 3. Export to .CSV, .TXT (Scene-Based Script), and .JSONL
+# 3. Export Pure Telugu Movie Corpus (.SRT, .CSV, .TXT, .JSONL)
 # ---------------------------------------------------------------------------
 
 def export_movie_to_csv_txt_jsonl(
     scenes: List[Dict[str, Any]],
+    blocks: List[SubtitleBlock],
     movie_name: str,
     out_dir: str | Path,
 ) -> Dict[str, Path]:
     """
-    Writes the extracted & tagged movie scenes to:
-    1. `<movie_name>_scenes.csv`
-    2. `<movie_name>_scenes.txt`
-    3. `<movie_name>_scenes.jsonl`
+    Writes the extracted & cleaned Telugu movie files to `<out_dir>`:
+      1. `<movie_name>_clean.srt`
+      2. `<movie_name>_scenes.csv`
+      3. `<movie_name>_scenes.txt`
+      4. `<movie_name>_scenes.jsonl`
     """
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
+    clean_srt_file = out_path / f"{movie_name}_clean.srt"
     csv_file = out_path / f"{movie_name}_scenes.csv"
     txt_file = out_path / f"{movie_name}_scenes.txt"
     jsonl_file = out_path / f"{movie_name}_scenes.jsonl"
 
-    # 1. Write .CSV (Spreadsheet / Pandas / Google Sheets ready)
+    # 1. Write cleaned Telugu .SRT
+    clean_srt_file.write_text(blocks_to_clean_srt(blocks), encoding="utf-8")
+
+    # 2. Write .CSV (Pure Telugu + Scene Tags)
     csv_columns = [
         "scene_id",
         "movie_name",
+        "youtube_url",
         "start_time",
         "end_time",
-        "era",
-        "director_style",
+        "duration_sec",
         "emotion",
         "genre",
         "dialect",
-        "en_cmi_pct",
         "turn_count",
         "dialogue_telugu",
-        "dialogue_tenglish_standard",
-        "dialogue_tenglish_minimal",
-        "dialogue_tenglish_broken_acrophonic",
     ]
     with open(csv_file, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=csv_columns)
@@ -277,61 +257,66 @@ def export_movie_to_csv_txt_jsonl(
                 {
                     "scene_id": sc["scene_id"],
                     "movie_name": sc["movie_name"],
+                    "youtube_url": sc["youtube_url"],
                     "start_time": sc["start_time"],
                     "end_time": sc["end_time"],
-                    "era": sc["era"],
-                    "director_style": sc["director_style"],
+                    "duration_sec": sc["duration_sec"],
                     "emotion": sc["emotion"],
                     "genre": sc["genre"],
                     "dialect": sc["dialect"],
-                    "en_cmi_pct": sc["en_cmi_pct"],
                     "turn_count": sc["turn_count"],
                     "dialogue_telugu": " // ".join(sc["turns_telugu"]),
-                    "dialogue_tenglish_standard": " // ".join(sc["turns_p1_standard"]),
-                    "dialogue_tenglish_minimal": " // ".join(sc["turns_p2_minimal"]),
-                    "dialogue_tenglish_broken_acrophonic": " // ".join(sc["turns_p4_acrophonic"]),
                 }
             )
 
-    # 2. Write .TXT (Clean Scene-by-Scene Tagged Script)
+    # 3. Write .TXT (Clean Scene-by-Scene Tagged Telugu Script — NO Tenglish clutter)
     with open(txt_file, "w", encoding="utf-8") as f:
-        f.write(f"================================================================================\n")
-        f.write(f"MOVIE SCRIPT & TENGLISH CORPUS: {movie_name} ({len(scenes)} Scenes)\n")
-        f.write(f"================================================================================\n\n")
+        f.write("================================================================================\n")
+        f.write(f"TELUGU MOVIE SCENE CORPUS: {movie_name} ({len(scenes)} Scenes)\n")
+        f.write("================================================================================\n\n")
         for sc in scenes:
             header = (
                 f"[{sc['scene_id']}] [{sc['start_time']} -> {sc['end_time']}] "
-                f"[ERA: {sc['era']}] [STYLE: {sc['director_style']}] "
-                f"[EMOTION: {sc['emotion']}] [GENRE: {sc['genre']}] "
-                f"[DIALECT: {sc['dialect']}] [EN_CMI: {sc['en_cmi_pct']}%]"
+                f"[EMOTION: {sc['emotion']}] [GENRE: {sc['genre']}] [DIALECT: {sc['dialect']}]"
             )
             f.write(header + "\n")
             f.write("-" * len(header) + "\n")
-            f.write("  [TELUGU SCRIPT]\n")
             for i, line in enumerate(sc["turns_telugu"], start=1):
-                f.write(f"    Speaker {i}: {line}\n")
-            f.write("  [STANDARD TENGLISH (P1)]\n")
-            for i, line in enumerate(sc["turns_p1_standard"], start=1):
-                f.write(f"    Speaker {i}: {line}\n")
-            f.write("  [MINIMALIST TENGLISH (P2)]\n")
-            for i, line in enumerate(sc["turns_p2_minimal"], start=1):
-                f.write(f"    Speaker {i}: {line}\n")
-            f.write("  [BROKEN / ACROPHONIC TENGLISH (P4)]\n")
-            for i, line in enumerate(sc["turns_p4_acrophonic"], start=1):
-                f.write(f"    Speaker {i}: {line}\n")
+                f.write(f"  Speaker {i}: {line}\n")
             f.write("\n")
 
-    # 3. Write .JSONL
+    # 4. Write .JSONL
     with open(jsonl_file, "w", encoding="utf-8") as f:
         for sc in scenes:
             f.write(json.dumps(sc, ensure_ascii=False) + "\n")
 
-    return {"csv": csv_file, "txt": txt_file, "jsonl": jsonl_file}
+    return {
+        "clean_srt": clean_srt_file,
+        "csv": csv_file,
+        "txt": txt_file,
+        "jsonl": jsonl_file,
+    }
 
 
 # ---------------------------------------------------------------------------
-# 4. YouTube Link Downloader + Full CLI Entrypoint
+# 4. YouTube Subtitle Downloader (Single URL & Batch Movie Corpus Builder)
 # ---------------------------------------------------------------------------
+
+def fetch_youtube_video_title(youtube_url: str) -> Optional[str]:
+    """Fetches the video title from YouTube via yt-dlp so movies can be named automatically."""
+    try:
+        proc = subprocess.run(
+            ["yt-dlp", "--get-title", "--no-warnings", youtube_url],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        title = proc.stdout.strip().splitlines()[0] if proc.stdout.strip() else ""
+        return sanitize_movie_slug(title) if title else None
+    except Exception:
+        return None
+
 
 def check_and_download_youtube_srt(
     youtube_url: str,
@@ -340,13 +325,12 @@ def check_and_download_youtube_srt(
     allow_auto_captions: bool = True,
 ) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Extracts existing subtitles or YouTube auto-generated Telugu/English captions (NO noisy local Whisper ASR).
+    Extracts existing subtitles or YouTube auto-generated Telugu/English captions.
     Priority order:
       1. Manual Telugu track (`te`, `te-IN`)
-      2. YouTube Auto-Generated Telugu track (`te`, `te-IN`) — Google's native Telugu Speech-to-Text
+      2. YouTube Auto-Generated Telugu track (`te`, `te-IN`)
       3. Manual English track (`en`, `en-IN`, `en-US`, `en-GB`)
       4. YouTube Auto-Generated English track (`en.*`)
-    Returns `(srt_path, metadata_dict)`.
     """
     work_dir.mkdir(parents=True, exist_ok=True)
     meta: Dict[str, Any] = {
@@ -357,11 +341,9 @@ def check_and_download_youtube_srt(
         "status": "NO_SUBTITLES_FOUND",
     }
 
-    # Extract 11-char video ID if standard YouTube URL (handles &t=1125s, youtu.be, etc.)
     vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
     video_id = vid_match.group(1) if vid_match else None
 
-    # Method A: Try youtube_transcript_api if installed (instant, zero ffmpeg dependency)
     if video_id:
         try:
             from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
@@ -375,27 +357,23 @@ def check_and_download_youtube_srt(
             meta["auto_langs"] = [f"{t.language_code} ({t.language})" for t in auto_tracks]
 
             chosen = None
-            # Priority 1: Manual Telugu track (te, te-IN)
             for t in manual_tracks:
                 if t.language_code.startswith("te"):
                     chosen = t
                     meta["selected_track"] = f"MANUAL:{t.language_code}"
                     break
-            # Priority 2: YouTube Auto-Generated Telugu track (te, te-IN)
             if chosen is None and allow_auto_captions:
                 for t in auto_tracks:
                     if t.language_code.startswith("te"):
                         chosen = t
                         meta["selected_track"] = f"AUTO_YOUTUBE_TE:{t.language_code}"
                         break
-            # Priority 3: Manual English track (en, en-IN, en-US, en-GB)
             if chosen is None:
                 for t in manual_tracks:
                     if t.language_code.startswith("en"):
                         chosen = t
                         meta["selected_track"] = f"MANUAL:{t.language_code}"
                         break
-            # Priority 4: YouTube Auto-Generated English track
             if chosen is None and allow_auto_captions:
                 for t in auto_tracks:
                     if t.language_code.startswith("en"):
@@ -413,7 +391,6 @@ def check_and_download_youtube_srt(
                     if not text_val:
                         continue
                     end_s = start_s + max(0.8, dur_s)
-                    # Clamp overlapping duration against next cue's start_s so real speech gaps are preserved
                     if idx + 1 < len(fetched):
                         next_item = fetched[idx + 1]
                         next_start = float(
@@ -426,15 +403,15 @@ def check_and_download_youtube_srt(
                     srt_lines.append(f"{idx + 1}\n{st_hms} --> {et_hms}\n{text_val}\n")
 
                 if srt_lines:
-                    srt_out = work_dir / f"{movie_name}.{chosen.language_code}.srt"
+                    srt_out = work_dir / f"{movie_name}_raw.{chosen.language_code}.srt"
                     srt_out.write_text("\n".join(srt_lines), encoding="utf-8")
                     meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API"
                     return srt_out, meta
         except Exception as e:
             meta["transcript_api_note"] = str(e)
 
-    # Method B: Use yt-dlp with wildcard language matching (`te.*,en.*`)
-    out_template = str(work_dir / f"{movie_name}.%(ext)s")
+    # Fallback: yt-dlp subtitle download
+    out_template = str(work_dir / f"{movie_name}_raw.%(ext)s")
     cmd = [
         "yt-dlp",
         "--write-sub",
@@ -450,11 +427,10 @@ def check_and_download_youtube_srt(
         out_template,
         youtube_url,
     ]
-    print(f"[YT-DLP] Checking & downloading YouTube subtitles (`te.*`, `en.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
+    print(f"[YT-DLP] Downloading subtitles (`te.*`, `en.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
     subprocess.run(cmd, check=False)
-    srts = sorted(work_dir.glob(f"{movie_name}*.srt")) + sorted(work_dir.glob(f"{movie_name}*.vtt"))
+    srts = sorted(work_dir.glob(f"{movie_name}_raw*.srt")) + sorted(work_dir.glob(f"{movie_name}_raw*.vtt"))
     if srts:
-        # Prefer Telugu (.te) over English (.en) if both downloaded
         te_srts = [p for p in srts if ".te" in p.name]
         best_srt = te_srts[0] if te_srts else srts[0]
         meta["selected_track"] = best_srt.name
@@ -464,25 +440,29 @@ def check_and_download_youtube_srt(
     return None, meta
 
 
-def download_srt_from_youtube(youtube_url: str, work_dir: Path, movie_name: str) -> Optional[Path]:
-    """Backwards-compatible wrapper around `check_and_download_youtube_srt`."""
-    srt_path, _ = check_and_download_youtube_srt(youtube_url, work_dir, movie_name, allow_auto_captions=True)
-    return srt_path
-
-
 def extract_full_movie_pipeline(
-    movie_name: str,
-    era: str = "2000s",
-    director_style: str = "BHASKAR_ABBURI_RAVI",
     youtube_url: Optional[str] = None,
+    movie_name: Optional[str] = None,
     srt_file: Optional[str | Path] = None,
-    out_dir: str | Path = "./drive_mirror/Tenglish_LM/extracted_movies",
+    out_dir: str | Path = "./movie_corpus",
     allow_auto_captions: bool = True,
 ) -> Dict[str, Any]:
     """
-    Main function you call in Colab or Python:
-    Give it a `youtube_url` (with manual or auto captions) or `srt_file` -> outputs `.csv`, `.txt`, and `.jsonl` with scene emotion tags.
+    Extracts a single movie (from `youtube_url` or local `srt_file`), cleans BGM/disclaimers,
+    slices into scenes, tags emotions, and stores `<movie_name>_raw.srt`, `<movie_name>_clean.srt`,
+    `<movie_name>_scenes.csv`, `<movie_name>_scenes.txt`, and `<movie_name>_scenes.jsonl`.
     """
+    if not movie_name or movie_name.strip() == "" or movie_name == "AUTO":
+        if youtube_url:
+            detected_title = fetch_youtube_video_title(youtube_url)
+            vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
+            vid_id = vid_match.group(1) if vid_match else "Movie"
+            movie_name = f"{detected_title}_{vid_id}" if detected_title else f"Movie_{vid_id}"
+        elif srt_file:
+            movie_name = sanitize_movie_slug(Path(srt_file).stem)
+        else:
+            movie_name = "Telugu_Movie"
+
     out_path = Path(out_dir) / movie_name
     out_path.mkdir(parents=True, exist_ok=True)
 
@@ -496,9 +476,7 @@ def extract_full_movie_pipeline(
     if target_srt is None or not target_srt.exists():
         raise FileNotFoundError(
             f"❌ No manual or auto-generated subtitles found on YouTube for '{movie_name}' ({youtube_url}).\n"
-            f"   Manual tracks detected: {sub_meta.get('manual_langs', [])}\n"
-            f"   Auto tracks detected:   {sub_meta.get('auto_langs', [])}\n"
-            f"👉 Please use a YouTube video with CC/auto-captions enabled, or pass a local `.srt` file!"
+            f"   Manual tracks: {sub_meta.get('manual_langs', [])} | Auto tracks: {sub_meta.get('auto_langs', [])}"
         )
 
     srt_text = target_srt.read_text(encoding="utf-8", errors="replace")
@@ -506,14 +484,16 @@ def extract_full_movie_pipeline(
     scenes = slice_movie_blocks_with_timestamps(
         blocks=blocks,
         movie_name=movie_name,
-        era=era,
-        director_style=director_style,
+        youtube_url=youtube_url or "",
     )
-    exported = export_movie_to_csv_txt_jsonl(scenes, movie_name, out_path)
+    exported = export_movie_to_csv_txt_jsonl(scenes, blocks, movie_name, out_path)
 
     return {
         "movie_name": movie_name,
-        "subtitle_blocks_parsed": len(blocks),
+        "youtube_url": youtube_url or "",
+        "selected_track": sub_meta.get("selected_track", target_srt.name),
+        "raw_srt_file": str(target_srt),
+        "clean_subtitle_blocks": len(blocks),
         "scenes_extracted": len(scenes),
         "files": {k: str(v) for k, v in exported.items()},
         "emotion_distribution": {
@@ -523,25 +503,128 @@ def extract_full_movie_pipeline(
     }
 
 
+def extract_movie_corpus_batch(
+    movie_links: List[Any],
+    out_dir: str | Path = "./movie_corpus",
+    allow_auto_captions: bool = True,
+) -> Dict[str, Any]:
+    """
+    Processes a list of YouTube URLs (or `(movie_name, youtube_url)` tuples / dicts),
+    extracting and storing each movie in `<out_dir>/<movie_name>/` and writing `<out_dir>/corpus_manifest.csv`.
+    """
+    out_root = Path(out_dir)
+    out_root.mkdir(parents=True, exist_ok=True)
+    manifest_rows: List[Dict[str, Any]] = []
+    results: List[Dict[str, Any]] = []
+
+    for idx, entry in enumerate(movie_links, start=1):
+        if isinstance(entry, str):
+            url = entry.strip()
+            name = None
+        elif isinstance(entry, (tuple, list)) and len(entry) >= 2:
+            name, url = str(entry[0]).strip(), str(entry[1]).strip()
+        elif isinstance(entry, dict):
+            url = str(entry.get("url", entry.get("youtube_url", ""))).strip()
+            name = entry.get("movie_name") or entry.get("name")
+        else:
+            continue
+
+        if not url:
+            continue
+
+        print(f"\n[{idx}/{len(movie_links)}] 🎬 Extracting movie from: {url} ...")
+        try:
+            res = extract_full_movie_pipeline(
+                youtube_url=url,
+                movie_name=name,
+                out_dir=out_root,
+                allow_auto_captions=allow_auto_captions,
+            )
+            results.append(res)
+            manifest_rows.append(
+                {
+                    "movie_name": res["movie_name"],
+                    "youtube_url": url,
+                    "status": "EXTRACTED",
+                    "selected_track": res["selected_track"],
+                    "clean_subtitle_blocks": res["clean_subtitle_blocks"],
+                    "scenes_extracted": res["scenes_extracted"],
+                    "clean_srt_path": res["files"]["clean_srt"],
+                    "csv_path": res["files"]["csv"],
+                    "txt_path": res["files"]["txt"],
+                }
+            )
+            print(
+                f"   ✅ Saved {res['scenes_extracted']} clean Telugu scenes -> {res['files']['csv']}"
+            )
+        except Exception as e:
+            print(f"   ⚠️ Skipped ({url}): {e}")
+            manifest_rows.append(
+                {
+                    "movie_name": name or "UNKNOWN",
+                    "youtube_url": url,
+                    "status": f"SKIPPED: {e}",
+                    "selected_track": "",
+                    "clean_subtitle_blocks": 0,
+                    "scenes_extracted": 0,
+                    "clean_srt_path": "",
+                    "csv_path": "",
+                    "txt_path": "",
+                }
+            )
+
+    manifest_file = out_root / "corpus_manifest.csv"
+    if manifest_rows:
+        with open(manifest_file, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=list(manifest_rows[0].keys()))
+            writer.writeheader()
+            writer.writerows(manifest_rows)
+
+    return {
+        "total_links": len(movie_links),
+        "movies_extracted": len(results),
+        "manifest_csv": str(manifest_file),
+        "results": results,
+    }
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Extract a full YouTube Telugu movie into Scene-Tagged .CSV and .TXT files.")
-    parser.add_argument("--url", type=str, default=None, help="YouTube full movie URL")
+    parser = argparse.ArgumentParser(
+        description="Extract clean Telugu .srt, scene-tagged .csv, and .txt files from YouTube movie URLs."
+    )
+    parser.add_argument("--url", type=str, default=None, help="Single YouTube movie URL")
+    parser.add_argument(
+        "--urls-file",
+        type=str,
+        default=None,
+        help="Path to a .txt or .csv file containing one YouTube URL per line",
+    )
     parser.add_argument("--srt-file", type=str, default=None, help="Local .srt subtitle file path")
-    parser.add_argument("--movie-name", type=str, default="Bommarillu_2006", help="Movie identifier")
-    parser.add_argument("--era", type=str, default="2000s", help="Movie era tag (1980s, 1990s, 2000s, 2010s, 2020s)")
-    parser.add_argument("--director-style", type=str, default="BHASKAR_ABBURI_RAVI", help="Director/Writer style tag")
-    parser.add_argument("--out-dir", type=str, default="./drive_mirror/Tenglish_LM/extracted_movies", help="Output folder")
+    parser.add_argument(
+        "--movie-name",
+        type=str,
+        default=None,
+        help="Optional movie name (if omitted, auto-detects title from YouTube)",
+    )
+    parser.add_argument("--out-dir", type=str, default="./movie_corpus", help="Output corpus folder")
     args = parser.parse_args()
 
-    res = extract_full_movie_pipeline(
-        movie_name=args.movie_name,
-        era=args.era,
-        director_style=args.director_style,
-        youtube_url=args.url,
-        srt_file=args.srt_file,
-        out_dir=args.out_dir,
-    )
-    print(json.dumps(res, indent=2, ensure_ascii=False))
+    if args.urls_file:
+        lines = [
+            l.strip()
+            for l in Path(args.urls_file).read_text(encoding="utf-8").splitlines()
+            if l.strip() and not l.strip().startswith("#")
+        ]
+        summary = extract_movie_corpus_batch(lines, out_dir=args.out_dir)
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+    else:
+        res = extract_full_movie_pipeline(
+            youtube_url=args.url,
+            movie_name=args.movie_name,
+            srt_file=args.srt_file,
+            out_dir=args.out_dir,
+        )
+        print(json.dumps(res, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
