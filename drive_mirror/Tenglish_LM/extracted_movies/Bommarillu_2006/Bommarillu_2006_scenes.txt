@@ -1,0 +1,232 @@
+================================================================================
+MOVIE SCRIPT & TENGLISH CORPUS: Bommarillu_2006 (12 Scenes)
+================================================================================
+
+[Bommarillu_2006_SC_0001] [00:01:10 -> 00:01:23] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: PHILOSOPHICAL] [GENRE: FAMILY_DRAMA] [DIALECT: STANDARD_TELUGU] [EN_CMI: 0.0%]
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: చేయి పట్టుకుని నడిపించడం తండ్రిగా నా బాధ్యత రా సిద్దూ.
+    Speaker 2: కానీ ఎప్పుడూ చేయి పట్టుకునే ఉంటే నేను సొంతంగా నడవడం ఎప్పుడు నేర్చుకుంటాను నాన్న?
+    Speaker 3: నీకు ఏది మంచో ఏది చెడో నాకంటే బాగా ఎవరికి తెలుసు చెప్పు?
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: cheyi pattukuni nadipinchadam thandriga na baadhyatha ra siddhu.
+    Speaker 2: kaanee eppudu cheyi pattukune unte nenu sonthanga nadavadam eppudu nerchukuntaanu naanna?
+    Speaker 3: neeku yedhi mancho yedhi chedo naakante baaga evariki thelusu cheppu?
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: cheyi patukuni nadipinchadam tandriga na badyata ra sidu.
+    Speaker 2: kani epudu cheyi patukune unte nenu sontanga nadavadam epudu nerchukuntanu nana?
+    Speaker 3: niku edi mancho edi chedo nakante baga evariki telusu chepu?
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: cheyi patukuni nadipinchadam tandriga na badyata ra siddu.
+    Speaker 2: kani epudu cheyi patukune unte nenu sontanga nadavadam epudu nerchukuntanu nana?
+    Speaker 3: nku edi mancho edi chedo nakante baga evariki talusu chappu?
+
+[Bommarillu_2006_SC_0002] [00:08:10 -> 00:08:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: SARCASTIC_ROAST] [GENRE: ROMCOM] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 21.05%]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: ఏంట్రా సిద్దూ, ఈరోజు కూడా మీ నాన్న కొన్న షర్ట్ వేసుకునే కాలేజీకి వచ్చావా?
+    Speaker 2: నా షర్ట్ ఏ రంగు ఉండాలో, నా షూ సైజు ఏంటో కూడా మా నాన్నే డిసైడ్ చేస్తారు రా!
+    Speaker 3: ఇరవై నాలుగు ఏళ్ళు వచ్చినా నా లైఫ్ లో ఒక్క డెసిషన్ కూడా నేను తీసుకోలేకపోతున్నాను.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: yentra siddhu, eeroju kuda mee naanna konna shirt vesukune college-ki vachaava?
+    Speaker 2: na shirt ye rangu undaalo, na shoe size yento kuda ma naanne decide chesthaaru ra!
+    Speaker 3: iravai naalugu yellu vachina na life lo okka decision kuda nenu theesukolekapothunnaanu.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: entra sidu, iroju kuda mi nana kona shirt vesukune college-ki vachava?
+    Speaker 2: na shirt e rangu undalo, na shoe size ento kuda ma nane decide chestaru ra!
+    Speaker 3: iravai nalugu elu vachina na life lo oka decision kuda nenu tisukolekapotunanu.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: Antra siddu, iroju kuda mi nana kona shirt vesukune college-ki vachava?
+    Speaker 2: na shirt e rangu undalo, na shoe size ento kuda ma nane decide chestaru ra!
+    Speaker 3: iravai nalugu ellu vachina na life lo oka decision kuda nenu tisukolekapotunanu.
+
+[Bommarillu_2006_SC_0003] [00:16:00 -> 00:16:14] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: COMIC_TIMING] [GENRE: SATIRE_COMEDY] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 28.57%]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: సార్, నా సొంత కన్‌స్ట్రక్షన్ కంపెనీ స్టార్ట్ చేయడానికి నాకు బ్యాంక్ లోన్ కావాలి.
+    Speaker 2: అరవింద్ గారి అబ్బాయివి కదా బాబూ, మీ నాన్నగారి సంతకం పెట్టిస్తే ఇప్పుడే లోన్ శాంక్షన్ చేస్తాను!
+    Speaker 3: మా నాన్న పేరు వాడుకోకుండా నా సొంత టాలెంట్ మీద బిజినెస్ చేద్దామనుకుంటున్నాను సార్.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: sir, na sontha construction company start cheyadaaniki naaku bank loan kaavaali.
+    Speaker 2: aravindh gaari abbaayivi kadha baabu, mee naannagaari santhakam pettisthe ippude loan sanction chesthaanu!
+    Speaker 3: ma naanna peru vaadukokunda na sontha talent meedha business cheddhaamanukuntunnaanu sir.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: sir, na sonta construction company start cheyadaniki naku bank loan kavali.
+    Speaker 2: aravind gari abbayivi kada babu, mi nanagari santakam petiste ipude loan sanction chestanu!
+    Speaker 3: ma nana peru vadukokunda na sonta talent mida business chedamanukuntunanu sir.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: sir, na sonta construction company start cheyadaniki nku bank loan kavali.
+    Speaker 2: aravind gari abbayivi kada babu, mi nanagari santakam patiste ipude loan sanction chestanu!
+    Speaker 3: ma nana peru vadukokunda na sonta talent mida business cheddamanukuntunanu sir.
+
+[Bommarillu_2006_SC_0004] [00:24:10 -> 00:24:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: ANGRY_WARNING] [GENRE: MASS_ACTION] [DIALECT: STANDARD_TELUGU] [EN_CMI: 9.38%]
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: ఏంట్రా, సుబ్బలక్ష్మితో నీ ఎంగేజ్‌మెంట్ ఇంత సడన్ గా ఫిక్స్ చేసేశారు?
+    Speaker 2: ఆ అమ్మాయిని ఏం అడిగినా మా నాన్నగారు చెప్తేనే చేస్తాను అంటుంది రా!
+    Speaker 3: ఇంట్లో ఆల్రెడీ ఒక నాన్న ఉన్నారు, మళ్ళీ పెళ్లి చేసుకుని ఇంకో నాన్నని తెచ్చుకోలేను రా బాబు!
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: yentra, subbalakshmitho nee engagement intha sudden ga fix cheseshaaru?
+    Speaker 2: aa ammaayini yem adigina ma naannagaaru chepthene chesthaanu antundhi ra!
+    Speaker 3: intlo already oka naanna unnaaru, mallee pelli chesukuni inko naannani thechukolenu ra baabu!
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: entra, subbalakshmito ni engagement inta sudden ga fix chesesaru?
+    Speaker 2: a amayini em adigina ma nanagaru cheptene chestanu antundi ra!
+    Speaker 3: intlo already oka nana unaru, mali peli chesukuni inko nanani techukolenu ra babu!
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: Antra, subbalakshmito ni engagement inta sudden ga fix chesesaru?
+    Speaker 2: a ammayini m adigina ma nanagaru chaptene chestanu antundi ra!
+    Speaker 3: intlo already oka nana unaru, malli pelli chesukuni inko nanani techukolenu ra babu!
+
+[Bommarillu_2006_SC_0005] [00:35:10 -> 00:35:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: COMIC_TIMING] [GENRE: SATIRE_COMEDY] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 15.0%]
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: ఏంటి ఈ అమ్మాయి, అర్ధరాత్రి రోడ్డు మీద వర్షంలో ఒంటరిగా ఐస్ క్రీమ్ తింటుంది?
+    Speaker 2: నా పేరు హా... హా... హాసిని! నాకు చిన్నప్పటి నుంచి ఇలా వర్షంలో ఐస్ క్రీమ్ తినడం అంటే ఫుల్ ఇష్టం తెలుసా?
+    Speaker 3: అంతేనా? ఇంకేం కావాలి? జీవితంలో ఇలా చిన్న చిన్న సరదాలు ఉంటేనే కదా కిక్ ఉండేది!
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: yenti ee ammaayi, ardharaathri roddu meedha varshamlo ontariga ice cream thintundhi?
+    Speaker 2: na peru ha... ha... haasini! naaku chinnappati nunchi ila varshamlo ice cream thinadam ante full ishtam thelusaa?
+    Speaker 3: anthena? inkem kaavaali? jeevithamlo ila chinna chinna saradhaalu untene kadha kick undedhi!
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: enti i amayi, ardaratri rodu mida varshamlo ontariga ice cream tintundi?
+    Speaker 2: na peru ha... ha... hasini! naku chinapati nunchi ila varshamlo ice cream tinadam ante full ishtam telsa?
+    Speaker 3: antena? inkem kavali? jivitamlo ila china china saradalu untene kada kick undedi!
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: Anti i ammayi, ardaratri roddu mida varshamlo ontariga ice cream tintundi?
+    Speaker 2: na peru ha... ha... hasini! nku chinapati nunchi ila varshamlo ice cream tinadam ante full ishtam talsa?
+    Speaker 3: antena? inkem kavali? jivitamlo ila china china saradalu untene kada kick undedi!
+
+[Bommarillu_2006_SC_0006] [00:46:10 -> 00:46:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: PHILOSOPHICAL] [GENRE: FAMILY_DRAMA] [DIALECT: STANDARD_TELUGU] [EN_CMI: 9.09%]
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: హాసిని, మనం ఇద్దరం రోజూ ఇలా గుడి మెట్ల మీద కూర్చొని సీక్రెట్ గా మాట్లాడుకోవడం భలే ఉంది కదా.
+    Speaker 2: వీలైతే నాలుగు మాటలు, కుదిరితే కప్పు కాఫీ... అంతే కదా సిద్దూ?
+    Speaker 3: అంతే హాసిని, నీతో మాట్లాడుతుంటే టైమ్ ఎలా గడిచిపోతుందో అసలు తెలియట్లేదు.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: haasini, manam iddharam roju ila gudi metla meedha kurchoni secret ga maatlaadukovadam bhale undhi kadha.
+    Speaker 2: veelaithe naalugu maatalu, kudhirithe kappu coffee... anthe kadha siddhu?
+    Speaker 3: anthe haasini, neetho maatlaaduthunte time yela gadichipothundho asalu theliyatledhu.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: hasini, manam idaram roju ila gudi metla mida kurchoni secret ga matladukovadam bale undi kada.
+    Speaker 2: vilaite nalugu matalu, kudirite kapu coffee... ante kada sidu?
+    Speaker 3: ante hasini, nito matladutunte time ela gadichipotundo aslu teliyatledu.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: hasini, manam iddaram roju ila gudi metla mida kurchoni secret ga matladukovadam bale undi kada.
+    Speaker 2: vilaite nalugu matalu, kudirite kapu coffee... ante kada siddu?
+    Speaker 3: ante hasini, nito matladutunte time la gadichipotundo aslu teliyatledu.
+
+[Bommarillu_2006_SC_0007] [00:58:10 -> 00:58:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: ELEVATION_PUNCH] [GENRE: MASS_ACTION] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 19.44%]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: నిన్ను కలిసాక ఫస్ట్ టైం నేను నా లైఫ్ లో ఇంత హ్యాపీగా ఉన్నాను హాసిని.
+    Speaker 2: నిజంగా చెప్తున్నావా సిద్దూ? మరి మీ ఇంట్లో వాళ్ళకి మన ప్రేమ గురించి ఎప్పుడు చెప్తావు?
+    Speaker 3: నాకు ఈ హ్యాపీనెస్ లైఫ్ లాంగ్ కావాలి హాసిని, త్వరలోనే మా నాన్నతో ధైర్యంగా మాట్లాడతాను.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: ninnu kalisaaka first time nenu na life lo intha happy-ga unnaanu haasini.
+    Speaker 2: nijanga chepthunnaava siddhu? mari mee intlo vaallaki mana prema gurinchi eppudu chepthaavu?
+    Speaker 3: naaku ee happiness life long kaavaali haasini, thvaralone ma naannatho dhairyanga maatlaadathaanu.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: ninu kalisaka first time nenu na life lo inta happy-ga unanu hasini.
+    Speaker 2: nijanga cheptunava sidu? mari mi intlo valaki mana prema gurinchi epudu cheptavu?
+    Speaker 3: naku i happiness life long kavali hasini, tvaralone ma nanato dairyanga matladatanu.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: ninu kalisaka first time nenu na life lo inta happy-ga unanu hasini.
+    Speaker 2: nijanga chaptunava siddu? mari mi intlo vallaki mana prema gurinchi epudu chaptavu?
+    Speaker 3: nku i happiness life long kavali hasini, tvaralone ma nanato dairyanga matladatanu.
+
+[Bommarillu_2006_SC_0008] [01:12:10 -> 01:12:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: ANGRY_WARNING] [GENRE: MASS_ACTION] [DIALECT: STANDARD_TELUGU] [EN_CMI: 5.41%]
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: అంకుల్, మీ అమ్మాయి హాసిని అంటే నాకు ప్రాణం, కానీ మా నాన్న నాకు వేరే అమ్మాయితో ఎంగేజ్‌మెంట్ చేశారు!
+    Speaker 2: ఏంట్రా నువ్వు మాట్లాడేది? ఒక అమ్మాయితో ఎంగేజ్‌మెంట్ పెట్టుకుని నా కూతురి వెంట పడతావా?
+    Speaker 3: తప్పు నాది కాదు అంకుల్, మా నాన్న భయం వల్లే ఇన్నాళ్లూ నిజం దాచిపెట్టాను.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: uncle, mee ammaayi haasini ante naaku praanam, kaanee ma naanna naaku vere ammaayitho engagement cheshaaru!
+    Speaker 2: yentra nuvvu maatlaadedhi? oka ammaayitho engagement pettukuni na kuthuri venta padathaava?
+    Speaker 3: thappu naadhi kaadhu uncle, ma naanna bhayam valle innaallu nijam dhaachipettaanu.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: uncle, mi amayi hasini ante naku pranam, kani ma nana naku vere amayito engagement chesaru!
+    Speaker 2: entra nuvu matladedi? oka amayito engagement petukuni na kuturi venta padatava?
+    Speaker 3: tapu nadi kadu uncle, ma nana bayam vale inalu nijam dachipetanu.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: uncle, mi ammayi hasini ante nku pranam, kani ma nana nku vere ammayito engagement chesaru!
+    Speaker 2: Antra nv matladedi? oka ammayito engagement patukuni na kuturi venta padatava?
+    Speaker 3: tapu nadi kadu uncle, ma nana bayam valle inallu nijam dachipatanu.
+
+[Bommarillu_2006_SC_0009] [01:25:10 -> 01:25:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: COMIC_TIMING] [GENRE: SATIRE_COMEDY] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 12.2%]
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: హాసిని, నువ్వు ఒక్క ఏడు రోజులు మా ఇంట్లో ఉండు, మా ఫ్యామిలీ అందరికీ నువ్వు నచ్చేలా చేస్తాను.
+    Speaker 2: మీ ఇల్లు ఏంటి సిద్దూ ఇంత సైలెంట్ గా బొమ్మరిల్లు లాగా ఉంది? ఇక్కడ నవ్వితే కూడా ఫైన్ వేస్తారా?
+    Speaker 3: ప్లీజ్ హాసిని, ఒక్క వారం రోజులు కొంచెం జాగ్రత్తగా ఉండు, తర్వాత అంతా సెట్ అయిపోతుంది.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: haasini, nuvvu okka yedu rojulu ma intlo undu, ma family andharikee nuvvu nachela chesthaanu.
+    Speaker 2: mee illu yenti siddhu intha silent ga bommarillu laaga undhi? ikkada navvithe kuda fine vesthaara?
+    Speaker 3: please haasini, okka vaaram rojulu konchem jaagratthaga undu, tharvaatha antha set ayipothundhi.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: hasini, nuvu oka edu rojulu ma intlo undu, ma family andariki nuvu nachela chestanu.
+    Speaker 2: mi ilu enti sidu inta silent ga bomarilu laga undi? ikada navite kuda fine vestara?
+    Speaker 3: please hasini, oka varam rojulu konchem jagrataga undu, tarvata anta set ayipotundi.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: hasini, nv oka edu rojulu ma intlo undu, ma family andariki nv nachela chestanu.
+    Speaker 2: mi illu Anti siddu inta silent ga bommarillu laga undi? ikada navvite kuda fine vestara?
+    Speaker 3: please hasini, oka varam rojulu konchem jagrataga undu, tarvata anta set ayipotundi.
+
+[Bommarillu_2006_SC_0010] [01:40:10 -> 01:40:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: COMIC_TIMING] [GENRE: SATIRE_COMEDY] [DIALECT: URBAN_HYDERABAD] [EN_CMI: 21.21%]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: ఆంటీ, ఈరోజు వంట అంతా నేనే స్వయంగా చేస్తాను, మీరు రెస్ట్ తీసుకోండి!
+    Speaker 2: అమ్మో, కిచెన్ లో ఉప్పు డబ్బా ఎక్కడుందో కారం డబ్బా ఎక్కడుందో మొత్తం మార్చేసావు కదమ్మా!
+    Speaker 3: అయ్యో సారీ ఆంటీ, అందరికీ హెల్ప్ చేద్దామని వచ్చాను కానీ మొత్తం మెస్ అయిపోయింది.
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: aunty, eeroju vanta antha nene svayanga chesthaanu, meeru rest theesukondi!
+    Speaker 2: ammo, kitchen lo uppu dabba ekkadundho kaaram dabba ekkadundho mottham maarchesaavu kadhamma!
+    Speaker 3: ayyo sorry aunty, andharikee help cheddhaamani vachaanu kaanee mottham mess ayipoyindhi.
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: aunty, iroju vanta anta nene svayanga chestanu, miru rest tisukondi!
+    Speaker 2: amo, kitchen lo upu dabba ekadundo karam dabba ekadundo motam marchesavu kadama!
+    Speaker 3: ayyo sorry aunty, andariki help chedamani vachanu kani motam mess ayipoyindi.
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: aunty, iroju vanta anta nene svayanga chestanu, miru rest tisukondi!
+    Speaker 2: ammo, kitchen lo upu dabba ekadundo karam dabba ekadundo motam marchesavu kadamma!
+    Speaker 3: ayyo sorry aunty, andariki help cheddamani vachanu kani motam mess ayipoyindi.
+
+[Bommarillu_2006_SC_0011] [01:58:10 -> 01:58:24] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: HEARTBREAK] [GENRE: FAMILY_DRAMA] [DIALECT: STANDARD_TELUGU] [EN_CMI: 2.63%]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: ఇంతకు ముందు కూడా సిద్దూ నన్ను తిట్టేవాడు అంకుల్, కానీ అందులో ప్రేమ కనిపించేది, ఇప్పుడు అది లేదు.
+    Speaker 2: వీడు నాకు వద్దు! ఎందుకంటే ఒకప్పుడు వీలైతే నాలుగు మాటలు అన్నాడు, ఇప్పుడు అసలు మాట్లాడొద్దు అంటున్నాడు.
+    Speaker 3: ఒకప్పుడు నాలో ఏం నచ్చింది అన్నాడో ఇప్పుడు అదే నచ్చట్లేదు అంటున్నాడు, అందుకే వెళ్ళిపోతున్నాను!
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: inthaku mundhu kuda siddhu nannu thittevaadu uncle, kaanee andhulo prema kanipinchedhi, ippudu adhi ledhu.
+    Speaker 2: veedu naaku vaddhu! endhukante okappudu veelaithe naalugu maatalu annaadu, ippudu asalu maatlaadoddhu antunnaadu.
+    Speaker 3: okappudu naalo yem nachindhi annaado ippudu adhe nachatledhu antunnaadu, andhuke vellipothunnaanu!
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: intaku mundu kuda sidu nanu titevadu uncle, kani andulo prema kanipinchedi, ipudu adi ledu.
+    Speaker 2: vidu naku vadu! endukante okapudu vilaite nalugu matalu anadu, ipudu aslu matladodu antunadu.
+    Speaker 3: okapudu nalo em nachindi anado ipudu ade nachatledu antunadu, anduke velipotunanu!
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: intaku mundu kuda siddu nanu titevadu uncle, kani andulo prema kanipinchedi, ipdu adi ledu.
+    Speaker 2: vidu nku vaddu! endukante okapudu vilaite nalugu matalu anadu, ipdu aslu matladoddu antunadu.
+    Speaker 3: okapudu nalo m nachindi anado ipdu ade nachatledu antunadu, anduke vallipotunanu!
+
+[Bommarillu_2006_SC_0012] [02:12:10 -> 02:12:25] [ERA: 2000s] [STYLE: BHASKAR_ABBURI_RAVI] [EMOTION: HEARTBREAK] [GENRE: FAMILY_DRAMA] [DIALECT: STANDARD_TELUGU] [EN_CMI: 5.71%]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  [TELUGU SCRIPT]
+    Speaker 1: మొత్తం మీరే చేశారు నాన్న! మీకు నచ్చినట్టు ఉండలేక, నాకు నచ్చింది చేయలేక ఇన్నాళ్లూ నాటకం ఆడాను నాన్న!
+    Speaker 2: కోరుకున్నది దొరక్కపోతే ఉండే బాధ మీకు తెలియదు నాన్న, నాకు తెలుసు!
+    Speaker 3: నా లైఫ్‌లో రెండు నాకు నచ్చినట్టు జరగాలి... ఒకటి నా కెరీర్, రెండు నా పెళ్లి!
+  [STANDARD TENGLISH (P1)]
+    Speaker 1: mottham meere cheshaaru naanna! meeku nachinattu undaleka, naaku nachindhi cheyaleka innaallu naatakam aadaanu naanna!
+    Speaker 2: korukunnadhi dhorakkapothe unde baadha meeku theliyadhu naanna, naaku thelusu!
+    Speaker 3: na life-lo rendu naaku nachinattu jaragaali... okati na career, rendu na pelli!
+  [MINIMALIST TENGLISH (P2)]
+    Speaker 1: motam mire chesaru nana! miku nachinatu undaleka, naku nachindi cheyaleka inalu natakam adanu nana!
+    Speaker 2: korukunadi dorakapote unde bada miku teliyadu nana, naku telusu!
+    Speaker 3: na life-lo rendu naku nachinatu jaragali... okati na career, rendu na peli!
+  [BROKEN / ACROPHONIC TENGLISH (P4)]
+    Speaker 1: motam mire chesaru nana! miku nachinatu undaleka, nku nachindi cheyaleka inallu natakam adanu nana!
+    Speaker 2: korukunadi dorakapote unde bada miku teliyadu nana, nku talusu!
+    Speaker 3: na life-lo rendu nku nachinatu jaragali... okati na career, rendu na pelli!
+
