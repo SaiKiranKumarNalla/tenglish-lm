@@ -2,7 +2,7 @@
   "gate_number": 1,
   "milestone_name": "Milestone 1: Core Telugu Movie/Literature Seed & Director Stylometry",
   "status": "APPROVED",
-  "timestamp_utc": "2026-11-10T11:12:01.536162+00:00",
+  "timestamp_utc": "2026-11-10T12:51:08.100728+00:00",
   "checklist": {
     "all_scenes_have_valid_era_genre_emotion_director_tags": true,
     "bgm_and_asr_noise_loops_stripped": true,

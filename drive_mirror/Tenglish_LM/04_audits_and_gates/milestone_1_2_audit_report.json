@@ -30,7 +30,7 @@
     {
       "era": "2010s",
       "scene_count": 3,
-      "avg_english_pct": 24.8,
+      "avg_english_pct": 25.75,
       "hybrid_fused_tokens": 0,
       "light_verb_compounds": 4
     },
@@ -286,24 +286,24 @@
           "పరిస్థితులకు తలొగ్గేవాడు సామాన్యుడు, కష్టాల్లో కూడా నిజాయితీగా నిలబడేవాడే గొప్పవాడు."
         ],
         "P1_STANDARD_TENGLISH": [
-          "manishiki maate pranam abbay, aa maata thappithe ika viluva emuntundi?",
-          "kani situations మారినప్పుడు మనుషులు కూడా మారుతున్నారు కదా తాతయ్య.",
-          "పరిస్థితులకు తలొగ్గేవాడు సామాన్యుడు, కష్టాల్లో కూడా నిజాయితీగా నిలబడేవాడే గొప్పవాడు."
+          "manishiki maate praanam abbaay, aa maata thappithe ika viluva yemuntundhi?",
+          "kaanee situations maarinappudu manushulu kooda maaruthunnaaru kadha thaathayya.",
+          "paristhithulaku thaloggevaadu saamaanyudu, kashtaallo kooda nijaayitheega nilabadevaade goppavaadu."
         ],
         "P2_MINIMAL_TENGLISH": [
-          "manishiki maate pranam abbay, aa maata tappite ika viluva emuntundi?",
-          "kani situations మారినప్పుడు మనుషులు కూడా మారుతున్నారు కదా తాతయ్య.",
-          "పరిస్థితులకు తలొగ్గేవాడు సామాన్యుడు, కష్టాల్లో కూడా నిజాయితీగా నిలబడేవాడే గొప్పవాడు."
+          "manishiki mate pranam abbay, a mata tapite ika viluva emuntundi?",
+          "kani situations marinapudu manushulu kuda marutunaru kada tatayya.",
+          "paristitulaku taloggevadu samanyudu, kashtalo kuda nijayitiga nilabadevade gopavadu."
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "manishikii maate pranam abbay, aaa maataa thappithe ikaa viluvaa emuntundii?",
-          "kanii situations మారినప్పుడు మనుషులు కూడా మారుతున్నారు కదా తాతయ్య.",
-          "పరిస్థితులకు తలొగ్గేవాడు సామాన్యుడు, కష్టాల్లో కూడా నిజాయితీగా నిలబడేవాడే గొప్పవాడు."
+          "manishikii maatey praanam abbaay, aa maataa thappithey ika viluvaa yemuntundhii?",
+          "kaaneee situations maarinappuduu manushuluu koodaaa maaruthunnaaruu kadhaaa thaathayyaa.",
+          "paristhithulakuu thaloggevaaduu saamaanyuduu, kashtaalloo koodaaa nijaayitheegaaa nilabadevaadey goppavaaduu."
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "manishiki maate pranam abbay, aa maata tappite ika viluva emuntundi?",
-          "kani situations మారినప్పుడు మనుషులు కూడా మారుతున్నారు కదా తాతయ్య.",
-          "పరిస్థితులకు తలొగ్గేవాడు సామాన్యుడు, కష్టాల్లో కూడా నిజాయితీగా నిలబడేవాడే గొప్పవాడు."
+          "manishiki mate pranam abbay, a mata tapite ika viluva emuntundi?",
+          "kani situations marinapudu manushulu kuda marutunaru kada tatayya.",
+          "paristitulaku taloggevadu samanyudu, kashtallo kuda nijayitiga nilabadevade gopavadu."
         ]
       },
       "archon_homograph_resolutions": []
@@ -493,24 +493,24 @@
           "అయ్యో, అది సంతోషించాల్సిన విషయమే కదండీ, ఇంతకీ రైలు ఖర్చులకు డబ్బులు ఇచ్చారా లేదా?"
         ],
         "P1_STANDARD_TENGLISH": [
-          "ఏమండోయ్ శాస్త్రి గారూ, తమరు పొద్దున్నే ఇలా హడావిడిగా ఎక్కడికి బయలుదేరారు?",
-          "yem చెప్పమంటారు సుబ్బారావు గారూ, ma ఆవిడ పుట్టింటికి వెళ్తానని భీష్మించుకొని కూర్చుంది!",
-          "అయ్యో, అది సంతోషించాల్సిన విషయమే కదండీ, ఇంతకీ రైలు ఖర్చులకు డబ్బులు ఇచ్చారా లేదా?"
+          "yemandoy shaasthri gaaroo, thamaru podhdhunne ila hadaavidiga ekkadiki bayaludheraaru?",
+          "yem cheppamantaaru subbaaraavu gaaroo, ma aavida puttintiki velthaanani bheeshminchukoni koorchundhi!",
+          "ayyo, adhi santhoshinchaalsina vishayame kadhandee, inthakee railu kharchulaku dabbulu ichchaara ledha?"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "ఏమండోయ్ శాస్త్రి గారూ, తమరు పొద్దున్నే ఇలా హడావిడిగా ఎక్కడికి బయలుదేరారు?",
-          "em చెప్పమంటారు సుబ్బారావు గారూ, ma ఆవిడ పుట్టింటికి వెళ్తానని భీష్మించుకొని కూర్చుంది!",
-          "అయ్యో, అది సంతోషించాల్సిన విషయమే కదండీ, ఇంతకీ రైలు ఖర్చులకు డబ్బులు ఇచ్చారా లేదా?"
+          "emandoy sastri garu, tamaru podune ila hadavidiga ekadiki bayaluderaru?",
+          "em chepamantaru subbaravu garu, ma avida putintiki veltanani bishminchukoni kurchundi!",
+          "ayyo, adi santoshinchalsina vishayame kadandi, intaki railu karchulaku dabbulu ichchara leda?"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "ఏమండోయ్ శాస్త్రి గారూ, తమరు పొద్దున్నే ఇలా హడావిడిగా ఎక్కడికి బయలుదేరారు?",
-          "yemmm చెప్పమంటారు సుబ్బారావు గారూ, maa ఆవిడ పుట్టింటికి వెళ్తానని భీష్మించుకొని కూర్చుంది!",
-          "అయ్యో, అది సంతోషించాల్సిన విషయమే కదండీ, ఇంతకీ రైలు ఖర్చులకు డబ్బులు ఇచ్చారా లేదా?"
+          "yemandoy shaasthrii gaarooo, thamaruu podhdhunney ilaaa hadaavidigaaa yekkadikiii bayaludheraaruu?",
+          "yemmm cheppamantaaruu subbaaraavuu gaarooo, maa aavidaa puttintikii velthaananii bheeshminchukonii koorchundhii!",
+          "ayyoo, adhii santhoshinchaalsinaa vishayamey kadhandeee, inthakeee railuu kharchulakuu dabbuluu ichchaaraaa ledhaaa?"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "ఏమండోయ్ శాస్త్రి గారూ, తమరు పొద్దున్నే ఇలా హడావిడిగా ఎక్కడికి బయలుదేరారు?",
-          "m చెప్పమంటారు సుబ్బారావు గారూ, ma ఆవిడ పుట్టింటికి వెళ్తానని భీష్మించుకొని కూర్చుంది!",
-          "అయ్యో, అది సంతోషించాల్సిన విషయమే కదండీ, ఇంతకీ రైలు ఖర్చులకు డబ్బులు ఇచ్చారా లేదా?"
+          "emandoy sastri garu, tamaru poddune ila hadavidiga kkadiki bayaluderaru?",
+          "m chapamantaru subbaravu garu, ma avida putintiki veltanani bishminchukoni kurchundi!",
+          "ayyo, adi santoshinchalsina vishayame kadandi, intaki railu karchulaku dabbulu ichchara leda?"
         ]
       },
       "archon_homograph_resolutions": [
@@ -520,7 +520,7 @@
           "meaning": "Canonical Telugu match",
           "confidence": 0.98,
           "escalated_to_archon": false,
-          "context_sentence": "m చెప్పమంటారు సుబ్బారావు గారూ, ma ఆవిడ పుట్టింటికి వెళ్తానని భీష్మించుకొని కూర్చుంది!"
+          "context_sentence": "m chapamantaru subbaravu garu, ma avida putintiki veltanani bishminchukoni kurchundi!"
         }
       ]
     },
@@ -709,24 +709,24 @@
           "ఆహా! ఆయన సెలవు పెడితే నువ్వు పుస్తకాలు మూసేసి ఇలా రోడ్ల మీద తిరుగుతావా?"
         ],
         "P1_STANDARD_TENGLISH": [
-          "ఏరా abbay, college-ki వెళ్ళకుండా ఇక్కడ bus stop దగ్గర yem chesthunnavu?",
-          "అది కాదండీ నాన్నగారూ, ma lecturer గారు ఈరోజు సెలవు పెట్టారు.",
-          "ఆహా! ఆయన సెలవు పెడితే nuvvu పుస్తకాలు మూసేసి ఇలా రోడ్ల meeda తిరుగుతావా?"
+          "yera abbaay, college-ki vellakunda ikkada bus stop dhaggara yem chesthunnavu?",
+          "adhi kaadhandee naannagaaroo, ma lecturer gaaru eeroju selavu pettaaru.",
+          "aaha! aayana selavu pedithe nuvvu pusthakaalu moosesi ila rodla meedha thiruguthaava?"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "ఏరా abbay, college-ki వెళ్ళకుండా ఇక్కడ bus stop దగ్గర em chestunav?",
-          "అది కాదండీ నాన్నగారూ, ma lecturer గారు ఈరోజు సెలవు పెట్టారు.",
-          "ఆహా! ఆయన సెలవు పెడితే nuvu పుస్తకాలు మూసేసి ఇలా రోడ్ల mida తిరుగుతావా?"
+          "era abbay, college-ki velakunda ikada bus stop daggara em chestunav?",
+          "adi kadandi nanagaru, ma lecturer garu iroju selavu petaru.",
+          "aha! ayana selavu pedite nuvu pustakalu musesi ila rodla mida tirugutava?"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "ఏరా abbay, college-ki వెళ్ళకుండా ఇక్కడ bus stop దగ్గర yemmm chesthunnaav?",
-          "అది కాదండీ నాన్నగారూ, maa lecturer గారు ఈరోజు సెలవు పెట్టారు.",
-          "ఆహా! ఆయన సెలవు పెడితే nuvvuuu పుస్తకాలు మూసేసి ఇలా రోడ్ల meedaa తిరుగుతావా?"
+          "yeraaa abbaay, college-ki vellakundaaa ikkadaa bus stop dhaggaraa yemmm chesthunnaav?",
+          "adhii kaadhandeee naannagaarooo, maa lecturer gaaruu eerojuu selavuu pettaaruu.",
+          "aahaaa! aayanaa selavuu pedithey nuvvuuu pusthakaaluu moosesii ilaaa rodlaa meedhaa thiruguthaavaaa?"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "ఏరా abbay, college-ki వెళ్ళకుండా ఇక్కడ bus stop దగ్గర m chstnv?",
-          "అది కాదండీ నాన్నగారూ, ma lecturer గారు ఈరోజు సెలవు పెట్టారు.",
-          "ఆహా! ఆయన సెలవు పెడితే nv పుస్తకాలు మూసేసి ఇలా రోడ్ల meeda తిరుగుతావా?"
+          "era abbay, college-ki vallakunda ikada bus stop daggara m chstnv?",
+          "adi kadandi nanagaru, ma lecturer garu iroju selavu pataru.",
+          "aha! ayana selavu pedite nv pustakalu musesi ila rodla mida tirugutava?"
         ]
       },
       "archon_homograph_resolutions": [
@@ -736,7 +736,7 @@
           "meaning": "What ('M' letter-name acrophony for ఏం)",
           "confidence": 0.93,
           "escalated_to_archon": true,
-          "context_sentence": "ఏరా abbay, college-ki వెళ్ళకుండా ఇక్కడ bus stop దగ్గర m chstnv?"
+          "context_sentence": "era abbay, college-ki vallakunda ikada bus stop daggara m chstnv?"
         }
       ]
     },
@@ -900,24 +900,24 @@
           "ఒక్కసారి కత్తి పడితే వెనక్కి తగ్గే రక్తం కాదురా ఇది, జాగ్రత్త!"
         ],
         "P1_STANDARD_TENGLISH": [
-          "ఏందిరా, ma ఊరి పొలిమేరల్లోకి వచ్చి మాకే ఎదురు తిరుగుతావా?",
-          "న్యాయం ఎక్కడుంటే అక్కడికి రావడానికి naaku ఎవ్వడి permission అక్కర్లేదు.",
-          "ఒక్కసారి కత్తి పడితే వెనక్కి తగ్గే రక్తం కాదురా ఇది, జాగ్రత్త!"
+          "yendhira, ma oori polimeralloki vachchi maake edhuru thiruguthaava?",
+          "nyaayam ekkadunte akkadiki raavadaaniki naaku evvadi permission akkarledhu.",
+          "okkasaari kaththi padithe venakki thagge raktham kaadhura idhi, jaagraththa!"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "ఏందిరా, ma ఊరి పొలిమేరల్లోకి వచ్చి మాకే ఎదురు తిరుగుతావా?",
-          "న్యాయం ఎక్కడుంటే అక్కడికి రావడానికి naku ఎవ్వడి permission అక్కర్లేదు.",
-          "ఒక్కసారి కత్తి పడితే వెనక్కి తగ్గే రక్తం కాదురా ఇది, జాగ్రత్త!"
+          "endira, ma uri polimeraloki vachchi make eduru tirugutava?",
+          "nyayam ekadunte akadiki ravadaniki naku evadi permission akarledu.",
+          "okasari kati padite venaki tagge raktam kadura idi, jagrata!"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "ఏందిరా, maa ఊరి పొలిమేరల్లోకి వచ్చి మాకే ఎదురు తిరుగుతావా?",
-          "న్యాయం ఎక్కడుంటే అక్కడికి రావడానికి naakuuu ఎవ్వడి permission అక్కర్లేదు.",
-          "ఒక్కసారి కత్తి పడితే వెనక్కి తగ్గే రక్తం కాదురా ఇది, జాగ్రత్త!"
+          "yendhiraaa, maa oorii polimerallokii vachchii maakey edhuruu thiruguthaavaaa?",
+          "nyaayam ekkaduntey akkadikii raavadaanikii naakuuu evvadii permission akkarledhuu.",
+          "okkasaarii kaththii padithey venakkii thaggey raktham kaadhuraaa idhii, jaagraththaa!"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "ఏందిరా, ma ఊరి పొలిమేరల్లోకి వచ్చి మాకే ఎదురు తిరుగుతావా?",
-          "న్యాయం ఎక్కడుంటే అక్కడికి రావడానికి nku ఎవ్వడి permission అక్కర్లేదు.",
-          "ఒక్కసారి కత్తి పడితే వెనక్కి తగ్గే రక్తం కాదురా ఇది, జాగ్రత్త!"
+          "Andira, ma uri polimeralloki vachchi make eduru tirugutava?",
+          "nyayam ekadunte akadiki ravadaniki nku evvadi permission akarledu.",
+          "okasari kati padite venaki tagge raktam kadura idi, jagrata!"
         ]
       },
       "archon_homograph_resolutions": []
@@ -1132,24 +1132,24 @@
           "నిజం దాచిపెట్టి నన్ను మోసం చేయడం కంటే, ఆ రోజే నన్ను వదిలేసి వెళ్ళిపోవాల్సింది."
         ],
         "P1_STANDARD_TENGLISH": [
-          "ఇన్నాళ్లూ మన మధ్య ఉన్న bonding అంతా scam ena? naaku ఒక్క maata కూడా చెప్పాలనిపించలేదా?",
-          "చెప్పాలని చాలాసార్లు try chesna ra, kani నీ ముఖం చూసి nijam చెప్పే ధైర్యం రాలేదు.",
-          "nijam దాచిపెట్టి నన్ను ghost cheyadam kante, aa రోజే నన్ను వదిలేసి వెళ్ళిపోవాల్సింది."
+          "innaalloo mana madhya unna bonding antha scam ena? naaku okka maata kooda cheppaalanipinchaledha?",
+          "cheppaalani chaalaasaarlu try chesna ra, kaanee nee mukham choosi fact cheppe guts raaledhu.",
+          "fact dhaachipetti nannu ghost cheyadam kante, aa roje nannu vadhilesi vellipovaalsindhi."
         ],
         "P2_MINIMAL_TENGLISH": [
-          "ఇన్నాళ్లూ మన మధ్య ఉన్న bonding అంతా scam ena? naku ఒక్క maata కూడా చెప్పాలనిపించలేదా?",
-          "చెప్పాలని చాలాసార్లు try chesna ra, kani నీ ముఖం చూసి nijam చెప్పే ధైర్యం రాలేదు.",
-          "nijam దాచిపెట్టి నన్ను ghost cheyadam kante, aa రోజే నన్ను వదిలేసి వెళ్ళిపోవాల్సింది."
+          "inalu mana madya una bonding anta scam ena? naku oka mata kuda chepalanipinchaleda?",
+          "chepalani chalasarlu try chesna ra, kani ni mukam chusi fact chepe guts raledu.",
+          "fact dachipeti nanu ghost cheyadam kante, a roje nanu vadilesi velipovalsindi."
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "ఇన్నాళ్లూ మన మధ్య ఉన్న bonding అంతా scam ena? naakuuu ఒక్క maataa కూడా చెప్పాలనిపించలేదా?",
-          "చెప్పాలని చాలాసార్లు try chesna raa, kanii నీ ముఖం చూసి nijam చెప్పే ధైర్యం రాలేదు.",
-          "nijam దాచిపెట్టి నన్ను ghost cheyadam kante, aaa రోజే నన్ను వదిలేసి వెళ్ళిపోవాల్సింది."
+          "innaallooo manaa madhyaa unnaa bonding anthaaa scam ena? naakuuu okkaa maataa koodaaa cheppaalanipinchaledhaaa?",
+          "cheppaalanii chaalaasaarluu try chesna raa, kaaneee nee mukham choosii fact cheppey guts raaledhuu.",
+          "fact dhaachipettii nannuu ghost cheyadam kantey, aa rojey nannuu vadhilesii vellipovaalsindhii."
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "ఇన్నాళ్లూ మన మధ్య ఉన్న bonding అంతా scam ena? nku ఒక్క maata కూడా చెప్పాలనిపించలేదా?",
-          "చెప్పాలని చాలాసార్లు try chesna ra, kani నీ ముఖం చూసి nijam చెప్పే ధైర్యం రాలేదు.",
-          "nijam దాచిపెట్టి నన్ను ghost cheyadam kante, aa రోజే నన్ను వదిలేసి వెళ్ళిపోవాల్సింది."
+          "inallu mana madya una bonding anta scam ena? nku oka mata kuda chapalanipinchaleda?",
+          "chapalani chalasarlu try chesna ra, kani ni mukam chusi fact chape guts raledu.",
+          "fact dachipati nanu ghost cheyadam kante, a roje nanu vadilesi vallipovalsindi."
         ]
       },
       "archon_homograph_resolutions": []
@@ -1379,24 +1379,24 @@
           "యుద్ధంలో గెలవడం అంటే శత్రువుని చంపడం కాదు... మనల్ని మనం గెలవడం. ప్రేమలో ఓడిపోయినా పర్లేదు రా."
         ],
         "P1_STANDARD_TENGLISH": [
-          "nijam cheppalante naaku thana meeda trigger ledhu ra, kani thanani marchipovadam matram na valla kaavatledhu.",
-          "ప్రేమించేటప్పుడు ఉన్న ధైర్యం, aa ప్రేమని నిలబెట్టుకునేటప్పుడు endhuku ఉండదు ra మీకు?",
-          "యుద్ధంలో గెలవడం అంటే శత్రువుని చంపడం కాదు... మనల్ని మనం గెలవడం. ప్రేమలో ఓడిపోయినా పర్లేదు ra."
+          "fact cheppaalante naaku thana meedha trigger ledhu ra, kaanee thanani marchipovadam maathram na valla kaavatledhu.",
+          "preminchetappudu unna guts, aa premani nilabettukunetappudu endhuku undadhu ra meeku?",
+          "yudhdhanlo gelavadam ante shathruvuni champadam kaadhu... manalni manam gelavadam. premalo odipoyina parledhu ra."
         ],
         "P2_MINIMAL_TENGLISH": [
-          "nijam cheppalante naku tana mida trigger ledu ra, kani tanani marchipovadam matram na valla kavatledu.",
-          "ప్రేమించేటప్పుడు ఉన్న ధైర్యం, aa ప్రేమని నిలబెట్టుకునేటప్పుడు enduku ఉండదు ra మీకు?",
-          "యుద్ధంలో గెలవడం అంటే శత్రువుని చంపడం కాదు... మనల్ని మనం గెలవడం. ప్రేమలో ఓడిపోయినా పర్లేదు ra."
+          "fact chepalante naku tana mida trigger ledu ra, kani tanani marchipovadam matram na vala kavatledu.",
+          "preminchetapudu una guts, a premani nilabetukunetapudu enduku undadu ra miku?",
+          "yudanlo gelavadam ante satruvuni champadam kadu... manalni manam gelavadam. premalo odipoyina parledu ra."
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "nijam cheppalante naakuuu thanaa meedaa trigger ledhuu raa, kanii thananii marchipovadam matram naa vallaa kaavatleee.",
-          "ప్రేమించేటప్పుడు ఉన్న ధైర్యం, aaa ప్రేమని నిలబెట్టుకునేటప్పుడు yendhukuuu ఉండదు raa మీకు?",
-          "యుద్ధంలో గెలవడం అంటే శత్రువుని చంపడం కాదు... మనల్ని మనం గెలవడం. ప్రేమలో ఓడిపోయినా పర్లేదు raa."
+          "fact cheppaalantey naakuuu thanaa meedhaa trigger ledhuu raa, kaaneee thananii marchipovadam maathram naa vallaa kaavatleee.",
+          "preminchetappuduu unnaa guts, aa premanii nilabettukunetappuduu yendhukuuu undadhuu raa meekuu?",
+          "yudhdhanloo gelavadam antey shathruvunii champadam kaadhuu... manalnii manam gelavadam. premaloo odipoyinaaa parledhuu raa."
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "nijam chappalante nku tana meeda trigger ledhu ra, kani tanani marchipovadam matram na valla kavatle.",
-          "ప్రేమించేటప్పుడు ఉన్న ధైర్యం, aa ప్రేమని నిలబెట్టుకునేటప్పుడు nduku ఉండదు ra మీకు?",
-          "యుద్ధంలో గెలవడం అంటే శత్రువుని చంపడం కాదు... మనల్ని మనం గెలవడం. ప్రేమలో ఓడిపోయినా పర్లేదు ra."
+          "fact chapalante nku tana mida trigger ledu ra, kani tanani marchipovadam matram na valla kavatle.",
+          "preminchetapudu una guts, a premani nilabetukunetapudu nduku undadu ra miku?",
+          "yuddanlo gelavadam ante satruvuni champadam kadu... manalni manam gelavadam. premalo odipoyina parledu ra."
         ]
       },
       "archon_homograph_resolutions": []
@@ -1606,24 +1606,24 @@
           "నేను ఒక్కసారి కమిట్ అయితే నా మాట నేనే వినను, ఇక నీ వార్నింగ్ ఎవడు వింటాడు?"
         ],
         "P1_STANDARD_TENGLISH": [
-          "yenti bhayya, police station lo కూర్చొని కూడా ఇంత cool గా coffee తాగుతున్నావ్?",
-          "naaku భయం అనే feeling చిన్నప్పుడే operation chesi తీసేశారు ra.",
-          "నేను ఒక్కసారి commit అయితే na maata నేనే వినను, ika నీ warning ఎవడు వింటాడు?"
+          "yenti bhayya, police station lo koorchoni kooda intha cool ga coffee thaaguthunnaav?",
+          "naaku bhayam ane feeling chinnappude operation chesi theeseshaaru ra.",
+          "nenu okkasaari commit ayithe na maata nene vinanu, ika nee warning evadu vintaadu?"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "enti bhayya, police station lo కూర్చొని కూడా ఇంత cool గా coffee తాగుతున్నావ్?",
-          "naku భయం అనే feeling చిన్నప్పుడే operation chesi తీసేశారు ra.",
-          "నేను ఒక్కసారి commit అయితే na maata నేనే వినను, ika నీ warning ఎవడు వింటాడు?"
+          "enti bayya, police station lo kurchoni kuda inta cool ga coffee tagutunav?",
+          "naku bayam ane feeling chinapude operation chesi tisesaru ra.",
+          "nenu okasari commit ayite na mata nene vinanu, ika ni warning evadu vintadu?"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "yentiii bhayyaa, police station lo కూర్చొని కూడా ఇంత cool గా coffee తాగుతున్నావ్?",
-          "naakuuu భయం అనే feeling చిన్నప్పుడే operation chesii తీసేశారు raa.",
-          "నేను ఒక్కసారి commit అయితే naa maataa నేనే వినను, ikaa నీ warning ఎవడు వింటాడు?"
+          "yentiii bhayyaaa, police station lo koorchonii koodaaa inthaa cool gaa coffee thaaguthunnaav?",
+          "naakuuu bhayam aney feeling chinnappudey operation chesii theeseshaaruu raa.",
+          "nenuu okkasaarii commit ayithey naa maataa neney vinanuu, ika nee warning evaduu vintaaduu?"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "Anti bhayya, police station lo కూర్చొని కూడా ఇంత cool గా coffee తాగుతున్నావ్?",
-          "nku భయం అనే feeling చిన్నప్పుడే operation chesi తీసేశారు ra.",
-          "నేను ఒక్కసారి commit అయితే na maata నేనే వినను, ika నీ warning ఎవడు వింటాడు?"
+          "Anti bayya, police station lo kurchoni kuda inta cool ga coffee tagutunav?",
+          "nku bayam ane feeling chinapude operation chesi tisesaru ra.",
+          "nenu okasari commit ayite na mata nene vinanu, ika ni warning evadu vintadu?"
         ]
       },
       "archon_homograph_resolutions": [
@@ -1633,7 +1633,7 @@
           "meaning": "What (Gen-Z Acrophonic 'A' + 'nti')",
           "confidence": 0.95,
           "escalated_to_archon": true,
-          "context_sentence": "Anti bhayya, police station lo కూర్చొని కూడా ఇంత cool గా coffee తాగుతున్నావ్?"
+          "context_sentence": "Anti bayya, police station lo kurchoni kuda inta cool ga coffee tagutunav?"
         }
       ]
     },
@@ -1862,24 +1862,24 @@
           "మొత్తం మీరే డిసైడ్ చేసేస్తే ఇక నేను బతకడం ఎందుకు నాన్న? నా ఫీలింగ్స్ కి అసలు వాల్యూ లేదా?"
         ],
         "P1_STANDARD_TENGLISH": [
-          "నాన్న, na life lo ఏ decision అయినా నేనే తీసుకోవాలని ఎప్పుడైనా అడిగానా?",
-          "నీ మంచి కోసమే కదరా ఇదంతా చేస్తున్నాను, నీ career settle అవ్వాలని na తాపత్రయం.",
-          "motham మీరే decide చేసేస్తే ika నేను బతకడం endhuku నాన్న? na feelings ki asalu value లేదా?"
+          "naanna, na life lo ye decision ayina nene theesukovaalani eppudaina adigaana?",
+          "nee manchi kosame kadhara idhantha chesthunnaanu, nee career settle avvaalani na thaapathrayam.",
+          "moththam meere decide chesesthe ika nenu bathakadam endhuku naanna? na feelings ki asalu value ledha?"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "నాన్న, na life lo ఏ decision అయినా నేనే తీసుకోవాలని ఎప్పుడైనా అడిగానా?",
-          "నీ మంచి కోసమే కదరా ఇదంతా చేస్తున్నాను, నీ career settle అవ్వాలని na తాపత్రయం.",
-          "motam మీరే decide చేసేస్తే ika నేను బతకడం enduku నాన్న? na feelings ki aslu value లేదా?"
+          "nana, na life lo e decision ayina nene tisukovalani epudaina adigana?",
+          "ni manchi kosame kadara idanta chestunanu, ni career settle avalani na tapatrayam.",
+          "motam mire decide cheseste ika nenu batakadam enduku nana? na feelings ki aslu value leda?"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "నాన్న, naa life lo ఏ decision అయినా నేనే తీసుకోవాలని ఎప్పుడైనా అడిగానా?",
-          "నీ మంచి కోసమే కదరా ఇదంతా చేస్తున్నాను, నీ career settle అవ్వాలని naa తాపత్రయం.",
-          "motham మీరే decide చేసేస్తే ikaa నేను బతకడం yendhukuuu నాన్న? naa feelings kii assalu value లేదా?"
+          "naannaa, naa life lo ye decision ayinaaa neney theesukovaalanii eppudainaaa adigaanaaa?",
+          "nee manchii kosamey kadharaaa idhanthaaa chesthunnaanuu, nee career settle avvaalanii naa thaapathrayam.",
+          "moththam meerey decide chesesthey ika nenuu bathakadam yendhukuuu naannaa? naa feelings ki assalu value ledhaaa?"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "నాన్న, na life lo ఏ decision అయినా నేనే తీసుకోవాలని ఎప్పుడైనా అడిగానా?",
-          "నీ మంచి కోసమే కదరా ఇదంతా చేస్తున్నాను, నీ career settle అవ్వాలని na తాపత్రయం.",
-          "motam మీరే decide చేసేస్తే ika నేను బతకడం nduku నాన్న? na feelings ki aslu value లేదా?"
+          "nana, na life lo e decision ayina nene tisukovalani epudaina adigana?",
+          "ni manchi kosame kadara idanta chestunanu, ni career settle avvalani na tapatrayam.",
+          "motam mire decide cheseste ika nenu batakadam nduku nana? na feelings ki aslu value leda?"
         ]
       },
       "archon_homograph_resolutions": []
@@ -1896,11 +1896,11 @@
       "emotion": "ELEVATION_PUNCH",
       "cmi_metrics": {
         "total_words": 35,
-        "en_lexeme_pct": 28.57,
-        "cmi_gamback": 28.57,
+        "en_lexeme_pct": 31.43,
+        "cmi_gamback": 31.43,
         "counts": {
-          "TE": 25,
-          "EN": 9,
+          "TE": 24,
+          "EN": 10,
           "HYBRID_FUSED": 0,
           "LIGHT_VERB": 1
         },
@@ -1947,8 +1947,8 @@
           },
           {
             "token": "సార్,",
-            "tag": "TE",
-            "detail": "సార్"
+            "tag": "EN",
+            "detail": "సార్ -> sir"
           },
           {
             "token": "మనం",
@@ -2094,24 +2094,24 @@
           "ఎగ్జాక్ట్‌లీ! వాడు ఎమోషన్ తో కాదు, ప్యూర్ లాజిక్ తో గేమ్ ఆడుతున్నాడు."
         ],
         "P1_STANDARD_TENGLISH": [
-          "వాడు వేసిన ప్రతి plan వెనుక ఒక calculation ఉంది సార్, మనం normal గా overthink cheste దొరకడు.",
-          "అంటే ippudu వాడు మన next move ని కూడా ముందే guess చేశాడంటావా?",
-          "exactly! వాడు emotion తో కాదు, pure logic తో game ఆడుతున్నాడు."
+          "vaadu vesina prathi plan venuka oka calculation undhi sir, manam normal ga overthink cheste dhorakadu.",
+          "ante ippudu vaadu mana next move ni kooda mundhe guess cheshaadantaava?",
+          "exactly! vaadu emotion tho kaadhu, pure logic tho game aaduthunnaadu."
         ],
         "P2_MINIMAL_TENGLISH": [
-          "వాడు వేసిన ప్రతి plan వెనుక ఒక calculation ఉంది సార్, మనం normal గా overthink cheste దొరకడు.",
-          "అంటే ipudu వాడు మన next move ని కూడా ముందే guess చేశాడంటావా?",
-          "exactly! వాడు emotion తో కాదు, pure logic తో game ఆడుతున్నాడు."
+          "vadu vesina prati plan venuka oka calculation undi sir, manam normal ga overthink cheste dorakadu.",
+          "ante ipudu vadu mana next move ni kuda munde guess chesadantava?",
+          "exactly! vadu emotion to kadu, pure logic to game adutunadu."
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "వాడు వేసిన ప్రతి plan వెనుక ఒక calculation ఉంది సార్, మనం normal గా overthink cheste దొరకడు.",
-          "అంటే ippuduuu వాడు మన next move ని కూడా ముందే guess చేశాడంటావా?",
-          "exactly! వాడు emotion తో కాదు, pure logic తో game ఆడుతున్నాడు."
+          "vaaduu vesinaa prathii plan venukaa oka calculation undhii sir, manam normal gaa overthink cheste dhorakaduu.",
+          "antey ippuduuu vaaduu manaa next move ni koodaaa mundhey guess cheshaadantaavaaa?",
+          "exactly! vaaduu emotion tho kaadhuu, pure logic tho game aaduthunnaaduu."
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "వాడు వేసిన ప్రతి plan వెనుక ఒక calculation ఉంది సార్, మనం normal గా overthink cheste దొరకడు.",
-          "అంటే ipdu వాడు మన next move ని కూడా ముందే guess చేశాడంటావా?",
-          "exactly! వాడు emotion తో కాదు, pure logic తో game ఆడుతున్నాడు."
+          "vadu vesina prati plan venuka oka calculation undi sir, manam normal ga overthink cheste dorakadu.",
+          "ante ipdu vadu mana next move ni kuda munde guess chesadantava?",
+          "exactly! vadu emotion to kadu, pure logic to game adutunadu."
         ]
       },
       "archon_homograph_resolutions": []
@@ -2341,24 +2341,24 @@
           "నీ దోస్తుగాని మాటలు విని దిగితే స్విమ్మింగ్ కాదు రా, డైరెక్ట్ మునిగిపోతవ్! లైట్ తీసుకో."
         ],
         "P1_STANDARD_TENGLISH": [
-          "yendhi ra బై, job వదిలేసి business start చేస్తా అంటున్నవ్, asalu plan ఏమన్నా ఉందా?",
-          "plan గీన్ yem ledhu ra, first దిగినంకనే swimming వస్తది ani ma దోస్తుగాడు చెప్పిండు.",
-          "నీ దోస్తుగాని మాటలు విని దిగితే swimming కాదు ra, direct మునిగిపోతవ్! lite తీసుకో."
+          "yendhi ra bai, job vadhilesi business start chestha antunnav, asalu plan yemanna undha?",
+          "plan geen yem ledhu ra, first dhiginankane swimming vasthadhi ani ma dhosthugaadu cheppindu.",
+          "nee dhosthugaani maatalu vini dhigithe swimming kaadhu ra, direct munigipothav! lite theesuko."
         ],
         "P2_MINIMAL_TENGLISH": [
-          "endi ra బై, job వదిలేసి business start చేస్తా అంటున్నవ్, aslu plan ఏమన్నా ఉందా?",
-          "plan గీన్ em ledu ra, first దిగినంకనే swimming వస్తది ani ma దోస్తుగాడు చెప్పిండు.",
-          "నీ దోస్తుగాని మాటలు విని దిగితే swimming కాదు ra, direct మునిగిపోతవ్! lite తీసుకో."
+          "endi ra bai, job vadilesi business start chesta antunav, aslu plan emana unda?",
+          "plan gin em ledu ra, first diginankane swimming vastadi ani ma dostugadu chepindu.",
+          "ni dostugani matalu vini digite swimming kadu ra, direct munigipotav! lite tisuko."
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "yendhii raa బై, job వదిలేసి business start చేస్తా అంటున్నవ్, assalu plan ఏమన్నా ఉందా?",
-          "plan గీన్ yemmm ledhuu raa, first దిగినంకనే swimming వస్తది anii maa దోస్తుగాడు చెప్పిండు.",
-          "నీ దోస్తుగాని మాటలు విని దిగితే swimming కాదు raa, direct మునిగిపోతవ్! lite తీసుకో."
+          "yendhii raa bai, job vadhilesii business start chesthaaa antunnav, assalu plan yemannaaa undhaaa?",
+          "plan geen yemmm ledhuu raa, first dhiginankaney swimming vasthadhii ani maa dhosthugaaduu cheppinduu.",
+          "nee dhosthugaanii maataluu vinii dhigithey swimming kaadhuu raa, direct munigipothav! lite theesukoo."
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "Andi ra బై, job వదిలేసి business start చేస్తా అంటున్నవ్, aslu plan ఏమన్నా ఉందా?",
-          "plan గీన్ m ledhu ra, first దిగినంకనే swimming వస్తది ani ma దోస్తుగాడు చెప్పిండు.",
-          "నీ దోస్తుగాని మాటలు విని దిగితే swimming కాదు ra, direct మునిగిపోతవ్! lite తీసుకో."
+          "Andi ra bai, job vadilesi business start chesta antunav, aslu plan emana unda?",
+          "plan gin m ledu ra, first diginankane swimming vastadi ani ma dostugadu chapindu.",
+          "ni dostugani matalu vini digite swimming kadu ra, direct munigipotav! lite tisuko."
         ]
       },
       "archon_homograph_resolutions": [
@@ -2368,7 +2368,7 @@
           "meaning": "What ('M' letter-name acrophony for ఏం)",
           "confidence": 0.93,
           "escalated_to_archon": true,
-          "context_sentence": "plan గీన్ m ledhu ra, first దిగినంకనే swimming వస్తది ani ma దోస్తుగాడు చెప్పిండు."
+          "context_sentence": "plan gin m ledu ra, first diginankane swimming vastadi ani ma dostugadu chapindu."
         }
       ]
     },
@@ -2612,24 +2612,24 @@
           "అవసరం ఉన్నప్పుడు గుర్తొచ్చేది ఆప్షన్ రా, ఊపిరి ఉన్నంతవరకు గుర్తుండేది ఎమోషన్. తను నిన్ను ఆప్షన్ లా చూసింది, వదిలేయ్!"
         ],
         "P1_STANDARD_TENGLISH": [
-          "yentra, aa అమ్మాయి నిన్ను reject చేసిందని పొద్దున్నుంచి office ki రాకుండా room లోనే కూర్చున్నావా?",
-          "తనతో connect అయ్యాను ra, ippudu sudden గా కుదరదు అంటే yela తీసుకోవాలో ardham kaavatledhu.",
-          "అవసరం ఉన్నప్పుడు గుర్తొచ్చేది option ra, ఊపిరి ఉన్నంతవరకు గుర్తుండేది emotion. తను నిన్ను option లా చూసింది, వదిలేయ్!"
+          "yentra, aa ammaayi ninnu reject chesindhani podhdhunnunchi office ki raakunda room lone koorchunnaava?",
+          "thanatho connect ayyaanu ra, ippudu sudden ga kudharadhu ante yela theesukovaalo ardham kaavatledhu.",
+          "avasaram unnappudu gurthochchedhi option ra, oopiri unnanthavaraku gurthundedhi emotion. thanu ninnu option la choosindhi, vadhiley!"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "entra, aa అమ్మాయి నిన్ను reject చేసిందని పొద్దున్నుంచి office ki రాకుండా room లోనే కూర్చున్నావా?",
-          "తనతో connect అయ్యాను ra, ipudu sudden గా కుదరదు అంటే ela తీసుకోవాలో artam kavatledu.",
-          "అవసరం ఉన్నప్పుడు గుర్తొచ్చేది option ra, ఊపిరి ఉన్నంతవరకు గుర్తుండేది emotion. తను నిన్ను option లా చూసింది, వదిలేయ్!"
+          "entra, a amayi ninu reject chesindani podununchi office ki rakunda room lone kurchunava?",
+          "tanato connect ayyanu ra, ipudu sudden ga kudaradu ante ela tisukovalo artam kavatledu.",
+          "avasaram unapudu gurtochchedi option ra, upiri unantavaraku gurtundedi emotion. tanu ninu option la chusindi, vadiley!"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "yentiraaa, aaa అమ్మాయి నిన్ను reject చేసిందని పొద్దున్నుంచి office kii రాకుండా room లోనే కూర్చున్నావా?",
-          "తనతో connect అయ్యాను raa, ippuduuu sudden గా కుదరదు అంటే yelaaa తీసుకోవాలో artham kaavatleee.",
-          "అవసరం ఉన్నప్పుడు గుర్తొచ్చేది option raa, ఊపిరి ఉన్నంతవరకు గుర్తుండేది emotion. తను నిన్ను option లా చూసింది, వదిలేయ్!"
+          "yentiraaa, aa ammaayii ninnuu reject chesindhanii podhdhunnunchii office ki raakundaaa room loney koorchunnaavaaa?",
+          "thanathoo connect ayyaanuu raa, ippuduuu sudden gaa kudharadhuu antey yelaaa theesukovaaloo artham kaavatleee.",
+          "avasaram unnappuduu gurthochchedhii option raa, oopirii unnanthavarakuu gurthundedhii emotion. thanuu ninnuu option laa choosindhii, vadhiley!"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "Antra, aa అమ్మాయి నిన్ను reject చేసిందని పొద్దున్నుంచి office ki రాకుండా room లోనే కూర్చున్నావా?",
-          "తనతో connect అయ్యాను ra, ipdu sudden గా కుదరదు అంటే la తీసుకోవాలో ardhm kavatle.",
-          "అవసరం ఉన్నప్పుడు గుర్తొచ్చేది option ra, ఊపిరి ఉన్నంతవరకు గుర్తుండేది emotion. తను నిన్ను option లా చూసింది, వదిలేయ్!"
+          "Antra, a ammayi ninu reject chesindani poddununchi office ki rakunda room lone kurchunava?",
+          "tanato connect ayyanu ra, ipdu sudden ga kudaradu ante la tisukovalo ardhm kavatle.",
+          "avasaram unapudu gurtochchedi option ra, upiri unantavaraku gurtundedi emotion. tanu ninu option la chusindi, vadiley!"
         ]
       },
       "archon_homograph_resolutions": [
@@ -2639,7 +2639,7 @@
           "meaning": "Canonical Telugu match",
           "confidence": 0.98,
           "escalated_to_archon": false,
-          "context_sentence": "Antra, aa అమ్మాయి నిన్ను reject చేసిందని పొద్దున్నుంచి office ki రాకుండా room లోనే కూర్చున్నావా?"
+          "context_sentence": "Antra, a ammayi ninu reject chesindani poddununchi office ki rakunda room lone kurchunava?"
         }
       ]
     },
@@ -2878,24 +2878,24 @@
           "నువ్వు ఇట్లా ప్రతిసారి సీన్ క్రియేట్ చేసి నా మీద తోసేస్తే నా లైఫ్ మొత్తం డ్యామేజ్ అయితది అంతేగా!"
         ],
         "P1_STANDARD_TENGLISH": [
-          "yendhi bro ఇది, ninna rathri party-ki pilichi ippudu naaku sambandham ledhu antav yendhi?",
-          "arey bhayya, akkada situation motham control thappindi ra, nake full trauma aipoyindi!",
-          "nuvvu itla prathisari scene create chesi na meeda thoseste na life motham damage aitadi anthega!"
+          "yendhi bro idhi, ninna raathri party-ki pilichi ippudu naaku sambandham ledhu antaav yendhi?",
+          "are bhayya, akkada situation moththam control thappindhi ra, naake full trauma ayipoyindhi!",
+          "nuvvu itla prathisaari scene create chesi na meedha thosesthe na life moththam damage ayithadhi anthega!"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "endi bro ఇది, ninna ratri party-ki pilichi ipudu naku sambandam ledu antav endi?",
-          "arey bhayya, akkada situation motam control tappindi ra, nake full trauma aipoyindi!",
-          "nuvu itla pratisari scene create chesi na mida toseste na life motam damage aitadi antega!"
+          "endi bro idi, nina ratri party-ki pilichi ipudu naku sambandam ledu antav endi?",
+          "are bayya, akada situation motam control tapindi ra, nake full trauma ayipoyindi!",
+          "nuvu itla pratisari scene create chesi na mida toseste na life motam damage ayitadi antega!"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "yendhii bro ఇది, ninnaa rathrii party-ki pilichii ippuduuu naakuuu sambandham ledhuu antav yendhii?",
-          "arey bhayyaa, akkadaa situation motham control thappindii raa, nake full trauma aipoyindii!",
-          "nuvvuuu itlaa prathisarii scene create chesii naa meedaa thoseste naa life motham damage aitadii antheygaaa!"
+          "yendhii bro idhii, ninnaa raathrii party-ki pilichii ippuduuu naakuuu sambandham ledhuu antaav yendhii?",
+          "arey bhayyaaa, akkadaa situation moththam control thappindhii raa, naakey full trauma ayipoyindhii!",
+          "nuvvuuu itlaaa prathisaarii scene create chesii naa meedhaa thosesthey naa life moththam damage ayithadhii antheygaaa!"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "Andi bro ఇది, ninna ratri party-ki pilichi ipdu nku sambandham ledhu antav Andi?",
-          "arey bhayya, akkada situation motam control tappindi ra, nake full trauma aipoyindi!",
-          "nv itla pratisari scene create chesi na meeda toseste na life motam damage aitadi anthe ga!"
+          "Andi bro idi, nina ratri party-ki pilichi ipdu nku sambandam ledu antav Andi?",
+          "are bayya, akada situation motam control tapindi ra, nake full trauma ayipoyindi!",
+          "nv itla pratisari scene create chesi na mida toseste na life motam damage ayitadi anthe ga!"
         ]
       },
       "archon_homograph_resolutions": []
@@ -3135,24 +3135,24 @@
           "అంటే ఇప్పుడు మనకి అక్కడ అసలు వైబ్ అవ్వట్లేదు అని డైరెక్ట్ గా హింట్ ఇచ్చేసిందా?"
         ],
         "P1_STANDARD_TENGLISH": [
-          "bro, నిన్నటి నుంచి తనకి పది messages-lu పెట్టాను, scene చేసింది kani asalu reply ఇవ్వట్లేదు yenti?",
-          "దాన్నే english lo ghost cheyadam అంటారు ra, ఇంకా aa delulu lo నుంచి బయటికి ra!",
-          "అంటే ippudu మనకి akkada asalu vibe avvatledhu ani direct గా hint ఇచ్చేసిందా?"
+          "bro, ninnati nunchi thanaki padhi messages-lu pettaanu, scene chesindhi kaanee asalu reply ivvatledhu yenti?",
+          "dhaanne english lo ghost cheyadam antaaru ra, inka aa delulu lo nunchi bayatiki ra!",
+          "ante ippudu manaki akkada asalu vibe avvatledhu ani direct ga hint ichchesindha?"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "bro, నిన్నటి నుంచి తనకి పది messages-lu పెట్టాను, scene చేసింది kani aslu reply ఇవ్వట్లేదు enti?",
-          "దాన్నే english lo ghost cheyadam అంటారు ra, ఇంకా aa delulu lo నుంచి బయటికి ra!",
-          "అంటే ipudu మనకి akkada aslu vibe avvatledu ani direct గా hint ఇచ్చేసిందా?"
+          "bro, ninati nunchi tanaki padi messages-lu petanu, scene chesindi kani aslu reply ivvatledu enti?",
+          "dane english lo ghost cheyadam antaru ra, inka a delulu lo nunchi bayatiki ra!",
+          "ante ipudu manaki akada aslu vibe avvatledu ani direct ga hint ichchesinda?"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "bro, నిన్నటి నుంచి తనకి పది messages-lu పెట్టాను, scene చేసింది kanii assalu reply ఇవ్వట్లేదు yentiii?",
-          "దాన్నే english lo ghost cheyadam అంటారు raa, ఇంకా aaa delulu lo నుంచి బయటికి raa!",
-          "అంటే ippuduuu మనకి akkadaa assalu vibe avvatleee anii direct గా hint ఇచ్చేసిందా?"
+          "bro, ninnatii nunchii thanakii padhii messages-lu pettaanuu, scene chesindhii kaaneee assalu reply ivvatleee yentiii?",
+          "dhaanney english lo ghost cheyadam antaaruu raa, inkaaa aa delulu lo nunchii bayatikii raa!",
+          "antey ippuduuu manakii akkadaa assalu vibe avvatleee ani direct gaa hint ichchesindhaaa?"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "bro, నిన్నటి నుంచి తనకి పది messages-lu పెట్టాను, scene చేసింది kani aslu reply ఇవ్వట్లేదు Anti?",
-          "దాన్నే english lo ghost cheyadam అంటారు ra, ఇంకా aa delulu lo నుంచి బయటికి ra!",
-          "అంటే ipdu మనకి akkada aslu vibe avtle ani direct గా hint ఇచ్చేసిందా?"
+          "bro, ninati nunchi tanaki padi messages-lu patanu, scene chesindi kani aslu reply ivtle Anti?",
+          "dane english lo ghost cheyadam antaru ra, inka a delulu lo nunchi bayatiki ra!",
+          "ante ipdu manaki akada aslu vibe avtle ani direct ga hint ichchesinda?"
         ]
       },
       "archon_homograph_resolutions": [
@@ -3162,7 +3162,7 @@
           "meaning": "What (Gen-Z Acrophonic 'A' + 'nti')",
           "confidence": 0.95,
           "escalated_to_archon": true,
-          "context_sentence": "bro, నిన్నటి నుంచి తనకి పది messages-lu పెట్టాను, scene చేసింది kani aslu reply ఇవ్వట్లేదు Anti?"
+          "context_sentence": "bro, ninati nunchi tanaki padi messages-lu patanu, scene chesindi kani aslu reply ivtle Anti?"
         }
       ]
     },
@@ -3426,24 +3426,24 @@
           "ప్రతిసారి ఇదే సాకు చెప్తున్నావ్ రా, ఇంక నీతో ట్రిప్ ప్లాన్ చేయడం కంటే ఇంట్లో పడుకోవడం బెటర్ అంతేగా!"
         ],
         "P1_STANDARD_TENGLISH": [
-          "yenti bro, weekend trip ki vastha ani full buildup ichi last minute lo hand ichav?",
-          "ma manager gadu friday evening client call petti mind block chesindu ra, nenem cheyanu cheppu?",
-          "prathisari ide saaku chepthunnav ra, inka neetho trip plan cheyadam kante intlo padukovadam better anthega!"
+          "yenti bro, weekend trip ki vastha ani full buildup ichchi last minute lo hand ichchaav?",
+          "ma manager gaadu friday evening client call petti mind block chesindu ra, nenem cheyanu cheppu?",
+          "prathisaari idhe saaku chepthunnav ra, inka neetho trip plan cheyadam kante intlo padukovadam better anthega!"
         ],
         "P2_MINIMAL_TENGLISH": [
-          "enti bro, weekend trip ki vasta ani full buildup ichi last minute lo hand ichav?",
-          "ma manager gadu friday evening client call petti mind block chesindu ra, nenem cheyanu chepu?",
-          "pratisari ide saaku cheptunav ra, inka nito trip plan cheyadam kante intlo padukovadam better antega!"
+          "enti bro, weekend trip ki vasta ani full buildup ichchi last minute lo hand ichchav?",
+          "ma manager gadu friday evening client call peti mind block chesindu ra, nenem cheyanu chepu?",
+          "pratisari ide saku cheptunav ra, inka nito trip plan cheyadam kante intlo padukovadam better antega!"
         ],
         "P3_EXPRESSIVE_TENGLISH": [
-          "yentiii bro, weekend trip kii vasthaa anii full buildup ichii last minute lo hand ichav?",
-          "maa manager gaduu friday evening client call pettii mind block chesinduu raa, nenem cheyanuu cheppuuu?",
-          "prathisarii ide saakuu chepthunnava raa, inkaa neetho trip plan cheyadam kante intlo padukovadam better antheygaaa!"
+          "yentiii bro, weekend trip ki vasthaaa ani full buildup ichchii last minute lo hand ichchaav?",
+          "maa manager gaaduu friday evening client call pettii mind block chesinduu raa, nenem cheyanuu cheppuuu?",
+          "prathisaarii idhey saakuu chepthunnava raa, inkaa neethoo trip plan cheyadam kantey intloo padukovadam better antheygaaa!"
         ],
         "P4_ACROPHONIC_BROKEN": [
-          "Anti bro, weekend trip ki vasta ani full buildup ichi last minute lo hand ichav?",
-          "ma manager gadu friday evening client call petti mind block chesindu ra, nenem cheyanu chappu?",
-          "pratisari ide saaku chptnv ra, inka neeto trip plan cheyadam kante intlo padukovadam better anthe ga!"
+          "Anti bro, weekend trip ki vasta ani full buildup ichchi last minute lo hand ichchav?",
+          "ma manager gadu friday evening client call pati mind block chesindu ra, nenem cheyanu chappu?",
+          "pratisari ide saku chptnv ra, inka nito trip plan cheyadam kante intlo padukovadam better anthe ga!"
         ]
       },
       "archon_homograph_resolutions": [
@@ -3453,7 +3453,7 @@
           "meaning": "What (Gen-Z Acrophonic 'A' + 'nti')",
           "confidence": 0.95,
           "escalated_to_archon": true,
-          "context_sentence": "Anti bro, weekend trip ki vasta ani full buildup ichi last minute lo hand ichav?"
+          "context_sentence": "Anti bro, weekend trip ki vasta ani full buildup ichchi last minute lo hand ichchav?"
         }
       ]
     }
