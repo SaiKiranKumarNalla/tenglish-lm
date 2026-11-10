@@ -25,16 +25,16 @@ class SubtitleBlock:
 
 # Bracketed or parenthetical sound/music cues in Telugu and English
 BRACKET_NOISE_PATTERNS = [
-    re.compile(r"\[[^\]]*\]"),  # Strips [సంగీతం], [బెల్], [చప్పట్లు], [Music], etc.
+    re.compile(r"\[[^\]]*\]"),  # Strips [సంగీతం], [బెల్], [చప్పట్లు], [Music], [Song], etc.
     re.compile(
-        r"\((?:music|bgm|applause|sighs|laughs|bell|singing|సంగీతం|బెల్|చప్పట్లు|నవ్వులు).*?\)",
+        r"\((?:music|bgm|applause|sighs|laughs|bell|singing|song|lyric|పాట|సంగీతం|బెల్|చప్పట్లు|నవ్వులు).*?\)",
         re.IGNORECASE,
     ),
-    re.compile(r"[♪♫♬]+"),
+    re.compile(r"[♪♫♬♩]+"),
     re.compile(r"<[^>]+>"),
 ]
 
-# Statutory disclaimers & opening prayer slokas that are not movie dialogues
+# Statutory disclaimers, traffic safety PSAs, & opening prayer slokas
 DISCLAIMER_SUBSTRINGS = [
     "పొగ త్రాగుట",
     "పొగ తాగుట",
@@ -47,17 +47,64 @@ DISCLAIMER_SUBSTRINGS = [
     "smoking and drinking",
     "నమస్తస్మై నమో నమః",
     "సప్తశైల నివాసినే",
+    "డ్రైవింగ్ చేసేటప్పుడు",
+    "సీట్‌బెల్ట్",
+    "హెల్మెట్ ధరించండి",
+    "రోడ్డు భద్రత",
+    "పాదచారుల",
+    "పైరసీ నేరం",
+    "యాంటీ పైరసీ",
+    "రక్తదానం",
+    "నేత్రదానం",
 ]
 
-# Pure BGM humming syllables often transcribed by YouTube auto-captions during songs/BGM
+# Production house cards and title entry markers
+TITLE_CARD_PATTERNS = [
+    re.compile(
+        r"^(?:సమర్పణ|సమర్పించు|దర్శకత్వం|దర్శకుడు|నిర్మాత|నిర్మాణం|కథ\s*[\-\–]\s*మాటలు|మాటలు|రచన|సంగీతం|ఛాయాగ్రహణం|ఎడిటింగ్|బ్యానర్|ప్రొడక్షన్స్|పిక్చర్స్|చిత్రం|నటీనటులు|టైటిల్స్)\s*[:\-\–]",
+        re.UNICODE,
+    ),
+    re.compile(
+        r"^(?:directed by|produced by|music by|story & screenplay|cinematography|presents|banner)\s*[:\-\–]",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:సురేష్ ప్రొడక్షన్స్|శ్రీ వెంకటేశ్వర క్రియేషన్స్|మైత్రి మూవీ మేకర్స్|హారిక అండ్ హాసిని|గీతా ఆర్ట్స్|వైజయంతి మూవీస్)\s*(?:సమర్పించు|సమర్పణ)",
+        re.UNICODE,
+    ),
+]
+
+# Pure BGM humming syllables and classical dance rhythmic jatis (solkattu)
 BGM_HUMMING_PATTERN = re.compile(
-    r"^(?:[\s,.!?…]*?(?:తారా|తరారా\w*|తార\w*|లల\w*|లాలా\w*|హోహో|ఆఆ\w*|ఓఓ\w*|నానా\w*|రారా\w*|హరే))+[\s,.!?…]*$",
+    r"^(?:[\s,.!?…]*?(?:తారా|తరారా\w*|తార\w*|లల\w*|లాలా\w*|హోహో|హేహే|ఆఆ\w*|ఓఓ\w*|నానా\w*|రారా\w*|హరే|తంగు|ధికు|ధింగిన|ధనకు|కిణకు|తకిట|జం|తై))+[\s,.!?…]*$",
     re.UNICODE,
 )
 
+# Common song vocable tokens
+SONG_VOCABLES = ["లాల", "లాలా", "తానాన", "తారరార", "తరార", "హోహో", "హేహే", "జిలేలే", "డుండుం", "డిండిం", "రుక్కు", "తారానా"]
 
-def is_non_dialogue_disclaimer_or_bgm(text: str) -> bool:
-    """Returns True if the line is a statutory smoking disclaimer or pure BGM humming."""
+
+def is_song_lyric_line(text: str) -> bool:
+    """Returns True if a subtitle cue is part of a song lyric rather than conversational dialogue."""
+    t = text.strip()
+    if not t:
+        return True
+    if any(ch in t for ch in "♪♫♬♩"):
+        return True
+    words = t.split()
+    if len(words) <= 12:
+        voc_hits = sum(1 for w in words if any(v in w for v in SONG_VOCABLES))
+        if voc_hits >= 2 or (len(words) <= 4 and voc_hits >= 1):
+            return True
+    # Rhyming poetic meters common in Telugu movie songs (e.g. చేసేనులే, వచ్చేనులే, చేరేనులే)
+    rhymes = re.findall(r"(?:^|\s)[\u0C00-\u0C7F]+(?:ేనులే|ెనుగా|ిందిలే|ావులే|ెనేలే)(?:\s|$)", t)
+    if len(rhymes) >= 2 and "?" not in t and "!" not in t:
+        return True
+    return False
+
+
+def is_non_dialogue_disclaimer_or_bgm(text: str, start_sec: float = 0.0) -> bool:
+    """Returns True if the line is a statutory disclaimer, pre-movie PSA ad, title card, song, or pure BGM humming."""
     lowered = text.lower().strip()
     if not lowered:
         return True
@@ -66,19 +113,25 @@ def is_non_dialogue_disclaimer_or_bgm(text: str) -> bool:
             return True
     if BGM_HUMMING_PATTERN.match(lowered):
         return True
+    if start_sec <= 360.0:  # In first 6 minutes of video
+        for pat in TITLE_CARD_PATTERNS:
+            if pat.search(lowered):
+                return True
+    if is_song_lyric_line(text):
+        return True
     return False
 
 
-def clean_utterance(text: str) -> str:
+def clean_utterance(text: str, start_sec: float = 0.0) -> str:
     """
     Strips Telugu/English bracketed noise tags ([సంగీతం], [బెల్]), HTML tags,
-    music symbols, BGM humming, and statutory disclaimers.
+    music symbols, BGM humming, song lyrics, title cards, and statutory disclaimers.
     """
     cleaned = text.strip()
     for pat in BRACKET_NOISE_PATTERNS:
         cleaned = pat.sub(" ", cleaned)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
-    if is_non_dialogue_disclaimer_or_bgm(cleaned):
+    if is_non_dialogue_disclaimer_or_bgm(cleaned, start_sec=start_sec):
         return ""
     return cleaned
 
@@ -135,7 +188,7 @@ def parse_srt_content(srt_text: str) -> List[SubtitleBlock]:
         ts_parts = lines[ts_line_idx].split("-->")
         start_s = parse_timestamp_to_seconds(ts_parts[0])
         end_s = parse_timestamp_to_seconds(ts_parts[1])
-        text_body = clean_utterance(" ".join(lines[ts_line_idx + 1 :]))
+        text_body = clean_utterance(" ".join(lines[ts_line_idx + 1 :]), start_sec=start_s)
         if not text_body or len(text_body) < 2:
             continue
 

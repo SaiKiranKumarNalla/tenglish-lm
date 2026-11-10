@@ -356,35 +356,81 @@ def has_telugu_script(text: str, min_telugu_chars: int = 10) -> bool:
     return te_count >= min_telugu_chars
 
 
-def infer_movie_genre_from_scenes(scenes: List[Dict[str, Any]], user_genre: str = "Drama") -> str:
+def estimate_movie_era_and_genre_from_telugu(
+    scenes: List[Dict[str, Any]],
+    user_year: str = "UNKNOWN",
+    user_genre: str = "Drama",
+) -> Tuple[str, str]:
     """
-    If the user leaves `genre` as generic 'Drama' or 'AUTO', automatically infers a specific
-    Telugu cinema genre from the movie's scene emotion distribution!
+    Infers movie release era and specific Telugu cinema genre directly from the
+    dialogue's linguistic properties (Sanskrit tatsama density, Code-Mixing Index,
+    punch catchphrases, and scene emotion distributions).
     """
-    if user_genre and user_genre.strip().lower() not in {"drama", "auto", "unknown", "drama / entertainer"}:
-        return user_genre.strip()
-    if not scenes:
-        return "Family / Conversational Drama"
-
-    total = max(1, len(scenes))
-    counts: Dict[str, int] = {}
+    all_turns: List[str] = []
     for s in scenes:
-        emo = s.get("scene_emotion", "CONVERSATIONAL_DRAMA")
-        counts[emo] = counts.get(emo, 0) + 1
+        turns = s.get("turns_telugu") or []
+        if isinstance(turns, str):
+            turns = [t.strip() for t in turns.split("//") if t.strip()]
+        all_turns.extend(turns)
+    full_text = " ".join(all_turns).lower()
+    total_words = max(1, len(full_text.split()))
 
-    comedy_ratio = (counts.get("COMEDY", 0) + counts.get("SARCASTIC_ROAST", 0)) / total
-    action_ratio = (counts.get("ANGER_WARNING", 0) + counts.get("ELEVATION_MASS", 0)) / total
-    heartbreak_ratio = counts.get("EMOTIONAL_HEARTBREAK", 0) / total
+    # --- 1. ERA ESTIMATION ---
+    inferred_era = user_year if user_year and user_year.strip() not in {"UNKNOWN", "auto", ""} else ""
+    if not inferred_era:
+        en_words = len(re.findall(r"\b[a-zA-Z]+\b", full_text))
+        en_loan_kws = ["ఓకే", "సార్", "మేడం", "కారు", "ఫోన్", "ఆఫీస్", "లైట్", "డ్యూడ్", "బ్రో", "టెన్షన్", "వర్కౌట్", "సీన్", "పార్టీ", "ప్లీజ్", "థాంక్స్", "హలో", "డాక్టర్", "పోలీస్", "కాలేజ్", "మనీ"]
+        te_en_loans = sum(full_text.count(w) for w in en_loan_kws)
+        cmi_score = (en_words + te_en_loans) / total_words * 100
 
-    if comedy_ratio >= 0.22 and action_ratio >= 0.16:
-        return "Action Comedy / Commercial Entertainer"
-    if comedy_ratio >= 0.22:
-        return "Comedy / RomCom Entertainer"
-    if action_ratio >= 0.22:
-        return "Mass Action / Political Drama"
-    if heartbreak_ratio >= 0.24:
-        return "Romantic / Emotional Drama"
-    return "Family / Social Drama"
+        formal_markers = ["నమస్కారము", "చిత్తము", "ఆజ్ఞాపించండి", "మహాప్రభో", "క్షమించండి", "సంతోషము", "అందువలన", "క్షణకాలము", "భాగ్యము", "దైవము", "పుణ్యము"]
+        formal_score = sum(full_text.count(w) for w in formal_markers)
+
+        punch_markers = ["దమ్ము", "బొమ్మ", "లెక్క", "సీమ", "సింహం", "నరుకుతా", "రికార్డు", "ఖతం", "చంపుతా", "తొడగొట్టు"]
+        punch_score = sum(full_text.count(w) for w in punch_markers)
+
+        if cmi_score >= 4.0 and formal_score < 10:
+            inferred_era = "2020s"
+        elif punch_score >= 12 or (cmi_score >= 2.2 and cmi_score < 4.0):
+            inferred_era = "2010s"
+        else:
+            inferred_era = "2000s"
+
+    # --- 2. GENRE ESTIMATION ---
+    inferred_genre = user_genre if user_genre and user_genre.strip().lower() not in {"drama", "auto", "unknown", "drama / entertainer"} else ""
+    if not inferred_genre:
+        total_sc = max(1, len(scenes))
+        counts: Dict[str, int] = {}
+        for s in scenes:
+            emo = s.get("scene_emotion", "CONVERSATIONAL_DRAMA")
+            counts[emo] = counts.get(emo, 0) + 1
+
+        action_lex = sum(full_text.count(w) for w in ["నరుకు", "రక్తం", "ఖతం", "పోలీస్", "సామ్రాజ్యం", "సింహం", "దమ్ము", "తుపాకీ", "రౌడీ", "చంపు", "సీమ"])
+        comedy_lex = sum(full_text.count(w) for w in ["వెధవ", "పిచ్చోడా", "బకరాని", "ఎర్రి", "దరిద్రం", "కామెడీ", "పంచచ్", "డ్రామా", "మొహం", "టైమింగ్"])
+        romance_lex = sum(full_text.count(w) for w in ["ప్రేమ", "కన్నీళ్లు", "గుండె", "బంధం", "విడిచి", "కలిసి", "జ్ఞాపకం", "హృదయం", "విరహం"])
+
+        comedy_ratio = (counts.get("COMEDY", 0) + counts.get("SARCASTIC_ROAST", 0)) / total_sc
+        action_ratio = (counts.get("ANGER_WARNING", 0) + counts.get("ELEVATION_MASS", 0)) / total_sc
+        heartbreak_ratio = counts.get("EMOTIONAL_HEARTBREAK", 0) / total_sc
+
+        if (action_ratio >= 0.16 or action_lex >= 35) and (comedy_ratio >= 0.16 or comedy_lex >= 35):
+            inferred_genre = "Action Comedy / Commercial Entertainer"
+        elif action_ratio >= 0.18 or action_lex >= 40:
+            inferred_genre = "Mass Action / Political Drama"
+        elif comedy_ratio >= 0.18 or comedy_lex >= 40:
+            inferred_genre = "Comedy / RomCom Entertainer"
+        elif heartbreak_ratio >= 0.22 or romance_lex >= 35:
+            inferred_genre = "Romantic / Emotional Drama"
+        else:
+            inferred_genre = "Family / Social Drama"
+
+    return inferred_era, inferred_genre
+
+
+def infer_movie_genre_from_scenes(scenes: List[Dict[str, Any]], user_genre: str = "Drama") -> str:
+    """Wrapper for backward compatibility."""
+    _, g = estimate_movie_era_and_genre_from_telugu(scenes, user_genre=user_genre)
+    return g
 
 
 def is_broken_foreign_asr_track(text: str, min_words: int = 1200) -> bool:
@@ -762,16 +808,19 @@ def extract_full_movie_pipeline(
         movie_genre=movie_genre,
         dialect_hint=dialect_hint,
     )
-    # Auto-infer specific movie genre if user left it as generic 'Drama'
-    inferred_genre = infer_movie_genre_from_scenes(scenes, user_genre=movie_genre)
+    # Auto-infer specific movie genre & era from dialogue linguistics if left generic
+    inferred_era, inferred_genre = estimate_movie_era_and_genre_from_telugu(
+        scenes, user_year=str(year), user_genre=movie_genre
+    )
     for sc in scenes:
         sc["movie_genre"] = inferred_genre
+        sc["year"] = inferred_era
 
     exported = export_movie_to_csv_txt_jsonl(
         scenes=scenes,
         blocks=blocks,
         movie_name=movie_name,
-        year=str(year),
+        year=inferred_era,
         director=director,
         movie_genre=inferred_genre,
         youtube_url=youtube_url or "",
@@ -780,7 +829,7 @@ def extract_full_movie_pipeline(
 
     return {
         "movie_name": movie_name,
-        "year": str(year),
+        "year": inferred_era,
         "director": director,
         "movie_genre": inferred_genre,
         "dialect_hint": dialect_hint,
