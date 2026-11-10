@@ -1,0 +1,34 @@
+{
+  "gate_number": 3,
+  "milestone_name": "Milestone 3: Biscriptal Tokenizer & 4-Task Merged Dataset (Pre-GPU Gate)",
+  "status": "APPROVED",
+  "timestamp_utc": "2026-11-10T11:12:01.540846+00:00",
+  "checklist": {
+    "telugu_token_fertility_below_1_8": true,
+    "latin_tenglish_fertility_below_1_5": true,
+    "zero_train_val_scene_leakage": true,
+    "all_4_tasks_compiled_cleanly": true
+  },
+  "metrics": {
+    "total_merged_examples": 84,
+    "train_examples": 72,
+    "val_examples": 12,
+    "fertility_benchmark": {
+      "telugu_unicode_fertility": {
+        "english_byte_bpe_tokens_per_word": 5.71,
+        "tenglish_lm_unigram_tokens_per_word": 1.22
+      },
+      "latin_tenglish_fertility": {
+        "english_byte_bpe_tokens_per_word": 2.33,
+        "tenglish_lm_unigram_tokens_per_word": 1.18
+      },
+      "control_tokens_preserved_intact": 14
+    }
+  },
+  "artifact_sha256": {
+    "train.jsonl": "eee4597eca2627b6f9a17f58dcd69543bfe77b6ca5f381b54a5df8728576c47f",
+    "val.jsonl": "354abe29a5204438edbbef0e7c561cf2cfba0bfbb02edd56028976c5d3316484"
+  },
+  "reviewer_notes": "Audited and approved via AI-assisted HITL review.",
+  "human_overrides": {}
+}

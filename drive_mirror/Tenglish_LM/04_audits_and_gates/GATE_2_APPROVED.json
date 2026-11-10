@@ -1,0 +1,22 @@
+{
+  "gate_number": 2,
+  "milestone_name": "Milestone 2: Tenglish-Evo Multiplier & Broken-Spelling Disambiguator",
+  "status": "APPROVED",
+  "timestamp_utc": "2026-11-10T11:12:01.536774+00:00",
+  "checklist": {
+    "core_seed_multiplied_across_4_tenglish_personas": true,
+    "acrophonic_and_homograph_accuracy_above_95pct": true,
+    "diachronic_cmi_and_hybrid_counts_verified": true
+  },
+  "metrics": {
+    "expanded_persona_variants": 70,
+    "homograph_accuracy_pct": 100.0,
+    "flash_worker_share_pct": 96.5
+  },
+  "artifact_sha256": {
+    "tenglish_evo_expanded_scenes.jsonl": "4b1bcf6fab1842dc70013818da749f1974f04800952622bfcaf2560ce2acee5f",
+    "milestone_1_2_audit_report.json": "431c1d5c65b5de90be3d172511ddceb92eb4bd7418cb374b1d4ab5a1cde5c0af"
+  },
+  "reviewer_notes": "Audited and approved via AI-assisted HITL review.",
+  "human_overrides": {}
+}
