@@ -27,8 +27,8 @@ CELL_1_MARKDOWN = """# 🎬 Tenglish-LM: YouTube Movie Trailer & Scene Extractor
    * `<trailer_name>_scenes.txt` (human-readable tagged script with all 4 Tenglish Personas)
    * An interactive Pandas table right inside Colab!"""
 
-CELL_2_SETUP_CODE = """# @title Step 1: Install yt-dlp & Mount Google Drive
-!pip install -q -U yt-dlp pandas
+CELL_2_SETUP_CODE = """# @title Step 1: Install yt-dlp, faster-whisper & Mount Google Drive
+!pip install -q -U yt-dlp faster-whisper "bottleneck>=1.5.0"
 
 import os
 from pathlib import Path
@@ -72,11 +72,12 @@ def build_standalone_colab_notebook() -> Path:
     )
 
     cell_3_runner = """# @title Step 3: Paste Any YouTube Telugu Trailer / Movie Scene URL & Run!
+import numpy as np
 import pandas as pd
 import subprocess
 
 # 👇 PASTE ANY YOUTUBE TELUGU TRAILER OR SCENE URL HERE:
-YOUTUBE_URL = "https://www.youtube.com/watch?v=e4N9al7vhVQ"  # @param {type:"string"}
+YOUTUBE_URL = "https://www.youtube.com/watch?v=EaODp3C7wkU"  # @param {type:"string"}
 TRAILER_NAME = "Telugu_Trailer_Test_01"  # @param {type:"string"}
 ERA_TAG = "2020s"  # @param ["1980s", "1990s", "2000s", "2010s", "2020s"]
 DIRECTOR_STYLE = "THARUN_TELANGANA_BANTER"  # @param ["TRIVIKRAM_ANTITHESIS", "PURI_CYNICAL_PUNCH", "THARUN_TELANGANA_BANTER", "BHASKAR_ABBURI_RAVI", "SUKUMAR_LOGIC", "VIVEK_URBAN_WIT", "JANDHYALA_WORDPLAY"]
@@ -85,27 +86,62 @@ USE_WHISPER_IF_NO_SUBS = True  # @param {type:"boolean"}
 work_dir = OUT_DIR / TRAILER_NAME
 work_dir.mkdir(parents=True, exist_ok=True)
 
+
+def load_audio_ffmpeg_16k(audio_file: str) -> np.ndarray:
+    \"\"\"
+    Decodes audio directly to 16kHz mono float32 PCM via system ffmpeg,
+    completely bypassing PyAV's `metadata_errors` bug on Python 3.13!
+    \"\"\"
+    cmd = [
+        "ffmpeg", "-nostdin", "-threads", "0",
+        "-i", str(audio_file),
+        "-f", "s16le", "-ac", "1", "-acodec", "pcm_s16le", "-ar", "16000",
+        "-"
+    ]
+    out = subprocess.run(cmd, capture_output=True, check=True).stdout
+    return np.frombuffer(out, np.int16).flatten().astype(np.float32) / 32768.0
+
+
 # 1. Try downloading official/auto captions via yt-dlp
 srt_path = download_srt_from_youtube(YOUTUBE_URL, work_dir, TRAILER_NAME)
 
-# 2. If the trailer has NO captions on YouTube, optionally transcribe audio with Faster-Whisper!
+# 2. If the trailer has NO captions on YouTube, transcribe audio with Faster-Whisper!
 if srt_path is None and USE_WHISPER_IF_NO_SUBS:
     print("⚠️ No caption track found on YouTube. Downloading audio & running Whisper ASR...")
-    os.system("pip install -q faster-whisper")
-    audio_path = work_dir / f"{TRAILER_NAME}.mp3"
-    subprocess.run(["yt-dlp", "-x", "--audio-format", "mp3", "-o", str(audio_path), YOUTUBE_URL], check=False)
-    if audio_path.exists():
+    audio_template = str(work_dir / f"{TRAILER_NAME}.%(ext)s")
+    subprocess.run(
+        ["yt-dlp", "-f", "bestaudio/best", "-x", "--audio-format", "wav", "-o", audio_template, YOUTUBE_URL],
+        check=False,
+    )
+    wav_files = sorted(work_dir.glob(f"{TRAILER_NAME}.*"))
+    audio_files = [p for p in wav_files if p.suffix.lower() in {".wav", ".mp3", ".m4a", ".webm", ".opus"}]
+
+    if audio_files:
+        audio_path = audio_files[0]
+        print(f"🎙️ Decoding {audio_path.name} via FFmpeg (16kHz mono) & transcribing Telugu speech...")
+        audio_np = load_audio_ffmpeg_16k(str(audio_path))
         from faster_whisper import WhisperModel
         model = WhisperModel("small", device="cpu", compute_type="int8")
-        segments, _ = model.transcribe(str(audio_path), language="te")
+        # Pass the numpy array directly so PyAV is never called!
+        segments, _ = model.transcribe(
+            audio_np,
+            language="te",
+            beam_size=5,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=400),
+        )
         srt_lines = []
         for idx, seg in enumerate(segments, start=1):
             st = format_seconds_to_hms(seg.start) + ",000"
             et = format_seconds_to_hms(seg.end) + ",000"
-            srt_lines.append(f"{idx}\\n{st} --> {et}\\n{seg.text.strip()}\\n")
-        srt_path = work_dir / f"{TRAILER_NAME}.te.srt"
-        srt_path.write_text("\\n".join(srt_lines), encoding="utf-8")
-        print("✅ Whisper ASR generated Telugu .srt:", srt_path)
+            text_clean = seg.text.strip()
+            if text_clean:
+                print(f"  [{st} -> {et}] {text_clean}")
+                srt_lines.append(f"{idx}\\n{st} --> {et}\\n{text_clean}\\n")
+        if srt_lines:
+            srt_path = work_dir / f"{TRAILER_NAME}.te.srt"
+            srt_path.write_text("\\n".join(srt_lines), encoding="utf-8")
+            print("✅ Whisper ASR generated Telugu .srt:", srt_path)
 
 # 3. Fallback demo if URL is geo-blocked or offline: run on built-in Bommarillu / Trailer SRT
 if srt_path is None or not srt_path.exists():
