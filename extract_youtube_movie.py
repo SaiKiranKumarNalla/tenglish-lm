@@ -320,18 +320,95 @@ def export_movie_to_csv_txt_jsonl(
 # 4. YouTube Link Downloader + Full CLI Entrypoint
 # ---------------------------------------------------------------------------
 
-def download_srt_from_youtube(youtube_url: str, work_dir: Path, movie_name: str) -> Optional[Path]:
+def check_and_download_youtube_srt(
+    youtube_url: str,
+    work_dir: Path,
+    movie_name: str,
+    allow_auto_captions: bool = False,
+) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Uses yt-dlp (and optional Whisper fallback) to extract the full movie .srt from a YouTube link.
+    Strictly extracts existing subtitles from YouTube (NO noisy Whisper audio ASR).
+    1. First tries `youtube-transcript-api` (fastest, handles `te`, `te-IN`, `en`, `en-IN`, `en-US` cleanly).
+    2. Falls back to `yt-dlp --write-sub --sub-langs "te.*,en.*"`.
+    Returns `(srt_path, metadata_dict)`.
     """
     work_dir.mkdir(parents=True, exist_ok=True)
+    meta: Dict[str, Any] = {
+        "youtube_url": youtube_url,
+        "manual_langs": [],
+        "auto_langs": [],
+        "selected_track": None,
+        "status": "NO_SUBTITLES_FOUND",
+    }
+
+    # Extract 11-char video ID if standard YouTube URL
+    vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
+    video_id = vid_match.group(1) if vid_match else None
+
+    # Method A: Try youtube_transcript_api if installed (instant, zero ffmpeg dependency)
+    if video_id:
+        try:
+            from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
+
+            ytt_api = YouTubeTranscriptApi()
+            transcript_list = ytt_api.list(video_id)
+            manual_tracks = [t for t in transcript_list if not t.is_generated]
+            auto_tracks = [t for t in transcript_list if t.is_generated]
+
+            meta["manual_langs"] = [f"{t.language_code} ({t.language})" for t in manual_tracks]
+            meta["auto_langs"] = [f"{t.language_code} ({t.language})" for t in auto_tracks]
+
+            chosen = None
+            # Priority 1: Manual Telugu track (te, te-IN)
+            for t in manual_tracks:
+                if t.language_code.startswith("te"):
+                    chosen = t
+                    meta["selected_track"] = f"MANUAL:{t.language_code}"
+                    break
+            # Priority 2: Manual English track (en, en-IN, en-US, en-GB)
+            if chosen is None:
+                for t in manual_tracks:
+                    if t.language_code.startswith("en"):
+                        chosen = t
+                        meta["selected_track"] = f"MANUAL:{t.language_code}"
+                        break
+            # Priority 3: Optional YouTube Auto-Captions ONLY if explicitly enabled
+            if chosen is None and allow_auto_captions:
+                for t in auto_tracks:
+                    if t.language_code.startswith(("te", "en")):
+                        chosen = t
+                        meta["selected_track"] = f"AUTO:{t.language_code}"
+                        break
+
+            if chosen is not None:
+                fetched = chosen.fetch()
+                srt_lines = []
+                for idx, item in enumerate(fetched, start=1):
+                    start_s = float(getattr(item, "start", item["start"] if isinstance(item, dict) else 0.0))
+                    dur_s = float(getattr(item, "duration", item.get("duration", 2.5) if isinstance(item, dict) else 2.5))
+                    text_val = str(getattr(item, "text", item["text"] if isinstance(item, dict) else "")).strip()
+                    if not text_val:
+                        continue
+                    st_hms = format_seconds_to_hms(start_s) + ",000"
+                    et_hms = format_seconds_to_hms(start_s + max(0.8, dur_s)) + ",000"
+                    srt_lines.append(f"{idx}\n{st_hms} --> {et_hms}\n{text_val}\n")
+
+                if srt_lines:
+                    srt_out = work_dir / f"{movie_name}.{chosen.language_code}.srt"
+                    srt_out.write_text("\n".join(srt_lines), encoding="utf-8")
+                    meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API"
+                    return srt_out, meta
+        except Exception as e:
+            meta["transcript_api_note"] = str(e)
+
+    # Method B: Use yt-dlp with wildcard language matching (`te.*,en.*`)
     out_template = str(work_dir / f"{movie_name}.%(ext)s")
     cmd = [
         "yt-dlp",
         "--write-sub",
-        "--write-auto-sub",
-        "--sub-lang",
-        "te,en",
+        *(["--write-auto-sub"] if allow_auto_captions else []),
+        "--sub-langs",
+        "te.*,en.*",
         "--sub-format",
         "srt",
         "--convert-subs",
@@ -341,10 +418,24 @@ def download_srt_from_youtube(youtube_url: str, work_dir: Path, movie_name: str)
         out_template,
         youtube_url,
     ]
-    print(f"[YT-DLP] Extracting subtitles from YouTube URL: {youtube_url} ...")
+    print(f"[YT-DLP] Checking & downloading official subtitles (`te.*`, `en.*`) from: {youtube_url} ...")
     subprocess.run(cmd, check=False)
     srts = sorted(work_dir.glob(f"{movie_name}*.srt"))
-    return srts[0] if srts else None
+    if srts:
+        # Prefer Telugu (.te) over English (.en) if both downloaded
+        te_srts = [p for p in srts if ".te" in p.name]
+        best_srt = te_srts[0] if te_srts else srts[0]
+        meta["selected_track"] = best_srt.name
+        meta["status"] = "SUCCESS_YTDLP_SRT"
+        return best_srt, meta
+
+    return None, meta
+
+
+def download_srt_from_youtube(youtube_url: str, work_dir: Path, movie_name: str) -> Optional[Path]:
+    """Backwards-compatible wrapper around `check_and_download_youtube_srt`."""
+    srt_path, _ = check_and_download_youtube_srt(youtube_url, work_dir, movie_name, allow_auto_captions=False)
+    return srt_path
 
 
 def extract_full_movie_pipeline(
@@ -354,22 +445,28 @@ def extract_full_movie_pipeline(
     youtube_url: Optional[str] = None,
     srt_file: Optional[str | Path] = None,
     out_dir: str | Path = "./drive_mirror/Tenglish_LM/extracted_movies",
+    allow_auto_captions: bool = False,
 ) -> Dict[str, Any]:
     """
     Main function you call in Colab or Python:
-    Give it a `youtube_url` (or `srt_file`) -> outputs `.csv`, `.txt`, and `.jsonl` with scene emotion tags.
+    Give it a `youtube_url` (with subtitles) or `srt_file` -> outputs `.csv`, `.txt`, and `.jsonl` with scene emotion tags.
     """
     out_path = Path(out_dir) / movie_name
     out_path.mkdir(parents=True, exist_ok=True)
 
     target_srt: Optional[Path] = Path(srt_file) if srt_file else None
+    sub_meta: Dict[str, Any] = {}
     if youtube_url and (target_srt is None or not target_srt.exists()):
-        target_srt = download_srt_from_youtube(youtube_url, out_path, movie_name)
+        target_srt, sub_meta = check_and_download_youtube_srt(
+            youtube_url, out_path, movie_name, allow_auto_captions=allow_auto_captions
+        )
 
     if target_srt is None or not target_srt.exists():
         raise FileNotFoundError(
-            f"Could not find or download .srt for {movie_name}. "
-            f"In Colab, ensure yt-dlp is installed (`!pip install -q yt-dlp`) or pass `--srt-file`."
+            f"❌ No official subtitles found on YouTube for '{movie_name}' ({youtube_url}).\n"
+            f"   Manual tracks detected: {sub_meta.get('manual_langs', [])}\n"
+            f"   Auto tracks detected:   {sub_meta.get('auto_langs', [])}\n"
+            f"👉 Please use a YouTube video with CC/subtitles enabled, or pass a local `.srt` file from OpenSubtitles/Subdl!"
         )
 
     srt_text = target_srt.read_text(encoding="utf-8", errors="replace")
