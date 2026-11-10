@@ -1,86 +1,90 @@
 """
-Builds the Generic YouTube Movie Subtitle & Scene Corpus Extractor Colab Notebook:
-- `notebooks/00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb`
+Builds the GitHub Live-Synced YouTube Movie Subtitle & Scene Corpus Extractor Colab Notebooks:
 - `notebooks/01_YouTube_Movie_Corpus_Extractor.ipynb`
+- `notebooks/00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb`
 
-Features:
-- Allows attaching `movie_name`, `year`, `director`, `genre`, and `dialect` alongside every YouTube movie link.
-- 100% Generic (NO hardcoded Bommarillu scenes, NO Tenglish romanization clutter).
-- Extracts Manual or YouTube Auto-Generated Telugu captions (`te`, `te-IN`).
-- Strips `[సంగీతం]`, `[బెల్]`, `[చప్పట్లు]`, statutory smoking disclaimers, and BGM humming (`తారా తరారారారా`).
-- Saves `<movie>_raw.srt`, `<movie>_clean.srt`, `<movie>_scenes.csv`, `<movie>_scenes.txt`, and `corpus_manifest.csv` directly to Google Drive!
+Key Upgrades:
+1. Embeds the official `[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]` button at the top of the notebook so GitHub always renders a 1-click "Open in Colab" badge.
+2. Live-syncs directly with `https://github.com/SaiKiranKumarNalla/tenglish-lm.git` via `git clone` / `git pull` + `importlib.reload()` in Step 1, so the notebook is ALWAYS 100% synced with the latest GitHub code!
 """
 
 import json
 from pathlib import Path
 
 
-CELL_1_MARKDOWN = """# 🎬 Telugu Movie Subtitle & Scene Corpus Extractor (YouTube -> `.srt`, `.csv`, `.txt`)
-**Runtime:** Google Colab **Free CPU** (Fast & Clean — Extracts & stores full movies in seconds)
+COLAB_URL = "https://colab.research.google.com/github/SaiKiranKumarNalla/tenglish-lm/blob/main/notebooks/01_YouTube_Movie_Corpus_Extractor.ipynb"
 
-### What This Notebook Does:
-1. **Step 1:** Installs `yt-dlp` and `youtube-transcript-api` and connects your Google Drive (`/MyDrive/Tenglish_LM/movie_corpus`).
-2. **Step 2:** Loads the **Generic Telugu Movie Harvester & Scene Tagger**:
-   - Downloads official Telugu captions (`te`) or YouTube's auto-generated Telugu captions (`AUTO_YOUTUBE_TE`).
-   - Automatically strips `[సంగీతం]`, `[బెల్]`, `[చప్పట్లు]`, statutory smoking/alcohol disclaimers (`పొగ త్రాగుట...`), and BGM humming (`తారా తరారారారా...`).
-   - Slices the movie into timestamped conversational scenes and attaches your **Movie Name, Year, Director, and Genre**, plus auto-tagged **Scene Emotion** (`COMEDY`, `EMOTIONAL_HEARTBREAK`, `ANGER_WARNING`, `SARCASTIC_ROAST`, `PHILOSOPHICAL`, `ELEVATION_MASS`) and **Dialect**.
-3. **Step 3:** Attach your YouTube link(s) along with **`movie_name`, `year`, `director`, and `genre`** and run! For every movie, it saves:
-   - `<movie_name>_raw.te.srt` (raw YouTube subtitle file)
-   - `<movie_name>_clean.srt` (noise-cleaned Telugu `.srt` file)
-   - `<movie_name>_scenes.csv` (with `movie_name`, `year`, `director`, `movie_genre`, `scene_emotion`, `scene_dialect`, `start_time`, `end_time`, `dialogue_telugu`)
-   - `<movie_name>_scenes.txt` (human-readable Telugu scene script with movie & scene headers)
-   - `corpus_manifest.csv` (master index of all extracted movies in your corpus)"""
+CELL_1_MARKDOWN = f"""[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]({COLAB_URL})
 
-CELL_2_SETUP_CODE = """# @title Step 1: Install yt-dlp + youtube-transcript-api & Mount Google Drive
+# 🎬 Telugu Movie Subtitle & Scene Corpus Extractor (Live-Synced with GitHub)
+**Repository:** [`SaiKiranKumarNalla/tenglish-lm`](https://github.com/SaiKiranKumarNalla/tenglish-lm) | **Runtime:** Google Colab **Free CPU**
+
+### How This Notebook Stays 100% Synced with GitHub:
+* **Step 1** automatically runs `git clone` / `git pull origin main` from `https://github.com/SaiKiranKumarNalla/tenglish-lm.git` and reloads `tenglish_lm.movie_harvester` & `extract_youtube_movie`. Every time you run Step 1, you get the exact latest code from your GitHub repo!
+* **Step 2** lets you attach your YouTube movie link(s) along with **`movie_name`, `year`, `director`, `genre`, and `dialect`**, and saves the clean `.srt`, `.csv`, and `.txt` files directly to your Google Drive (`/MyDrive/Tenglish_LM/movie_corpus/`)."""
+
+CELL_2_LIVE_SYNC_SETUP = """# @title Step 1: Live-Sync Latest Code from GitHub & Mount Google Drive
 !pip install -q -U yt-dlp youtube-transcript-api "bottleneck>=1.5.0"
 
+import importlib
 import os
+import subprocess
+import sys
 from pathlib import Path
 
+# 1. Clone or Pull latest code directly from your GitHub repository
+REPO_URL = "https://github.com/SaiKiranKumarNalla/tenglish-lm.git"
+REPO_DIR = Path("/content/tenglish-lm")
+
+if not REPO_DIR.exists():
+    print("🔄 Cloning latest code from GitHub (SaiKiranKumarNalla/tenglish-lm)...")
+    subprocess.run(["git", "clone", REPO_URL, str(REPO_DIR)], check=True)
+else:
+    print("🔄 Pulling latest updates from GitHub (SaiKiranKumarNalla/tenglish-lm)...")
+    subprocess.run(["git", "-C", str(REPO_DIR), "pull", "--ff-only", "origin", "main"], check=True)
+
+if str(REPO_DIR) not in sys.path:
+    sys.path.insert(0, str(REPO_DIR))
+
+# Reload modules so any GitHub changes take effect immediately in this Colab session
+import tenglish_lm.movie_harvester
+import extract_youtube_movie
+
+importlib.reload(tenglish_lm.movie_harvester)
+importlib.reload(extract_youtube_movie)
+
+from extract_youtube_movie import (
+    extract_full_movie_pipeline,
+    extract_movie_corpus_batch,
+    load_movie_list_from_csv,
+)
+
+# Show the exact Git commit currently active in Colab
+commit_info = subprocess.run(
+    ["git", "-C", str(REPO_DIR), "log", "-1", "--oneline"],
+    capture_output=True,
+    text=True,
+    check=False,
+).stdout.strip()
+print(f"✅ Synced with GitHub commit: {commit_info}")
+
+# 2. Mount Google Drive for persistent corpus storage
 try:
     from google.colab import drive
-    drive.mount('/content/drive')
-    CORPUS_DIR = Path('/content/drive/MyDrive/Tenglish_LM/movie_corpus')
+    drive.mount("/content/drive")
+    CORPUS_DIR = Path("/content/drive/MyDrive/Tenglish_LM/movie_corpus")
     print("✅ Mounted Google Drive! Movie corpus will be saved to:", CORPUS_DIR)
 except Exception:
-    CORPUS_DIR = Path('/content/Tenglish_LM/movie_corpus')
+    CORPUS_DIR = Path("/content/Tenglish_LM/movie_corpus")
     print("ℹ️ Running in local storage:", CORPUS_DIR)
 
 CORPUS_DIR.mkdir(parents=True, exist_ok=True)"""
 
-
-def build_generic_colab_notebooks() -> None:
-    root = Path(__file__).parent
-    harvester_code = (root / "tenglish_lm" / "movie_harvester.py").read_text(encoding="utf-8")
-    extractor_code = (root / "extract_youtube_movie.py").read_text(encoding="utf-8")
-
-    extractor_clean = []
-    skip_import = False
-    for line in extractor_code.splitlines():
-        if line.startswith("from tenglish_lm.movie_harvester import"):
-            skip_import = True
-            continue
-        if skip_import:
-            if ")" in line:
-                skip_import = False
-            continue
-        if line.startswith("if __name__"):
-            break
-        extractor_clean.append(line)
-
-    bundled_engine_cell = (
-        "# @title Step 2: Load Generic Telugu Movie SRT Cleaner & Scene Extractor\n"
-        + harvester_code
-        + "\n\n# --- Generic YouTube Movie Extractor & Corpus Exporter ---\n"
-        + "\n".join(extractor_clean)
-        + "\nprint('✅ Generic Telugu Movie Extractor loaded (Zero hardcoded data, Pure Telugu SRT/CSV/TXT output)!')"
-    )
-
-    cell_3_runner = """# @title Step 3: Attach YouTube Link + Movie Name, Year, Director & Genre
+CELL_3_RUNNER = """# @title Step 2: Attach YouTube Link + Movie Name, Year, Director & Genre -> Extract Corpus
 import json
 import pandas as pd
 
-# 👇 QUICK SINGLE-MOVIE INPUTS (Or add multiple movies to `EXTRA_MOVIES_BATCH` below!):
+# 👇 SINGLE-MOVIE FORM INPUTS (Or add multiple movies to `MOVIE_CORPUS_LIST` below!):
 YOUTUBE_URL = "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s"  # @param {type:"string"}
 MOVIE_NAME = "Subramanyam_For_Sale"  # @param {type:"string"}
 YEAR = "2015"  # @param {type:"string"}
@@ -89,7 +93,7 @@ GENRE = "RomCom / Family Entertainer"  # @param {type:"string"}
 DIALECT = "STANDARD_TELUGU"  # @param ["STANDARD_TELUGU", "TELANGANA", "RAYALASEEMA", "COASTAL_ANDHRA", "URBAN_HYDERABAD"]
 ALLOW_YOUTUBE_AUTO_CAPTIONS = True  # @param {type:"boolean"}
 
-# 👇 OPTIONAL: ADD MULTIPLE MOVIES WITH THEIR METADATA TO EXTRACT A FULL BATCH AT ONCE:
+# 👇 ADD ONE OR MORE MOVIES WITH METADATA TO EXTRACT YOUR CORPUS:
 MOVIE_CORPUS_LIST = [
     {
         "url": YOUTUBE_URL,
@@ -99,7 +103,7 @@ MOVIE_CORPUS_LIST = [
         "genre": GENRE,
         "dialect": DIALECT,
     },
-    # Example of adding more movies to your batch list:
+    # Add more movies here:
     # {
     #     "url": "https://www.youtube.com/watch?v=...",
     #     "movie_name": "Athadu",
@@ -121,11 +125,9 @@ print(f"✅ CORPUS EXTRACTION COMPLETE: {batch_summary['movies_extracted']}/{bat
 print(f"📂 Master Manifest: {batch_summary['manifest_csv']}")
 print("==================================================================")
 
-# Display the Master Corpus Manifest
 manifest_df = pd.read_csv(batch_summary["manifest_csv"])
 display(manifest_df)
 
-# Preview the scenes of the most recently extracted movie
 if batch_summary["results"]:
     latest = batch_summary["results"][-1]
     print(
@@ -153,7 +155,7 @@ if batch_summary["results"]:
         ].head(20)
     )"""
 
-    cell_4_txt_preview = """# @title Step 4: Inspect the Clean Telugu `.txt` Scene Script & Cleaned `.srt`
+CELL_4_TXT_PREVIEW = """# @title Step 3: Inspect the Clean Telugu `.txt` Scene Script & Cleaned `.srt`
 if batch_summary["results"]:
     latest = batch_summary["results"][-1]
     txt_path = Path(latest["files"]["txt"])
@@ -164,47 +166,47 @@ if batch_summary["results"]:
     print(f"📄 Cleaned .SRT Preview ({clean_srt_path}):\\n")
     print(clean_srt_path.read_text(encoding="utf-8")[:1500])"""
 
+
+def build_generic_colab_notebooks() -> None:
+    root = Path(__file__).parent
     nb = {
         "nbformat": 4,
         "nbformat_minor": 0,
         "metadata": {
-            "colab": {"provenance": [], "include_colab_link": True},
+            "colab": {
+                "provenance": [],
+                "include_colab_link": True,
+                "name": "01_YouTube_Movie_Corpus_Extractor.ipynb",
+            },
             "kernelspec": {"display_name": "Python 3", "name": "python3"},
             "language_info": {"name": "python"},
         },
         "cells": [
             {
                 "cell_type": "markdown",
-                "metadata": {},
+                "metadata": {"id": "view-in-github", "colab_type": "text"},
                 "source": [l + "\n" for l in CELL_1_MARKDOWN.splitlines()],
             },
             {
                 "cell_type": "code",
                 "execution_count": None,
-                "metadata": {},
+                "metadata": {"id": "step1_github_sync"},
                 "outputs": [],
-                "source": [l + "\n" for l in CELL_2_SETUP_CODE.splitlines()],
+                "source": [l + "\n" for l in CELL_2_LIVE_SYNC_SETUP.splitlines()],
             },
             {
                 "cell_type": "code",
                 "execution_count": None,
-                "metadata": {},
+                "metadata": {"id": "step2_extract_corpus"},
                 "outputs": [],
-                "source": [l + "\n" for l in bundled_engine_cell.splitlines()],
+                "source": [l + "\n" for l in CELL_3_RUNNER.splitlines()],
             },
             {
                 "cell_type": "code",
                 "execution_count": None,
-                "metadata": {},
+                "metadata": {"id": "step3_preview_txt_srt"},
                 "outputs": [],
-                "source": [l + "\n" for l in cell_3_runner.splitlines()],
-            },
-            {
-                "cell_type": "code",
-                "execution_count": None,
-                "metadata": {},
-                "outputs": [],
-                "source": [l + "\n" for l in cell_4_txt_preview.splitlines()],
+                "source": [l + "\n" for l in CELL_4_TXT_PREVIEW.splitlines()],
             },
         ],
     }
@@ -212,12 +214,12 @@ if batch_summary["results"]:
     nb_dir = root / "notebooks"
     nb_dir.mkdir(parents=True, exist_ok=True)
     for fname in [
-        "00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb",
         "01_YouTube_Movie_Corpus_Extractor.ipynb",
+        "00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb",
     ]:
         out_nb = nb_dir / fname
         out_nb.write_text(json.dumps(nb, ensure_ascii=False, indent=2), encoding="utf-8")
-        print("Built generic Colab notebook:", out_nb)
+        print("Built GitHub-synced Colab notebook:", out_nb)
 
 
 if __name__ == "__main__":
