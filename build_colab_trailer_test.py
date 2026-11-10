@@ -80,20 +80,20 @@ except Exception:
 
 CORPUS_DIR.mkdir(parents=True, exist_ok=True)"""
 
-CELL_3_RUNNER = """# @title Step 2: Attach YouTube Link + Movie Name, Year, Director & Genre -> Extract Corpus
+CELL_3_RUNNER = """# @title Step 2: Attach YouTube Link + Movie Name, Year, Director & Genre -> Extract Telugu Corpus
 import json
 import pandas as pd
 
-# 👇 SINGLE-MOVIE FORM INPUTS (Or add multiple movies to `MOVIE_CORPUS_LIST` below!):
-YOUTUBE_URL = "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s"  # @param {type:"string"}
-MOVIE_NAME = "Subramanyam_For_Sale"  # @param {type:"string"}
-YEAR = "2015"  # @param {type:"string"}
-DIRECTOR = "Harish Shankar"  # @param {type:"string"}
-GENRE = "RomCom / Family Entertainer"  # @param {type:"string"}
+# 👇 SINGLE-MOVIE FORM INPUTS (Set MOVIE_NAME to "AUTO" to auto-detect title from YouTube, or type your own!):
+YOUTUBE_URL = "https://www.youtube.com/watch?v=fBSjiV745_k"  # @param {type:"string"}
+MOVIE_NAME = "AUTO"  # @param {type:"string"}
+YEAR = "2020s"  # @param {type:"string"}
+DIRECTOR = "UNKNOWN"  # @param {type:"string"}
+GENRE = "Drama / Entertainer"  # @param {type:"string"}
 DIALECT = "STANDARD_TELUGU"  # @param ["STANDARD_TELUGU", "TELANGANA", "RAYALASEEMA", "COASTAL_ANDHRA", "URBAN_HYDERABAD"]
 ALLOW_YOUTUBE_AUTO_CAPTIONS = True  # @param {type:"boolean"}
 
-# 👇 ADD ONE OR MORE MOVIES WITH METADATA TO EXTRACT YOUR CORPUS:
+# 👇 ADD ONE OR MORE MOVIES WITH METADATA TO EXTRACT YOUR CORPUS (Strictly Telugu `te` Captions Only!):
 MOVIE_CORPUS_LIST = [
     {
         "url": YOUTUBE_URL,
@@ -103,13 +103,13 @@ MOVIE_CORPUS_LIST = [
         "genre": GENRE,
         "dialect": DIALECT,
     },
-    # Add more movies here:
+    # Example of adding more movies here:
     # {
-    #     "url": "https://www.youtube.com/watch?v=...",
-    #     "movie_name": "Athadu",
-    #     "year": "2005",
-    #     "director": "Trivikram Srinivas",
-    #     "genre": "Action / Family Drama",
+    #     "url": "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s",
+    #     "movie_name": "Subramanyam_For_Sale",
+    #     "year": "2015",
+    #     "director": "Harish Shankar",
+    #     "genre": "RomCom / Family Entertainer",
     #     "dialect": "STANDARD_TELUGU",
     # },
 ]

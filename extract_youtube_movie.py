@@ -331,6 +331,12 @@ def fetch_youtube_video_title(youtube_url: str) -> Optional[str]:
         return None
 
 
+def has_telugu_script(text: str, min_telugu_chars: int = 10) -> bool:
+    """Returns True if the text contains at least `min_telugu_chars` Telugu Unicode characters (0x0C00-0x0C7F)."""
+    te_count = sum(1 for ch in text if "\u0c00" <= ch <= "\u0c7f")
+    return te_count >= min_telugu_chars
+
+
 def check_and_download_youtube_srt(
     youtube_url: str,
     work_dir: Path,
@@ -338,12 +344,11 @@ def check_and_download_youtube_srt(
     allow_auto_captions: bool = True,
 ) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Extracts existing subtitles or YouTube auto-generated Telugu/English captions.
+    Strictly extracts ONLY Telugu (`te`, `te-IN`) manual or YouTube auto-generated captions.
+    NEVER downloads English (`en`) subtitles.
     Priority order:
       1. Manual Telugu track (`te`, `te-IN`)
       2. YouTube Auto-Generated Telugu track (`te`, `te-IN`)
-      3. Manual English track (`en`, `en-IN`, `en-US`, `en-GB`)
-      4. YouTube Auto-Generated English track (`en.*`)
     """
     work_dir.mkdir(parents=True, exist_ok=True)
     meta: Dict[str, Any] = {
@@ -351,13 +356,20 @@ def check_and_download_youtube_srt(
         "manual_langs": [],
         "auto_langs": [],
         "selected_track": None,
-        "status": "NO_SUBTITLES_FOUND",
+        "status": "NO_TELUGU_SUBTITLES_FOUND",
     }
 
     vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
-    video_id = vid_match.group(1) if vid_match else None
+    video_id = vid_match.group(1) if vid_match else "vid"
 
-    if video_id:
+    # Remove any old English or mismatched .srt/.vtt files in work_dir
+    for old_f in list(work_dir.glob(f"{movie_name}_raw*")):
+        try:
+            old_f.unlink()
+        except Exception:
+            pass
+
+    if video_id != "vid":
         try:
             from youtube_transcript_api import YouTubeTranscriptApi  # type: ignore
 
@@ -370,28 +382,18 @@ def check_and_download_youtube_srt(
             meta["auto_langs"] = [f"{t.language_code} ({t.language})" for t in auto_tracks]
 
             chosen = None
+            # Priority 1: Manual Telugu track (te, te-IN)
             for t in manual_tracks:
                 if t.language_code.startswith("te"):
                     chosen = t
-                    meta["selected_track"] = f"MANUAL:{t.language_code}"
+                    meta["selected_track"] = f"MANUAL_TELUGU:{t.language_code}"
                     break
+            # Priority 2: YouTube Auto-Generated Telugu track (te, te-IN)
             if chosen is None and allow_auto_captions:
                 for t in auto_tracks:
                     if t.language_code.startswith("te"):
                         chosen = t
-                        meta["selected_track"] = f"AUTO_YOUTUBE_TE:{t.language_code}"
-                        break
-            if chosen is None:
-                for t in manual_tracks:
-                    if t.language_code.startswith("en"):
-                        chosen = t
-                        meta["selected_track"] = f"MANUAL:{t.language_code}"
-                        break
-            if chosen is None and allow_auto_captions:
-                for t in auto_tracks:
-                    if t.language_code.startswith("en"):
-                        chosen = t
-                        meta["selected_track"] = f"AUTO_YOUTUBE_EN:{t.language_code}"
+                        meta["selected_track"] = f"AUTO_YOUTUBE_TELUGU:{t.language_code}"
                         break
 
             if chosen is not None:
@@ -415,22 +417,23 @@ def check_and_download_youtube_srt(
                     et_hms = format_seconds_to_hms(end_s) + ",000"
                     srt_lines.append(f"{idx + 1}\n{st_hms} --> {et_hms}\n{text_val}\n")
 
-                if srt_lines:
-                    srt_out = work_dir / f"{movie_name}_raw.{chosen.language_code}.srt"
-                    srt_out.write_text("\n".join(srt_lines), encoding="utf-8")
-                    meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API"
+                joined_srt = "\n".join(srt_lines)
+                if srt_lines and has_telugu_script(joined_srt):
+                    srt_out = work_dir / f"{movie_name}_{video_id}_raw.{chosen.language_code}.srt"
+                    srt_out.write_text(joined_srt, encoding="utf-8")
+                    meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API_TE"
                     return srt_out, meta
         except Exception as e:
             meta["transcript_api_note"] = str(e)
 
-    # Fallback: yt-dlp subtitle download
-    out_template = str(work_dir / f"{movie_name}_raw.%(ext)s")
+    # Fallback: yt-dlp strictly requesting ONLY Telugu (`te.*`) — NEVER English (`en.*`)!
+    out_template = str(work_dir / f"{movie_name}_{video_id}_raw.%(ext)s")
     cmd = [
         "yt-dlp",
         "--write-sub",
         *(["--write-auto-sub"] if allow_auto_captions else []),
         "--sub-langs",
-        "te.*,en.*",
+        "te.*",
         "--sub-format",
         "srt/vtt",
         "--convert-subs",
@@ -440,15 +443,22 @@ def check_and_download_youtube_srt(
         out_template,
         youtube_url,
     ]
-    print(f"[YT-DLP] Downloading subtitles (`te.*`, `en.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
+    print(f"[YT-DLP] Checking & downloading ONLY Telugu subtitles (`te.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
     subprocess.run(cmd, check=False)
-    srts = sorted(work_dir.glob(f"{movie_name}_raw*.srt")) + sorted(work_dir.glob(f"{movie_name}_raw*.vtt"))
-    if srts:
-        te_srts = [p for p in srts if ".te" in p.name]
-        best_srt = te_srts[0] if te_srts else srts[0]
-        meta["selected_track"] = best_srt.name
-        meta["status"] = "SUCCESS_YTDLP_SUBS"
-        return best_srt, meta
+    te_srts = [
+        p
+        for p in (
+            sorted(work_dir.glob(f"{movie_name}_{video_id}_raw*.srt"))
+            + sorted(work_dir.glob(f"{movie_name}_{video_id}_raw*.vtt"))
+        )
+        if ".te" in p.name
+    ]
+    for candidate in te_srts:
+        txt = candidate.read_text(encoding="utf-8", errors="replace")
+        if has_telugu_script(txt):
+            meta["selected_track"] = candidate.name
+            meta["status"] = "SUCCESS_YTDLP_TELUGU_SUBS"
+            return candidate, meta
 
     return None, meta
 
@@ -466,14 +476,22 @@ def extract_full_movie_pipeline(
 ) -> Dict[str, Any]:
     """
     Extracts a single movie with its attached metadata (`movie_name`, `year`, `director`, `movie_genre`, `dialect_hint`),
-    cleans BGM/disclaimers, slices into scenes, tags scene emotions, and stores `<movie_name>_raw.srt`,
-    `<movie_name>_clean.srt`, `<movie_name>_scenes.csv`, `<movie_name>_scenes.txt`, and `<movie_name>_scenes.jsonl`.
+    strictly verifies that the captions are in Telugu script (never English), cleans BGM/disclaimers,
+    slices into scenes, tags scene emotions, and stores `<movie_name>_raw.srt`, `<movie_name>_clean.srt`,
+    `<movie_name>_scenes.csv`, `<movie_name>_scenes.txt`, and `<movie_name>_scenes.jsonl`.
     """
-    if not movie_name or movie_name.strip() == "" or movie_name == "AUTO":
+    vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url or "")
+    vid_id = vid_match.group(1) if vid_match else "Movie"
+
+    # If user changed YOUTUBE_URL away from sOOrFtP6DIE but left MOVIE_NAME as the default 'Subramanyam_For_Sale', auto-fetch title
+    if (
+        not movie_name
+        or movie_name.strip() == ""
+        or movie_name == "AUTO"
+        or (movie_name == "Subramanyam_For_Sale" and vid_id != "sOOrFtP6DIE")
+    ):
         if youtube_url:
             detected_title = fetch_youtube_video_title(youtube_url)
-            vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
-            vid_id = vid_match.group(1) if vid_match else "Movie"
             movie_name = f"{detected_title}_{vid_id}" if detected_title else f"Movie_{vid_id}"
         elif srt_file:
             movie_name = sanitize_movie_slug(Path(srt_file).stem)
@@ -494,11 +512,18 @@ def extract_full_movie_pipeline(
 
     if target_srt is None or not target_srt.exists():
         raise FileNotFoundError(
-            f"❌ No manual or auto-generated subtitles found on YouTube for '{movie_name}' ({youtube_url}).\n"
-            f"   Manual tracks: {sub_meta.get('manual_langs', [])} | Auto tracks: {sub_meta.get('auto_langs', [])}"
+            f"❌ No Telugu (`te`) captions found on YouTube for '{movie_name}' ({youtube_url}).\n"
+            f"   Available Manual tracks on video: {sub_meta.get('manual_langs', [])}\n"
+            f"   Available Auto tracks on video:   {sub_meta.get('auto_langs', [])}\n"
+            f"   (Skipped because only Telugu script captions are allowed in the corpus!)"
         )
 
     srt_text = target_srt.read_text(encoding="utf-8", errors="replace")
+    if not has_telugu_script(srt_text):
+        raise ValueError(
+            f"❌ Downloaded subtitle file '{target_srt.name}' for '{movie_name}' is NOT in Telugu script! "
+            f"(Manual tracks: {sub_meta.get('manual_langs', [])} | Auto tracks: {sub_meta.get('auto_langs', [])})"
+        )
     blocks = parse_srt_content(srt_text)
     scenes = slice_movie_blocks_with_timestamps(
         blocks=blocks,
