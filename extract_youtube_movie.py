@@ -356,6 +356,66 @@ def has_telugu_script(text: str, min_telugu_chars: int = 10) -> bool:
     return te_count >= min_telugu_chars
 
 
+def _translate_batch_en_to_te(lines: List[str]) -> List[str]:
+    """
+    Translates a batch of English subtitle lines into Telugu (`en >> te`) using Google's
+    `translate_a/single` endpoint (the same backend behind YouTube's `English >> Telugu` CC menu).
+    """
+    import urllib.parse
+    import urllib.request
+
+    if not lines:
+        return []
+    # Use a separator that Google Translate preserves per line
+    cleaned_inputs = [re.sub(r"\s+", " ", l).strip() for l in lines]
+    joined = "\n".join(cleaned_inputs)
+    url = (
+        "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=te&dt=t&q="
+        + urllib.parse.quote(joined)
+    )
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    translated_full = "".join(seg[0] for seg in data[0] if seg and seg[0])
+    out_lines = [l.strip() for l in translated_full.split("\n")]
+    if len(out_lines) == len(lines):
+        return out_lines
+    # Fallback line-by-line if a newline inside a cue shifted the count
+    fallback_out: List[str] = []
+    for single in cleaned_inputs:
+        u1 = (
+            "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=te&dt=t&q="
+            + urllib.parse.quote(single)
+        )
+        r1 = urllib.request.Request(u1, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(r1, timeout=15) as resp1:
+            d1 = json.loads(resp1.read().decode("utf-8"))
+        fallback_out.append("".join(seg[0] for seg in d1[0] if seg and seg[0]).strip())
+    return fallback_out
+
+
+def translate_en_cues_to_telugu_parallel(cues: List[Dict[str, Any]], batch_size: int = 35) -> List[Dict[str, Any]]:
+    """
+    Translates a full movie's English subtitle cues (`start`, `end`, `text`) into Telugu (`en >> te`)
+    in parallel batches (~3-4 seconds for a 2.5-hour movie).
+    """
+    from concurrent.futures import ThreadPoolExecutor
+
+    batches: List[List[str]] = []
+    for i in range(0, len(cues), batch_size):
+        batches.append([c["text"] for c in cues[i : i + batch_size]])
+
+    print(f"🌐 Auto-translating {len(cues)} subtitle cues (`English >> Telugu`) across {len(batches)} parallel batches...")
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        translated_batches = list(pool.map(_translate_batch_en_to_te, batches))
+
+    flat_te: List[str] = [item for sublist in translated_batches for item in sublist]
+    out_cues: List[Dict[str, Any]] = []
+    for c, te_text in zip(cues, flat_te):
+        out_cues.append({"start": c["start"], "end": c["end"], "text": te_text})
+    return out_cues
+
+
 def check_and_download_youtube_srt(
     youtube_url: str,
     work_dir: Path,
@@ -363,11 +423,11 @@ def check_and_download_youtube_srt(
     allow_auto_captions: bool = True,
 ) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Strictly extracts ONLY Telugu (`te`, `te-IN`) manual or YouTube auto-generated captions.
-    NEVER downloads English (`en`) subtitles.
-    Priority order:
+    Extracts Telugu (`te`) captions from YouTube in 3 priority tiers:
       1. Manual Telugu track (`te`, `te-IN`)
       2. YouTube Auto-Generated Telugu track (`te`, `te-IN`)
+      3. YouTube `English >> Telugu` Auto-Translate (when the video has an `en` track on YouTube,
+         matching YouTube's `Subtitles/CC -> Auto-translate -> English >> Telugu` option!).
     """
     work_dir.mkdir(parents=True, exist_ok=True)
     meta: Dict[str, Any] = {
@@ -381,8 +441,8 @@ def check_and_download_youtube_srt(
     vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
     video_id = vid_match.group(1) if vid_match else "vid"
 
-    # Remove any old English or mismatched .srt/.vtt files in work_dir
-    for old_f in list(work_dir.glob(f"{movie_name}_raw*")):
+    # Remove any old or mismatched .srt/.vtt files in work_dir
+    for old_f in list(work_dir.glob(f"{movie_name}*_raw*")):
         try:
             old_f.unlink()
         except Exception:
@@ -401,6 +461,8 @@ def check_and_download_youtube_srt(
             meta["auto_langs"] = [f"{t.language_code} ({t.language})" for t in auto_tracks]
 
             chosen = None
+            en_source_track = None
+
             # Priority 1: Manual Telugu track (te, te-IN)
             for t in manual_tracks:
                 if t.language_code.startswith("te"):
@@ -415,44 +477,100 @@ def check_and_download_youtube_srt(
                         meta["selected_track"] = f"AUTO_YOUTUBE_TELUGU:{t.language_code}"
                         break
 
+            # Priority 3: `English >> Telugu` (when video has Manual/Auto English captions)
+            if chosen is None and allow_auto_captions:
+                for t in manual_tracks + auto_tracks:
+                    if t.language_code.startswith("en"):
+                        en_source_track = t
+                        break
+                if en_source_track is not None and getattr(en_source_track, "is_translatable", False):
+                    try:
+                        chosen = en_source_track.translate("te")
+                        meta["selected_track"] = f"YOUTUBE_AUTO_TRANSLATE:{en_source_track.language_code}>>te"
+                    except Exception:
+                        chosen = None
+
             if chosen is not None:
-                fetched = list(chosen.fetch())
-                srt_lines = []
-                for idx, item in enumerate(fetched):
+                try:
+                    fetched = list(chosen.fetch())
+                    srt_lines = []
+                    for idx, item in enumerate(fetched):
+                        start_s = float(getattr(item, "start", item["start"] if isinstance(item, dict) else 0.0))
+                        dur_s = float(
+                            getattr(item, "duration", item.get("duration", 2.5) if isinstance(item, dict) else 2.5)
+                        )
+                        text_val = str(getattr(item, "text", item["text"] if isinstance(item, dict) else "")).strip()
+                        if not text_val:
+                            continue
+                        end_s = start_s + max(0.8, dur_s)
+                        if idx + 1 < len(fetched):
+                            next_item = fetched[idx + 1]
+                            next_start = float(
+                                getattr(next_item, "start", next_item["start"] if isinstance(next_item, dict) else end_s)
+                            )
+                            if end_s > next_start and next_start > start_s:
+                                end_s = next_start
+                        st_hms = format_seconds_to_hms(start_s) + ",000"
+                        et_hms = format_seconds_to_hms(end_s) + ",000"
+                        srt_lines.append(f"{idx + 1}\n{st_hms} --> {et_hms}\n{text_val}\n")
+
+                    joined_srt = "\n".join(srt_lines)
+                    if srt_lines and has_telugu_script(joined_srt):
+                        srt_out = work_dir / f"{movie_name}_{video_id}_raw.te.srt"
+                        srt_out.write_text(joined_srt, encoding="utf-8")
+                        meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API_TE"
+                        return srt_out, meta
+                except Exception as fetch_err:
+                    meta["te_fetch_note"] = str(fetch_err)
+
+            # Priority 3B Fallback: If YouTube's `tlang=te` endpoint rate-limited/failed on an `en` track,
+            # fetch the `en` track and run parallel `English >> Telugu` translation!
+            if en_source_track is not None and allow_auto_captions:
+                fetched_en = list(en_source_track.fetch())
+                raw_en_cues: List[Dict[str, Any]] = []
+                for idx, item in enumerate(fetched_en):
                     start_s = float(getattr(item, "start", item["start"] if isinstance(item, dict) else 0.0))
-                    dur_s = float(getattr(item, "duration", item.get("duration", 2.5) if isinstance(item, dict) else 2.5))
+                    dur_s = float(
+                        getattr(item, "duration", item.get("duration", 2.5) if isinstance(item, dict) else 2.5)
+                    )
                     text_val = str(getattr(item, "text", item["text"] if isinstance(item, dict) else "")).strip()
                     if not text_val:
                         continue
                     end_s = start_s + max(0.8, dur_s)
-                    if idx + 1 < len(fetched):
-                        next_item = fetched[idx + 1]
+                    if idx + 1 < len(fetched_en):
+                        next_item = fetched_en[idx + 1]
                         next_start = float(
                             getattr(next_item, "start", next_item["start"] if isinstance(next_item, dict) else end_s)
                         )
                         if end_s > next_start and next_start > start_s:
                             end_s = next_start
-                    st_hms = format_seconds_to_hms(start_s) + ",000"
-                    et_hms = format_seconds_to_hms(end_s) + ",000"
-                    srt_lines.append(f"{idx + 1}\n{st_hms} --> {et_hms}\n{text_val}\n")
+                    raw_en_cues.append({"start": start_s, "end": end_s, "text": text_val})
 
-                joined_srt = "\n".join(srt_lines)
-                if srt_lines and has_telugu_script(joined_srt):
-                    srt_out = work_dir / f"{movie_name}_{video_id}_raw.{chosen.language_code}.srt"
-                    srt_out.write_text(joined_srt, encoding="utf-8")
-                    meta["status"] = "SUCCESS_YOUTUBE_TRANSCRIPT_API_TE"
-                    return srt_out, meta
+                if raw_en_cues:
+                    te_cues = translate_en_cues_to_telugu_parallel(raw_en_cues)
+                    srt_lines = []
+                    for idx, c in enumerate(te_cues, start=1):
+                        st_hms = format_seconds_to_hms(c["start"]) + ",000"
+                        et_hms = format_seconds_to_hms(c["end"]) + ",000"
+                        srt_lines.append(f"{idx}\n{st_hms} --> {et_hms}\n{c['text']}\n")
+                    joined_srt = "\n".join(srt_lines)
+                    if has_telugu_script(joined_srt):
+                        srt_out = work_dir / f"{movie_name}_{video_id}_raw.en_to_te.srt"
+                        srt_out.write_text(joined_srt, encoding="utf-8")
+                        meta["selected_track"] = f"AUTO_TRANSLATE:{en_source_track.language_code}>>te"
+                        meta["status"] = "SUCCESS_EN_TO_TE_TRANSLATED"
+                        return srt_out, meta
         except Exception as e:
             meta["transcript_api_note"] = str(e)
 
-    # Fallback: yt-dlp strictly requesting ONLY Telugu (`te.*`) — NEVER English (`en.*`)!
+    # Fallback: yt-dlp (downloads `te.*` first; if only `en.*` exists, translates `en >> te` automatically)
     out_template = str(work_dir / f"{movie_name}_{video_id}_raw.%(ext)s")
     cmd = [
         "yt-dlp",
         "--write-sub",
         *(["--write-auto-sub"] if allow_auto_captions else []),
         "--sub-langs",
-        "te.*",
+        "te.*,en.*",
         "--sub-format",
         "srt/vtt",
         "--convert-subs",
@@ -462,22 +580,43 @@ def check_and_download_youtube_srt(
         out_template,
         youtube_url,
     ]
-    print(f"[YT-DLP] Checking & downloading ONLY Telugu subtitles (`te.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
+    print(f"[YT-DLP] Checking subtitles (`te.*` or `en >> te`, auto={allow_auto_captions}) from: {youtube_url} ...")
     subprocess.run(cmd, check=False)
-    te_srts = [
-        p
-        for p in (
-            sorted(work_dir.glob(f"{movie_name}_{video_id}_raw*.srt"))
-            + sorted(work_dir.glob(f"{movie_name}_{video_id}_raw*.vtt"))
-        )
-        if ".te" in p.name
-    ]
+    all_subs = sorted(work_dir.glob(f"{movie_name}_{video_id}_raw*.srt")) + sorted(
+        work_dir.glob(f"{movie_name}_{video_id}_raw*.vtt")
+    )
+    te_srts = [p for p in all_subs if ".te" in p.name]
     for candidate in te_srts:
         txt = candidate.read_text(encoding="utf-8", errors="replace")
         if has_telugu_script(txt):
             meta["selected_track"] = candidate.name
             meta["status"] = "SUCCESS_YTDLP_TELUGU_SUBS"
             return candidate, meta
+
+    # If yt-dlp only found an English track (.en.srt / .en.vtt), translate it `English >> Telugu`!
+    en_srts = [p for p in all_subs if ".en" in p.name]
+    if en_srts and allow_auto_captions:
+        en_file = en_srts[0]
+        en_blocks = parse_srt_content(en_file.read_text(encoding="utf-8", errors="replace"))
+        if en_blocks:
+            raw_cues = [{"start": b.start_sec, "end": b.end_sec, "text": b.text} for b in en_blocks]
+            te_cues = translate_en_cues_to_telugu_parallel(raw_cues)
+            srt_lines = []
+            for idx, c in enumerate(te_cues, start=1):
+                st_hms = format_seconds_to_hms(c["start"]) + ",000"
+                et_hms = format_seconds_to_hms(c["end"]) + ",000"
+                srt_lines.append(f"{idx}\n{st_hms} --> {et_hms}\n{c['text']}\n")
+            joined_srt = "\n".join(srt_lines)
+            if has_telugu_script(joined_srt):
+                srt_out = work_dir / f"{movie_name}_{video_id}_raw.en_to_te.srt"
+                srt_out.write_text(joined_srt, encoding="utf-8")
+                try:
+                    en_file.unlink()
+                except Exception:
+                    pass
+                meta["selected_track"] = f"YTDLP_AUTO_TRANSLATE:{en_file.name}>>te"
+                meta["status"] = "SUCCESS_YTDLP_EN_TO_TE"
+                return srt_out, meta
 
     return None, meta
 
