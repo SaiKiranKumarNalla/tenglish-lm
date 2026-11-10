@@ -99,6 +99,10 @@ def transliterate_phonetic(word: str, mode: str = "P1") -> str:
                         matra_val = "m"
                     else:
                         matra_val = "n"
+                    # Anusvara/visarga sit on the inherent vowel: మం = m + a + n, not "mn"
+                    matra_val = "a" + matra_val
+                elif matra == "\u0C03":  # Visarga
+                    matra_val = "ah"
                 if mode == "P3":
                     matra_val = matra_val.replace("aa", "a").replace("ee", "i").replace("oo", "u")
                 res.append(base + matra_val)
