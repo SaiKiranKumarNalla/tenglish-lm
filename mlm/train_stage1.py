@@ -97,9 +97,11 @@ def main():
         base_samples = [generate(model, tok, p) for p in PROMPTS]
     print(f"base test ppl = {base_ppl:.2f}")
 
+    # Newer transformers removed warmup_ratio, so compute 5% warmup in steps ourselves
+    total_steps = a.max_steps if a.max_steps > 0 else math.ceil(len(ds["train"]) / 16 * a.epochs)
     args = TrainingArguments(
         output_dir=str(out / "ckpt"), per_device_train_batch_size=8, gradient_accumulation_steps=2,
-        learning_rate=a.lr, lr_scheduler_type="cosine", warmup_ratio=0.05, num_train_epochs=a.epochs,
+        learning_rate=a.lr, lr_scheduler_type="cosine", warmup_steps=max(1, int(0.05 * total_steps)), num_train_epochs=a.epochs,
         max_steps=a.max_steps, bf16=True, logging_steps=10, eval_strategy="steps", eval_steps=50,
         save_strategy="steps", save_steps=50, save_total_limit=2, load_best_model_at_end=True,
         metric_for_best_model="eval_loss", greater_is_better=False, report_to="none",
