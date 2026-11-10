@@ -140,10 +140,12 @@ def slice_movie_blocks_with_timestamps(
     same_turn_gap_sec: float = 1.2,
     new_scene_gap_sec: float = 4.5,
     max_turns_per_scene: int = 4,
+    max_words_per_turn: int = 16,
 ) -> List[Dict[str, Any]]:
     """
     Slices an entire movie's subtitle blocks into timestamped 2-to-4 turn scenes,
     auto-tags Emotion/Genre/Dialect/CMI %, and generates all 4 Tenglish Personas.
+    Handles both manual .srt subtitles and continuous YouTube auto-generated captions.
     """
     if not blocks:
         return []
@@ -151,22 +153,28 @@ def slice_movie_blocks_with_timestamps(
     raw_grouped_scenes: List[Tuple[float, float, List[str]]] = []
     cur_turns: List[str] = []
     cur_buf: List[str] = [blocks[0].text]
+    cur_buf_words: int = len(blocks[0].text.split())
     scene_start = blocks[0].start_sec
     prev_end = blocks[0].end_sec
 
     for b in blocks[1:]:
         gap = b.start_sec - prev_end
-        if gap <= same_turn_gap_sec:
+        b_words = len(b.text.split())
+
+        if gap <= same_turn_gap_sec and (cur_buf_words + b_words <= max_words_per_turn):
             cur_buf.append(b.text)
+            cur_buf_words += b_words
         elif gap <= new_scene_gap_sec and len(cur_turns) < max_turns_per_scene - 1:
             cur_turns.append(" ".join(cur_buf))
             cur_buf = [b.text]
+            cur_buf_words = b_words
         else:
             cur_turns.append(" ".join(cur_buf))
             if len(cur_turns) >= 2:
                 raw_grouped_scenes.append((scene_start, prev_end, cur_turns[:max_turns_per_scene]))
             cur_turns = []
             cur_buf = [b.text]
+            cur_buf_words = b_words
             scene_start = b.start_sec
         prev_end = b.end_sec
 
@@ -174,6 +182,11 @@ def slice_movie_blocks_with_timestamps(
         cur_turns.append(" ".join(cur_buf))
     if len(cur_turns) >= 2:
         raw_grouped_scenes.append((scene_start, prev_end, cur_turns[:max_turns_per_scene]))
+    elif len(cur_turns) == 1 and raw_grouped_scenes:
+        # Append trailing single turn to the last scene if room permits
+        last_st, _, last_turns = raw_grouped_scenes[-1]
+        if len(last_turns) < max_turns_per_scene:
+            raw_grouped_scenes[-1] = (last_st, prev_end, last_turns + cur_turns)
 
     # Process each scene into rich tagged dictionary
     tagged_scenes: List[Dict[str, Any]] = []
@@ -324,12 +337,15 @@ def check_and_download_youtube_srt(
     youtube_url: str,
     work_dir: Path,
     movie_name: str,
-    allow_auto_captions: bool = False,
+    allow_auto_captions: bool = True,
 ) -> Tuple[Optional[Path], Dict[str, Any]]:
     """
-    Strictly extracts existing subtitles from YouTube (NO noisy Whisper audio ASR).
-    1. First tries `youtube-transcript-api` (fastest, handles `te`, `te-IN`, `en`, `en-IN`, `en-US` cleanly).
-    2. Falls back to `yt-dlp --write-sub --sub-langs "te.*,en.*"`.
+    Extracts existing subtitles or YouTube auto-generated Telugu/English captions (NO noisy local Whisper ASR).
+    Priority order:
+      1. Manual Telugu track (`te`, `te-IN`)
+      2. YouTube Auto-Generated Telugu track (`te`, `te-IN`) — Google's native Telugu Speech-to-Text
+      3. Manual English track (`en`, `en-IN`, `en-US`, `en-GB`)
+      4. YouTube Auto-Generated English track (`en.*`)
     Returns `(srt_path, metadata_dict)`.
     """
     work_dir.mkdir(parents=True, exist_ok=True)
@@ -341,7 +357,7 @@ def check_and_download_youtube_srt(
         "status": "NO_SUBTITLES_FOUND",
     }
 
-    # Extract 11-char video ID if standard YouTube URL
+    # Extract 11-char video ID if standard YouTube URL (handles &t=1125s, youtu.be, etc.)
     vid_match = re.search(r"(?:v=|youtu\.be/|shorts/)([A-Za-z0-9_-]{11})", youtube_url)
     video_id = vid_match.group(1) if vid_match else None
 
@@ -365,33 +381,49 @@ def check_and_download_youtube_srt(
                     chosen = t
                     meta["selected_track"] = f"MANUAL:{t.language_code}"
                     break
-            # Priority 2: Manual English track (en, en-IN, en-US, en-GB)
+            # Priority 2: YouTube Auto-Generated Telugu track (te, te-IN)
+            if chosen is None and allow_auto_captions:
+                for t in auto_tracks:
+                    if t.language_code.startswith("te"):
+                        chosen = t
+                        meta["selected_track"] = f"AUTO_YOUTUBE_TE:{t.language_code}"
+                        break
+            # Priority 3: Manual English track (en, en-IN, en-US, en-GB)
             if chosen is None:
                 for t in manual_tracks:
                     if t.language_code.startswith("en"):
                         chosen = t
                         meta["selected_track"] = f"MANUAL:{t.language_code}"
                         break
-            # Priority 3: Optional YouTube Auto-Captions ONLY if explicitly enabled
+            # Priority 4: YouTube Auto-Generated English track
             if chosen is None and allow_auto_captions:
                 for t in auto_tracks:
-                    if t.language_code.startswith(("te", "en")):
+                    if t.language_code.startswith("en"):
                         chosen = t
-                        meta["selected_track"] = f"AUTO:{t.language_code}"
+                        meta["selected_track"] = f"AUTO_YOUTUBE_EN:{t.language_code}"
                         break
 
             if chosen is not None:
-                fetched = chosen.fetch()
+                fetched = list(chosen.fetch())
                 srt_lines = []
-                for idx, item in enumerate(fetched, start=1):
+                for idx, item in enumerate(fetched):
                     start_s = float(getattr(item, "start", item["start"] if isinstance(item, dict) else 0.0))
                     dur_s = float(getattr(item, "duration", item.get("duration", 2.5) if isinstance(item, dict) else 2.5))
                     text_val = str(getattr(item, "text", item["text"] if isinstance(item, dict) else "")).strip()
                     if not text_val:
                         continue
+                    end_s = start_s + max(0.8, dur_s)
+                    # Clamp overlapping duration against next cue's start_s so real speech gaps are preserved
+                    if idx + 1 < len(fetched):
+                        next_item = fetched[idx + 1]
+                        next_start = float(
+                            getattr(next_item, "start", next_item["start"] if isinstance(next_item, dict) else end_s)
+                        )
+                        if end_s > next_start and next_start > start_s:
+                            end_s = next_start
                     st_hms = format_seconds_to_hms(start_s) + ",000"
-                    et_hms = format_seconds_to_hms(start_s + max(0.8, dur_s)) + ",000"
-                    srt_lines.append(f"{idx}\n{st_hms} --> {et_hms}\n{text_val}\n")
+                    et_hms = format_seconds_to_hms(end_s) + ",000"
+                    srt_lines.append(f"{idx + 1}\n{st_hms} --> {et_hms}\n{text_val}\n")
 
                 if srt_lines:
                     srt_out = work_dir / f"{movie_name}.{chosen.language_code}.srt"
@@ -410,7 +442,7 @@ def check_and_download_youtube_srt(
         "--sub-langs",
         "te.*,en.*",
         "--sub-format",
-        "srt",
+        "srt/vtt",
         "--convert-subs",
         "srt",
         "--skip-download",
@@ -418,15 +450,15 @@ def check_and_download_youtube_srt(
         out_template,
         youtube_url,
     ]
-    print(f"[YT-DLP] Checking & downloading official subtitles (`te.*`, `en.*`) from: {youtube_url} ...")
+    print(f"[YT-DLP] Checking & downloading YouTube subtitles (`te.*`, `en.*`, auto={allow_auto_captions}) from: {youtube_url} ...")
     subprocess.run(cmd, check=False)
-    srts = sorted(work_dir.glob(f"{movie_name}*.srt"))
+    srts = sorted(work_dir.glob(f"{movie_name}*.srt")) + sorted(work_dir.glob(f"{movie_name}*.vtt"))
     if srts:
         # Prefer Telugu (.te) over English (.en) if both downloaded
         te_srts = [p for p in srts if ".te" in p.name]
         best_srt = te_srts[0] if te_srts else srts[0]
         meta["selected_track"] = best_srt.name
-        meta["status"] = "SUCCESS_YTDLP_SRT"
+        meta["status"] = "SUCCESS_YTDLP_SUBS"
         return best_srt, meta
 
     return None, meta
@@ -434,7 +466,7 @@ def check_and_download_youtube_srt(
 
 def download_srt_from_youtube(youtube_url: str, work_dir: Path, movie_name: str) -> Optional[Path]:
     """Backwards-compatible wrapper around `check_and_download_youtube_srt`."""
-    srt_path, _ = check_and_download_youtube_srt(youtube_url, work_dir, movie_name, allow_auto_captions=False)
+    srt_path, _ = check_and_download_youtube_srt(youtube_url, work_dir, movie_name, allow_auto_captions=True)
     return srt_path
 
 
@@ -445,11 +477,11 @@ def extract_full_movie_pipeline(
     youtube_url: Optional[str] = None,
     srt_file: Optional[str | Path] = None,
     out_dir: str | Path = "./drive_mirror/Tenglish_LM/extracted_movies",
-    allow_auto_captions: bool = False,
+    allow_auto_captions: bool = True,
 ) -> Dict[str, Any]:
     """
     Main function you call in Colab or Python:
-    Give it a `youtube_url` (with subtitles) or `srt_file` -> outputs `.csv`, `.txt`, and `.jsonl` with scene emotion tags.
+    Give it a `youtube_url` (with manual or auto captions) or `srt_file` -> outputs `.csv`, `.txt`, and `.jsonl` with scene emotion tags.
     """
     out_path = Path(out_dir) / movie_name
     out_path.mkdir(parents=True, exist_ok=True)
@@ -463,10 +495,10 @@ def extract_full_movie_pipeline(
 
     if target_srt is None or not target_srt.exists():
         raise FileNotFoundError(
-            f"❌ No official subtitles found on YouTube for '{movie_name}' ({youtube_url}).\n"
+            f"❌ No manual or auto-generated subtitles found on YouTube for '{movie_name}' ({youtube_url}).\n"
             f"   Manual tracks detected: {sub_meta.get('manual_langs', [])}\n"
             f"   Auto tracks detected:   {sub_meta.get('auto_langs', [])}\n"
-            f"👉 Please use a YouTube video with CC/subtitles enabled, or pass a local `.srt` file from OpenSubtitles/Subdl!"
+            f"👉 Please use a YouTube video with CC/auto-captions enabled, or pass a local `.srt` file!"
         )
 
     srt_text = target_srt.read_text(encoding="utf-8", errors="replace")

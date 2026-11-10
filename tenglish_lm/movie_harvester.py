@@ -60,36 +60,63 @@ def clean_utterance(text: str) -> str:
 
 
 def parse_timestamp_to_seconds(ts: str) -> float:
-    """Parses SRT timestamp 'HH:MM:SS,mmm' or 'HH:MM:SS.mmm' to seconds."""
-    ts = ts.strip().replace(",", ".")
+    """Parses SRT/VTT timestamp 'HH:MM:SS,mmm' or 'MM:SS.mmm' to seconds."""
+    ts = ts.strip().split()[0].replace(",", ".")
     parts = ts.split(":")
-    if len(parts) != 3:
+    try:
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + float(parts[1])
+    except ValueError:
         return 0.0
-    return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
+    return 0.0
 
 
 def parse_srt_content(srt_text: str) -> List[SubtitleBlock]:
-    """Parses raw .srt file content into structured SubtitleBlock items."""
+    """
+    Parses raw .srt or .vtt file content into structured SubtitleBlock items.
+    Includes rolling YouTube auto-caption deduplication and overlap clamping.
+    """
     blocks: List[SubtitleBlock] = []
     raw_chunks = re.split(r"\n\s*\n", srt_text.strip())
+    prev_text = ""
+
     for idx, chunk in enumerate(raw_chunks, start=1):
         lines = [line.strip() for line in chunk.splitlines() if line.strip()]
-        if len(lines) < 2:
+        if not lines or lines[0].startswith(("WEBVTT", "Kind:", "Language:")):
             continue
-        ts_line_idx = 0
+        ts_line_idx = -1
         for i, l in enumerate(lines):
             if "-->" in l:
                 ts_line_idx = i
                 break
-        else:
+        if ts_line_idx == -1:
             continue
 
         ts_parts = lines[ts_line_idx].split("-->")
         start_s = parse_timestamp_to_seconds(ts_parts[0])
         end_s = parse_timestamp_to_seconds(ts_parts[1])
         text_body = clean_utterance(" ".join(lines[ts_line_idx + 1 :]))
-        if text_body and len(text_body) >= 2:
-            blocks.append(SubtitleBlock(index=idx, start_sec=start_s, end_sec=end_s, text=text_body))
+        if not text_body or len(text_body) < 2:
+            continue
+
+        # Deduplicate rolling 2-line YouTube auto-captions
+        if text_body == prev_text:
+            continue
+        if prev_text and text_body.startswith(prev_text) and len(text_body) > len(prev_text):
+            text_body = text_body[len(prev_text) :].strip()
+        if not text_body or len(text_body) < 2:
+            continue
+
+        prev_text = text_body
+        blocks.append(SubtitleBlock(index=len(blocks) + 1, start_sec=start_s, end_sec=end_s, text=text_body))
+
+    # Clamp overlapping YouTube auto-caption end_sec so real inter-cue gaps are preserved
+    for i in range(len(blocks) - 1):
+        if blocks[i].end_sec > blocks[i + 1].start_sec:
+            blocks[i].end_sec = blocks[i + 1].start_sec
+
     return blocks
 
 

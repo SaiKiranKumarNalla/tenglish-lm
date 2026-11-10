@@ -79,19 +79,19 @@ def build_standalone_colab_notebook() -> Path:
         + "\nprint('✅ Tenglish-Evo Engine & Strict Subtitle Extractor loaded successfully!')"
     )
 
-    cell_3_runner = """# @title Step 3: Extract Subtitles from YouTube URL (or Auto-Search Subtitled Telugu Trailers)
+    cell_3_runner = """# @title Step 3: Extract Telugu Subtitles / Auto-Captions from YouTube Movie (`sOOrFtP6DIE`)
 import json
 import pandas as pd
 import subprocess
 
-# 👇 PASTE A YOUTUBE LINK WITH SUBTITLES (OR LEAVE AS-IS AND USE SEARCH_QUERY BELOW):
-YOUTUBE_URL = "https://www.youtube.com/watch?v=EaODp3C7wkU"  # @param {type:"string"}
-# 👇 IF YOUR URL HAS NO SUBTITLES, WE CAN AUTOMATICALLY SEARCH YOUTUBE FOR SUBTITLED VIDEOS:
+# 👇 PRE-FILLED WITH YOUR TELUGU YOUTUBE MOVIE LINK (Supports Manual CC + YouTube Telugu Auto-Captions!):
+YOUTUBE_URL = "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s"  # @param {type:"string"}
+ALLOW_YOUTUBE_AUTO_CAPTIONS = True  # @param {type:"boolean"}
 AUTO_SEARCH_IF_NO_SUBS = True  # @param {type:"boolean"}
-YOUTUBE_SEARCH_QUERY = "Telugu movie trailer subtitles"  # @param {type:"string"}
-TRAILER_NAME = "Bommarillu_And_Trailer_Test"  # @param {type:"string"}
-ERA_TAG = "2000s"  # @param ["1980s", "1990s", "2000s", "2010s", "2020s"]
-DIRECTOR_STYLE = "BHASKAR_ABBURI_RAVI"  # @param ["TRIVIKRAM_ANTITHESIS", "PURI_CYNICAL_PUNCH", "THARUN_TELANGANA_BANTER", "BHASKAR_ABBURI_RAVI", "SUKUMAR_LOGIC", "VIVEK_URBAN_WIT", "JANDHYALA_WORDPLAY"]
+YOUTUBE_SEARCH_QUERY = "Telugu full movie with subtitles"  # @param {type:"string"}
+TRAILER_NAME = "Telugu_Movie_sOOrFtP6DIE"  # @param {type:"string"}
+ERA_TAG = "2020s"  # @param ["1980s", "1990s", "2000s", "2010s", "2020s"]
+DIRECTOR_STYLE = "TRIVIKRAM_ANTITHESIS"  # @param ["TRIVIKRAM_ANTITHESIS", "PURI_CYNICAL_PUNCH", "THARUN_TELANGANA_BANTER", "BHASKAR_ABBURI_RAVI", "SUKUMAR_LOGIC", "VIVEK_URBAN_WIT", "JANDHYALA_WORDPLAY"]
 
 work_dir = OUT_DIR / TRAILER_NAME
 work_dir.mkdir(parents=True, exist_ok=True)
@@ -100,7 +100,7 @@ work_dir.mkdir(parents=True, exist_ok=True)
 def find_subtitled_youtube_video(query: str, max_results: int = 8):
     \"\"\"
     Searches YouTube for `query` and checks each result with `youtube-transcript-api`
-    until it finds a video that has a REAL human subtitle track (`te` or `en`).
+    until it finds a video that has a Telugu or English subtitle/auto-caption track.
     \"\"\"
     print(f"🔎 Searching YouTube for subtitled videos matching: '{query}' ...")
     cmd = ["yt-dlp", "--flat-playlist", "--dump-json", f"ytsearch{max_results}:{query}"]
@@ -113,28 +113,32 @@ def find_subtitled_youtube_video(query: str, max_results: int = 8):
             vid_id = info.get("id")
             title = info.get("title", "Unknown Title")
             url = f"https://www.youtube.com/watch?v={vid_id}"
-            srt_candidate, meta = check_and_download_youtube_srt(url, work_dir, TRAILER_NAME, allow_auto_captions=False)
+            srt_candidate, meta = check_and_download_youtube_srt(
+                url, work_dir, TRAILER_NAME, allow_auto_captions=ALLOW_YOUTUBE_AUTO_CAPTIONS
+            )
             if srt_candidate is not None and srt_candidate.exists():
                 print(f"✅ Found subtitled video: '{title}' ({url}) -> Track: {meta.get('selected_track')}")
                 return srt_candidate, title, url, meta
             else:
-                print(f"   ⏭️ Skipping '{title[:50]}...' (No manual te/en captions)")
+                print(f"   ⏭️ Skipping '{title[:50]}...' (No te/en captions)")
         except Exception:
             continue
     return None, None, None, {}
 
 
-# 1. Check the user's pasted YOUTUBE_URL for official subtitles (NO Whisper!)
-print(f"🔍 Checking caption tracks on: {YOUTUBE_URL} ...")
-srt_path, sub_meta = check_and_download_youtube_srt(YOUTUBE_URL, work_dir, TRAILER_NAME, allow_auto_captions=False)
+# 1. Extract Manual OR YouTube Auto-Generated Telugu Captions (NO local Whisper hallucinations!)
+print(f"🔍 Checking Manual & YouTube Auto-Generated caption tracks on: {YOUTUBE_URL} ...")
+srt_path, sub_meta = check_and_download_youtube_srt(
+    YOUTUBE_URL, work_dir, TRAILER_NAME, allow_auto_captions=ALLOW_YOUTUBE_AUTO_CAPTIONS
+)
 
 if srt_path is not None and srt_path.exists():
-    print(f"✅ Downloaded official subtitle track: {sub_meta.get('selected_track')}")
+    print(f"✅ Downloaded YouTube subtitle track: {sub_meta.get('selected_track')}")
+    print(f"   Manual tracks on video: {sub_meta.get('manual_langs', [])}")
+    print(f"   Auto tracks on video:   {sub_meta.get('auto_langs', [])}")
 else:
-    print(f"⚠️ Video {YOUTUBE_URL} has NO official te/en subtitles on YouTube.")
+    print(f"⚠️ Video {YOUTUBE_URL} returned no te/en subtitles.")
     print(f"   (Manual tracks: {sub_meta.get('manual_langs', [])} | Auto tracks: {sub_meta.get('auto_langs', [])})")
-    print("🚫 Skipping Whisper ASR so we NEVER pollute the dataset with BGM hallucinations!")
-
     if AUTO_SEARCH_IF_NO_SUBS and YOUTUBE_SEARCH_QUERY.strip():
         srt_path, found_title, found_url, sub_meta = find_subtitled_youtube_video(YOUTUBE_SEARCH_QUERY)
 
