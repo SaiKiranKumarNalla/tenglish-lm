@@ -4,8 +4,8 @@ Builds the Generic YouTube Movie Subtitle & Scene Corpus Extractor Colab Noteboo
 - `notebooks/01_YouTube_Movie_Corpus_Extractor.ipynb`
 
 Features:
+- Allows attaching `movie_name`, `year`, `director`, `genre`, and `dialect` alongside every YouTube movie link.
 - 100% Generic (NO hardcoded Bommarillu scenes, NO Tenglish romanization clutter).
-- Takes a single YouTube Movie URL or a Batch List of YouTube Movie URLs.
 - Extracts Manual or YouTube Auto-Generated Telugu captions (`te`, `te-IN`).
 - Strips `[సంగీతం]`, `[బెల్]`, `[చప్పట్లు]`, statutory smoking disclaimers, and BGM humming (`తారా తరారారారా`).
 - Saves `<movie>_raw.srt`, `<movie>_clean.srt`, `<movie>_scenes.csv`, `<movie>_scenes.txt`, and `corpus_manifest.csv` directly to Google Drive!
@@ -23,12 +23,12 @@ CELL_1_MARKDOWN = """# 🎬 Telugu Movie Subtitle & Scene Corpus Extractor (YouT
 2. **Step 2:** Loads the **Generic Telugu Movie Harvester & Scene Tagger**:
    - Downloads official Telugu captions (`te`) or YouTube's auto-generated Telugu captions (`AUTO_YOUTUBE_TE`).
    - Automatically strips `[సంగీతం]`, `[బెల్]`, `[చప్పట్లు]`, statutory smoking/alcohol disclaimers (`పొగ త్రాగుట...`), and BGM humming (`తారా తరారారారా...`).
-   - Slices the movie into timestamped conversational scenes and tags `[EMOTION]`, `[GENRE]`, and `[DIALECT]`.
-3. **Step 3:** Add **1 or 50 YouTube Movie URLs** to `MOVIE_LINKS` and run! For every movie, it saves:
-   - `<movie_name>_raw.srt` (raw YouTube subtitle file)
+   - Slices the movie into timestamped conversational scenes and attaches your **Movie Name, Year, Director, and Genre**, plus auto-tagged **Scene Emotion** (`COMEDY`, `EMOTIONAL_HEARTBREAK`, `ANGER_WARNING`, `SARCASTIC_ROAST`, `PHILOSOPHICAL`, `ELEVATION_MASS`) and **Dialect**.
+3. **Step 3:** Attach your YouTube link(s) along with **`movie_name`, `year`, `director`, and `genre`** and run! For every movie, it saves:
+   - `<movie_name>_raw.te.srt` (raw YouTube subtitle file)
    - `<movie_name>_clean.srt` (noise-cleaned Telugu `.srt` file)
-   - `<movie_name>_scenes.csv` (clean Telugu scenes + timestamps + emotion tags)
-   - `<movie_name>_scenes.txt` (human-readable Telugu scene script)
+   - `<movie_name>_scenes.csv` (with `movie_name`, `year`, `director`, `movie_genre`, `scene_emotion`, `scene_dialect`, `start_time`, `end_time`, `dialogue_telugu`)
+   - `<movie_name>_scenes.txt` (human-readable Telugu scene script with movie & scene headers)
    - `corpus_manifest.csv` (master index of all extracted movies in your corpus)"""
 
 CELL_2_SETUP_CODE = """# @title Step 1: Install yt-dlp + youtube-transcript-api & Mount Google Drive
@@ -76,23 +76,42 @@ def build_generic_colab_notebooks() -> None:
         + "\nprint('✅ Generic Telugu Movie Extractor loaded (Zero hardcoded data, Pure Telugu SRT/CSV/TXT output)!')"
     )
 
-    cell_3_runner = """# @title Step 3: Build Your Movie Corpus from YouTube Links
+    cell_3_runner = """# @title Step 3: Attach YouTube Link + Movie Name, Year, Director & Genre
 import json
 import pandas as pd
 
-# 👇 ADD ONE OR MORE YOUTUBE TELUGU MOVIE LINKS HERE:
-# You can pass a plain URL string (title is auto-detected from YouTube!),
-# OR a ("Custom_Movie_Name", "https://www.youtube.com/watch?v=...") tuple.
-MOVIE_LINKS = [
-    "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s",
-    # Add more YouTube Telugu movie links below:
-    # "https://www.youtube.com/watch?v=...",
-]
-
+# 👇 QUICK SINGLE-MOVIE INPUTS (Or add multiple movies to `EXTRA_MOVIES_BATCH` below!):
+YOUTUBE_URL = "https://www.youtube.com/watch?v=sOOrFtP6DIE&t=1125s"  # @param {type:"string"}
+MOVIE_NAME = "Subramanyam_For_Sale"  # @param {type:"string"}
+YEAR = "2015"  # @param {type:"string"}
+DIRECTOR = "Harish Shankar"  # @param {type:"string"}
+GENRE = "RomCom / Family Entertainer"  # @param {type:"string"}
+DIALECT = "STANDARD_TELUGU"  # @param ["STANDARD_TELUGU", "TELANGANA", "RAYALASEEMA", "COASTAL_ANDHRA", "URBAN_HYDERABAD"]
 ALLOW_YOUTUBE_AUTO_CAPTIONS = True  # @param {type:"boolean"}
 
+# 👇 OPTIONAL: ADD MULTIPLE MOVIES WITH THEIR METADATA TO EXTRACT A FULL BATCH AT ONCE:
+MOVIE_CORPUS_LIST = [
+    {
+        "url": YOUTUBE_URL,
+        "movie_name": MOVIE_NAME,
+        "year": YEAR,
+        "director": DIRECTOR,
+        "genre": GENRE,
+        "dialect": DIALECT,
+    },
+    # Example of adding more movies to your batch list:
+    # {
+    #     "url": "https://www.youtube.com/watch?v=...",
+    #     "movie_name": "Athadu",
+    #     "year": "2005",
+    #     "director": "Trivikram Srinivas",
+    #     "genre": "Action / Family Drama",
+    #     "dialect": "STANDARD_TELUGU",
+    # },
+]
+
 batch_summary = extract_movie_corpus_batch(
-    movie_links=MOVIE_LINKS,
+    movie_links=MOVIE_CORPUS_LIST,
     out_dir=CORPUS_DIR,
     allow_auto_captions=ALLOW_YOUTUBE_AUTO_CAPTIONS,
 )
@@ -109,10 +128,30 @@ display(manifest_df)
 # Preview the scenes of the most recently extracted movie
 if batch_summary["results"]:
     latest = batch_summary["results"][-1]
-    print(f"\\n🎬 Previewing Scenes from: {latest['movie_name']} ({latest['scenes_extracted']} Scenes)")
-    print("Emotion Breakdown:", json.dumps(latest["emotion_distribution"], indent=2))
+    print(
+        f"\\n🎬 Previewing Scenes from: {latest['movie_name']} ({latest['year']}) "
+        f"| Director: {latest['director']} | Genre: {latest['movie_genre']} "
+        f"| Total Scenes: {latest['scenes_extracted']}"
+    )
+    print("Scene Emotion Breakdown:", json.dumps(latest["emotion_distribution"], indent=2))
     scenes_df = pd.read_csv(latest["files"]["csv"])
-    display(scenes_df[["scene_id", "start_time", "end_time", "emotion", "genre", "dialect", "turn_count", "dialogue_telugu"]].head(20))"""
+    display(
+        scenes_df[
+            [
+                "scene_id",
+                "movie_name",
+                "year",
+                "director",
+                "movie_genre",
+                "scene_emotion",
+                "scene_dialect",
+                "start_time",
+                "end_time",
+                "turn_count",
+                "dialogue_telugu",
+            ]
+        ].head(20)
+    )"""
 
     cell_4_txt_preview = """# @title Step 4: Inspect the Clean Telugu `.txt` Scene Script & Cleaned `.srt`
 if batch_summary["results"]:
