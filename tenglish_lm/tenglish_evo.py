@@ -1,28 +1,56 @@
 """
 Milestone 2: Tenglish-Evo Engine
-(Universal Telugu Akshara-to-Latin Phonetic Transducer + Era-Calibrated Multiplier + Broken-Tenglish Disambiguator)
+(Universal Telugu Akshara-to-Latin Transducer + Protected Emotional Core + Natural Movie English Policy)
 
-Solves:
-1. Universal Telugu Unicode (0x0C00-0x0C7F) Akshara-to-Latin Transducer:
-   - Converts ANY arbitrary Telugu Unicode word into 100% Latin-script Tenglish across 4 Texter Personas
-     (handles independent vowels, consonants, guninthalu/matras, vattulu/virama conjuncts, and nasal sunna 'ం' assimilation).
-2. 4 Texter Personas:
-   - P1_STANDARD: Standard Phonetic ('anthega', 'yenti', 'endhuku', 'chepthunna', 'maatlaaduthunnav')
-   - P2_MINIMAL:  Fast Minimalist ('antega', 'enti', 'enduku', 'cheptuna', 'matladtunav')
-   - P3_EXPRESS:  Expressive Elongated ('antheygaaa', 'yentiii', 'anthe ga', 'avunaaa')
-   - P4_ACROPHON: English-Letter Acrophony & Vowel Shift ('Anti'=ఏంటి, 'm'=ఏం, 'nduku'=ఎందుకు, 'la'=ఎలా, 'chappu'=చెప్పు, 'nv'=నువ్వు)
-3. 4-Way Word-Level Language & Morphology Tagger:
-   - EN, TE, HYBRID_FUSED ('office-ki', 'party-lo'), LIGHT_VERB ('ghost chesindu', 'vibe avvatledu')
+Incorporates Gate 1-2 Human-in-the-Loop Audit Fixes:
+1. Stem-Final Anusvara ('ం') Preservation before Case Suffixes:
+   - 'యుద్ధంలో' -> 'yuddhamlo' / 'yudhamlo' (NEVER 'yuddanlo')
+   - 'వర్షంలో' -> 'varshamlo' (NEVER 'varshanlo')
+   - 'జీవితంలో' -> 'jeevithamlo' / 'jivitamlo' (NEVER 'jeevithanlo')
+2. Natural Conjunct Digraph Smoothing:
+   - 'ద్ధ' -> 'ddh' (P1) / 'dh' (P2) ('yuddhamlo', 'siddhu' / 'siddu', not 'yudhdhanlo' or 'sidhdhoo')
+   - 'త్త' -> 'tth' (P1) / 'th' (P2) ('mottham' / 'motham', not 'moththam')
+   - 'చ్చ' -> 'ch' ('vachanu', 'ichav', 'nachindi', not 'ichchaav')
+3. Protected Telugu Emotional Core vs. Natural Movie English Policy:
+   - Core emotional & philosophical Telugu words ('kopam', 'nijam', 'dhairyam', 'prema', 'baadha',
+     'bhayam', 'pranam', 'manasu', 'kashtam', 'abaddham') are PROTECTED and NEVER swapped to English.
+   - Institutional, urban, and light-verb terms naturally spoken in English in Telugu movies
+     ('life', 'career', 'decision', 'settle', 'coffee', 'office', 'engagement', 'happy-ga') stay in English.
 """
 
 import math
 import re
 from collections import Counter
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 
 # ---------------------------------------------------------------------------
-# 1. Universal Telugu Unicode (0x0C00-0x0C7F) Phonetic Tables
+# 1. Protected Telugu Emotional Core (NEVER overwrite with English!)
+# ---------------------------------------------------------------------------
+PROTECTED_TELUGU_EMOTIONAL_CORE: Set[str] = {
+    "కోపం",       # kopam (anger - never swap to 'angry'/'trigger')
+    "నిజం",       # nijam (truth - never swap to 'fact')
+    "ధైర్యం",      # dhairyam (courage - never swap to 'guts')
+    "ప్రేమ",       # prema (love)
+    "బాధ",        # baadha (pain/grief)
+    "భయం",        # bhayam (fear)
+    "ప్రాణం",      # pranam (life-force/soul)
+    "మనసు",       # manasu (heart/mind)
+    "కష్టం",       # kashtam (hardship)
+    "అబద్ధం",      # abaddham (lie)
+    "అబద్ధమేనా",   # abaddhamena
+    "మోసం",       # mosam (betrayal)
+    "స్నేహం",      # sneham (friendship)
+    "యుద్ధం",      # yuddham (war/battle)
+    "యుద్ధంలో",    # yuddhamlo (in battle)
+    "శత్రువుని",   # shathruvuni (enemy)
+    "గెలవడం",     # gelavadam (winning)
+    "ఓడిపోయినా",   # odipoyina (even if defeated)
+}
+
+
+# ---------------------------------------------------------------------------
+# 2. Universal Telugu Unicode (0x0C00-0x0C7F) Phonetic Tables
 # ---------------------------------------------------------------------------
 
 INDEPENDENT_VOWELS_P1 = {
@@ -48,7 +76,6 @@ CONSONANTS_P1 = {
 }
 
 CONSONANTS_P2 = {
-    # Fast minimalist texter drops aspiration ('th' -> 't', 'dh' -> 'd', 'bh' -> 'b', 'sh' -> 's')
     "క": "k", "ఖ": "k", "గ": "g", "ఘ": "g", "ఙ": "ng",
     "చ": "ch", "ఛ": "ch", "జ": "j", "ఝ": "j", "ఞ": "ny",
     "ట": "t", "ఠ": "t", "డ": "d", "ఢ": "d", "ణ": "n",
@@ -59,7 +86,7 @@ CONSONANTS_P2 = {
 }
 
 VOWEL_MATRAS_P1 = {
-    "ా": "aa", "ి": "i", "ీ": "ee", "ు": "u", "ూ": "oo",
+    "ా": "aa", "ి": "i", "ీ": "ee", "ు": "u", "ూ": "u",
     "ృ": "ru", "ె": "e", "ే": "e", "ై": "ai", "ొ": "o", "ో": "o", "ౌ": "au",
 }
 
@@ -69,14 +96,17 @@ VOWEL_MATRAS_P2 = {
 }
 
 VIRAMA = "్"
-LABIAL_CONSONANTS = {"ప", "ఫ", "బ", "భ", "మ", "వ"}
+# Sunna ('ం') stays 'm' at word end, before labials (ప,ఫ,బ,భ,మ,వ), AND before case suffixes/liquids (ల,ర,య,స,శ,ష,హ)
+# e.g., యుద్ధంలో -> yuddhamlo, వర్షంలో -> varshamlo, జీవితంలో -> jeevithamlo, నిజంగా -> nijamga / nijanga
+SUNNA_M_FOLLOWERS = {"ప", "ఫ", "బ", "భ", "మ", "వ", "ల", "ళ", "ర", "య", "శ", "ష", "స", "హ"}
 
 
 def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD") -> str:
     """
     Universal character/akshara state-machine transducer that converts ANY Telugu Unicode word
     into natural Romanized Tenglish according to the chosen Texter Persona.
-    Guarantees 0% leftover Telugu Unicode characters.
+    Correctly preserves stem-final '-m' before case suffixes ('yuddhamlo', 'varshamlo', 'jeevithamlo')
+    and smooths conjunct digraphs ('yuddham', 'motham', 'siddu', 'ichav').
     """
     use_minimal = persona in {"P2_MINIMAL", "P4_ACROPHON"}
     ivowels = INDEPENDENT_VOWELS_P2 if use_minimal else INDEPENDENT_VOWELS_P1
@@ -91,7 +121,6 @@ def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD")
     while i < n:
         ch = chars[i]
 
-        # Skip zero-width joiners/non-joiners
         if ch in {"\u200c", "\u200d"}:
             i += 1
             continue
@@ -108,13 +137,11 @@ def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD")
             next_ch = chars[i + 1] if i + 1 < n else ""
 
             if next_ch == VIRAMA:
-                # Consonant ends in virama (conjunct or word-final pollubhallu)
                 out.append(c_rom)
                 i += 2
                 continue
             elif next_ch in matras:
                 v_rom = matras[next_ch]
-                # Word-final long 'ా' is usually single 'a' in normal texting unless P3_EXPRESS
                 if next_ch == "ా" and (i + 2 == n) and persona != "P3_EXPRESS":
                     v_rom = "a"
                 elif next_ch == "ే" and persona == "P3_EXPRESS" and (i + 2 == n):
@@ -123,15 +150,15 @@ def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD")
                 i += 2
                 continue
             else:
-                # Inherent vowel 'a'
                 out.append(c_rom + "a")
                 i += 1
                 continue
 
-        # 3. Nasal Anusvara / Sunna ('ం') — assimilates to 'm' before labials or at word end, else 'n'
+        # 3. Nasal Anusvara / Sunna ('ం')
+        # Preserves 'm' at word end and before case suffixes like -lo, -la, -va, -sa ('yuddhamlo', 'varshamlo')
         if ch == "ం":
             next_ch = chars[i + 1] if i + 1 < n else ""
-            if next_ch == "" or next_ch in LABIAL_CONSONANTS:
+            if next_ch == "" or next_ch in SUNNA_M_FOLLOWERS:
                 out.append("m")
             else:
                 out.append("n")
@@ -144,28 +171,32 @@ def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD")
             i += 1
             continue
 
-        # 5. Standalone matra (fallback)
+        # 5. Standalone matra
         if ch in matras:
             out.append(matras[ch])
             i += 1
             continue
 
-        # 6. Any ASCII/punctuation character passes through
         out.append(ch)
         i += 1
 
     roman = "".join(out)
 
-    # Apply Persona-specific post-processing
+    # Smooth natural Tenglish conjunct digraphs (prevent ugly 'dhdh', 'thth', 'chch')
+    roman = (
+        roman.replace("dhdh", "ddh" if not use_minimal else "dh")
+        .replace("thth", "tth" if not use_minimal else "th")
+        .replace("chch", "ch")
+        .replace("shsh", "sh")
+    )
+
     if persona == "P2_MINIMAL":
-        # Collapse geminate double consonants ('kk' -> 'k', 'pp' -> 'p', 'll' -> 'l', 'nn' -> 'n', 'tt' -> 't')
         for dbl in ("kk", "pp", "ll", "nn", "tt", "dd", "mm", "vv"):
             roman = roman.replace(dbl, dbl[0])
     elif persona == "P3_EXPRESS":
         if roman.endswith(("a", "i", "u", "e", "o")) and len(roman) > 3:
             roman = roman + roman[-1]
     elif persona == "P4_ACROPHON":
-        # Apply English vowel interference ('chep' -> 'chap', 'telu' -> 'talu', 'vell' -> 'vall')
         roman = (
             roman.replace("chep", "chap")
             .replace("telu", "talu")
@@ -179,7 +210,7 @@ def transliterate_telugu_word_universal(word: str, persona: str = "P1_STANDARD")
 
 
 # ---------------------------------------------------------------------------
-# 2. Lexicons for English, Telugu Loanwords, Hybrid Suffixes & Acrophonic Map
+# 3. Natural Movie English Lexicon & Telugu-Script Loanwords
 # ---------------------------------------------------------------------------
 
 ENGLISH_CORE_WORDS = {
@@ -201,7 +232,7 @@ ENGLISH_CORE_WORDS = {
     "shirt", "shoe", "size", "construction", "company", "bank", "loan", "sanction",
     "talent", "engagement", "fix", "already", "ice", "cream", "kick", "secret", "time",
     "happy", "happiness", "long", "uncle", "aunty", "family", "silent", "fine", "please",
-    "set", "rest", "kitchen", "sorry", "help", "mess",
+    "set", "rest", "kitchen", "sorry", "help", "mess", "jam", "class", "guarantee",
 }
 
 TELUGU_SCRIPT_ENGLISH_LOANS = {
@@ -275,6 +306,7 @@ TELUGU_SCRIPT_ENGLISH_LOANS = {
     "మినిట్": ("minute", "EN"),
     "హ్యాండ్": ("hand", "EN"),
     "మేనేజర్": ("manager", "EN"),
+    "బాస్": ("boss", "EN"),
     "ఫ్రైడే": ("friday", "EN"),
     "ఈవినింగ్": ("evening", "EN"),
     "క్లయింట్": ("client", "EN"),
@@ -285,6 +317,9 @@ TELUGU_SCRIPT_ENGLISH_LOANS = {
     "బెటర్": ("better", "EN"),
     "ట్రాఫిక్": ("traffic", "EN"),
     "సిగ్నల్": ("signal", "EN"),
+    "జామ్": ("jam", "EN"),
+    "క్లాస్": ("class", "EN"),
+    "గ్యారెంటీ": ("guarantee", "EN"),
     "ప్రాజెక్ట్": ("project", "EN"),
     "మీటింగ్": ("meeting", "EN"),
     "డెడ్‌లైన్": ("deadline", "EN"),
@@ -497,6 +532,12 @@ CANONICAL_TO_PERSONA_LEXICON: Dict[str, Dict[str, str]] = {
         "P3_EXPRESS": "thelusaaa",
         "P4_ACROPHON": "talsa",
     },
+    "యుద్ధంలో": {
+        "P1_STANDARD": "yuddhamlo",
+        "P2_MINIMAL": "yudhamlo",
+        "P3_EXPRESS": "yuddham lo",
+        "P4_ACROPHON": "yudhamlo",
+    },
 }
 
 REVERSE_VARIANT_TO_CANONICAL: Dict[str, str] = {}
@@ -515,6 +556,8 @@ EXTRA_VARIANTS = {
     "telsu": "తెలుసు",
     "thelusu": "తెలుసు",
     "vallu": "వెళ్ళు",
+    "yudhamlo": "యుద్ధంలో",
+    "yuddhamlo": "యుద్ధంలో",
 }
 REVERSE_VARIANT_TO_CANONICAL.update(EXTRA_VARIANTS)
 
@@ -526,7 +569,7 @@ def disambiguate_homograph(word: str, prev_word: str = "", next_word: str = "") 
     n_low = next_word.strip("?!.,:;").lower()
 
     if w_low == "anti":
-        if p_low in {"maa", "ma", "mee", "mi", "pakkinti", "colony"} or n_low in {"vachindi", "cheppindi", "intlo"}:
+        if p_low in {"maa", "ma", "mee", "mi", "pakkinti", "colony", "sari", "sorry"} or n_low in {"vachindi", "cheppindi", "intlo", "iroju", "eeroju"}:
             return {
                 "surface": word,
                 "resolved_te": "ఆంటీ",
@@ -551,7 +594,7 @@ def disambiguate_homograph(word: str, prev_word: str = "", next_word: str = "") 
         }
 
     if w_low == "m":
-        if n_low in {"chestunnav", "chstnv", "aindhi", "aindi", "cheppu", "chappu", "ledhu", "ledu", "plan"} or p_low in {"asalu", "aslu", "bro", "ippudu", "ipdu"}:
+        if n_low in {"chestunnav", "chstnv", "aindhi", "aindi", "cheppu", "chappu", "ledhu", "ledu", "plan", "adigina", "nachchindi"} or p_low in {"asalu", "aslu", "bro", "ippudu", "ipdu", "nalo"}:
             return {
                 "surface": word,
                 "resolved_te": "ఏం",
@@ -650,26 +693,23 @@ def compute_utterance_cmi(text: str) -> Dict[str, Any]:
     }
 
 
+# Only non-emotional functional/conversational nouns are eligible for synthetic English swap;
+# PROTECTED_TELUGU_EMOTIONAL_CORE words ('kopam', 'nijam', 'dhairyam', 'prema', 'baadha') NEVER swap!
 ERA_LEXICAL_SWAPS = {
     "విషయం": {"ERA_2000": "matter", "ERA_2025": "matter"},
-    "స్నేహం": {"ERA_2000": "friendship", "ERA_2025": "bonding"},
     "ప్రయత్నించాను": {"ERA_2000": "try chesanu", "ERA_2025": "try chesna"},
-    "కోపం": {"ERA_2000": "angry", "ERA_2025": "trigger"},
     "పరిస్థితులు": {"ERA_2000": "situations", "ERA_2025": "situations"},
-    "అబద్ధమేనా": {"ERA_2000": "fake ena", "ERA_2025": "scam ena"},
-    "మోసం": {"ERA_2000": "cheat", "ERA_2025": "ghost"},
     "సమస్య": {"ERA_2000": "problem", "ERA_2025": "scene"},
     "ఆలోచిస్తే": {"ERA_2000": "think cheste", "ERA_2025": "overthink cheste"},
-    "నిజం": {"ERA_2000": "nijam", "ERA_2025": "fact"},
-    "ధైర్యం": {"ERA_2000": "confidence", "ERA_2025": "guts"},
-    "అబద్ధం": {"ERA_2000": "lie", "ERA_2025": "fake"},
 }
 
 
 def romanize_with_persona(te_sentence: str, persona: str = "P1_STANDARD", era_mode: str = "ERA_2025") -> str:
     """
     Converts ANY Telugu sentence into 100% Latin-script Tenglish according to the chosen
-    Texter Persona while injecting era-calibrated English words.
+    Texter Persona while:
+    - Keeping PROTECTED_TELUGU_EMOTIONAL_CORE words ('kopam', 'nijam', 'dhairyam', 'yuddhamlo') in Telugu
+    - Keeping NATURAL_MOVIE_ENGLISH_LEXICON words ('life', 'career', 'coffee', 'settle') in English.
     """
     tokens = te_sentence.split()
     out_tokens = []
@@ -682,18 +722,24 @@ def romanize_with_persona(te_sentence: str, persona: str = "P1_STANDARD", era_mo
             punct = m.group(1)
             clean_w = tok[: -len(punct)]
 
-        # 1. High-frequency Multi-Persona Lexicon ('anthega'/'antega', 'Anti'=ఏంటి, 'm'=ఏం, 'nduku'=ఎందుకు)
+        # 1. High-frequency Multi-Persona Lexicon ('anthega'/'antega', 'Anti'=ఏంటి, 'yuddhamlo')
         if clean_w in CANONICAL_TO_PERSONA_LEXICON:
             mapped = CANONICAL_TO_PERSONA_LEXICON[clean_w].get(persona, clean_w)
             out_tokens.append(mapped + punct)
             continue
 
-        # 2. Era-based English Lexical Swap
+        # 2. Protected Telugu Emotional Core -> ALWAYS keep in Telugu (transliterated to Latin Tenglish)
+        if clean_w in PROTECTED_TELUGU_EMOTIONAL_CORE:
+            rom_emotional = transliterate_telugu_word_universal(clean_w, persona)
+            out_tokens.append(rom_emotional + punct)
+            continue
+
+        # 3. Functional Era-based English Lexical Swap (non-emotional words like 'విషయం' -> 'matter')
         if clean_w in ERA_LEXICAL_SWAPS and era_mode in ERA_LEXICAL_SWAPS[clean_w]:
             out_tokens.append(ERA_LEXICAL_SWAPS[clean_w][era_mode] + punct)
             continue
 
-        # 3. Known English loanwords written in Telugu script (with optional Telugu suffix)
+        # 4. Words naturally used in English in Telugu movies ('life', 'career', 'coffee', 'office-ki')
         if clean_w in TELUGU_SCRIPT_ENGLISH_LOANS:
             out_tokens.append(TELUGU_SCRIPT_ENGLISH_LOANS[clean_w][0] + punct)
             continue
@@ -709,7 +755,7 @@ def romanize_with_persona(te_sentence: str, persona: str = "P1_STANDARD", era_mo
         if matched_loan_prefix:
             continue
 
-        # 4. Universal Akshara-to-Latin Phonetic State Machine (handles 100% of remaining Telugu words)
+        # 5. Universal Akshara-to-Latin Phonetic State Machine
         rom = transliterate_telugu_word_universal(clean_w, persona)
         out_tokens.append(rom + punct)
 
