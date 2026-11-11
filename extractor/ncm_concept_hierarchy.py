@@ -1,5 +1,5 @@
 """
-Next-Concept Modeling (NCM) Coarse-to-Fine Scene Hierarchy (`tenglish_lm/ncm_concept_hierarchy.py`).
+Next-Concept Modeling (NCM) Coarse-to-Fine Scene Hierarchy (`extractor/ncm_concept_hierarchy.py`).
 Inspired by: "Next-Concept Modeling: Fast, Parallel Coarse-to-Fine Text Generation" (arXiv:2610.14162v1).
 
 Adapts NCM's multiscale coarse-to-fine representation (r_1 -> r_2 -> r_3) to Telugu Movie Scenes:

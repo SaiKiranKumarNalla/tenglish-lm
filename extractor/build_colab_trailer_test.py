@@ -1,7 +1,7 @@
 """
 Builds the GitHub Live-Synced YouTube Movie Subtitle & Scene Corpus Extractor Colab Notebooks:
-- `notebooks/01_YouTube_Movie_Corpus_Extractor.ipynb`
-- `notebooks/00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb`
+- `extractor/01_YouTube_Movie_Corpus_Extractor.ipynb`
+- `extractor/00_Colab_QuickTest_YouTube_Trailer_Extractor.ipynb`
 
 Key Upgrades:
 1. Embeds the official `[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]` button at the top of the notebook so GitHub always renders a 1-click "Open in Colab" badge.
@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 
-COLAB_URL = "https://colab.research.google.com/github/SaiKiranKumarNalla/tenglish-lm/blob/main/notebooks/01_YouTube_Movie_Corpus_Extractor.ipynb"
+COLAB_URL = "https://colab.research.google.com/github/SaiKiranKumarNalla/tenglish-lm/blob/main/extractor/01_YouTube_Movie_Corpus_Extractor.ipynb"
 
 CELL_1_MARKDOWN = f"""[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)]({COLAB_URL})
 
@@ -20,7 +20,7 @@ CELL_1_MARKDOWN = f"""[![Open In Colab](https://colab.research.google.com/assets
 **Repository:** [`SaiKiranKumarNalla/tenglish-lm`](https://github.com/SaiKiranKumarNalla/tenglish-lm) | **Runtime:** Google Colab **Free CPU**
 
 ### How This Notebook Stays 100% Synced with GitHub:
-* **Step 1** automatically runs `git clone` / `git pull origin main` from `https://github.com/SaiKiranKumarNalla/tenglish-lm.git` and reloads `tenglish_lm.movie_harvester` & `extract_youtube_movie`. Every time you run Step 1, you get the exact latest code from your GitHub repo!
+* **Step 1** automatically runs `git clone` / `git pull origin main` from `https://github.com/SaiKiranKumarNalla/tenglish-lm.git` and reloads `extractor.movie_harvester` & `extract_youtube_movie`. Every time you run Step 1, you get the exact latest code from your GitHub repo!
 * **Step 2** lets you attach your YouTube movie link(s) along with **`movie_name`, `year`, `director`, `genre`, and `dialect`**, and saves the clean `.srt`, `.csv`, and `.txt` files directly to your Google Drive (`/MyDrive/Tenglish_LM/movie_corpus/`)."""
 
 CELL_2_LIVE_SYNC_SETUP = """# @title Step 1: Live-Sync Latest Code from GitHub & Mount Google Drive
@@ -47,15 +47,15 @@ if str(REPO_DIR) not in sys.path:
     sys.path.insert(0, str(REPO_DIR))
 
 # Reload modules so any GitHub changes take effect immediately in this Colab session
-import tenglish_lm.movie_harvester
-import tenglish_lm.ncm_concept_hierarchy
-import extract_youtube_movie
+import extractor.movie_harvester
+import extractor.ncm_concept_hierarchy
+import extractor.extract_youtube_movie as extract_youtube_movie
 
-importlib.reload(tenglish_lm.movie_harvester)
-importlib.reload(tenglish_lm.ncm_concept_hierarchy)
+importlib.reload(extractor.movie_harvester)
+importlib.reload(extractor.ncm_concept_hierarchy)
 importlib.reload(extract_youtube_movie)
 
-from extract_youtube_movie import (
+from extractor.extract_youtube_movie import (
     extract_full_movie_pipeline,
     extract_movie_corpus_batch,
     load_movie_list_from_csv,
