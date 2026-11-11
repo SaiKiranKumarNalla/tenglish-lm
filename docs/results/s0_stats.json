@@ -1,0 +1,18 @@
+{
+ "movies": 76,
+ "scenes": 15597,
+ "telugu_lines": 54656,
+ "words": 658024,
+ "median_words_per_line": 13,
+ "years": [
+  2000,
+  2025
+ ],
+ "kw_dialect": {
+  "STANDARD_TELUGU": 13641,
+  "RAYALASEEMA": 498,
+  "COASTAL_ANDHRA": 499,
+  "TELANGANA": 959
+ },
+ "rayalaseema_from_violence_words": 0.566
+}

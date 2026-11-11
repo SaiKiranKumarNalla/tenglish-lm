@@ -1,5 +1,5 @@
 """
-Generic Telugu Movie Subtitle Parser, BGM/Noise Cleaner & Timestamped Scene Slicer (`tenglish_lm/movie_harvester.py`).
+Generic Telugu Movie Subtitle Parser, BGM/Noise Cleaner & Timestamped Scene Slicer (`extractor/movie_harvester.py`).
 
 Responsibilities:
 1. Parse raw `.srt` or `.vtt` subtitle tracks (manual captions or YouTube auto-generated Telugu captions).

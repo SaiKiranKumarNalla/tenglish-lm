@@ -1,0 +1,14 @@
+{
+ "GPT-2 (English-centric)": {
+  "Telugu script": 17.988176571058368,
+  "romanized": 2.919061782201543
+ },
+ "Sarvam-2B (Indic)": {
+  "Telugu script": 2.1178220154308263,
+  "romanized": 3.3431003003710464
+ },
+ "This project (Unigram 4k + phonetic)": {
+  "Telugu script": null,
+  "romanized": 1.7727634136286001
+ }
+}

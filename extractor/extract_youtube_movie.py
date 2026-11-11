@@ -21,12 +21,12 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from tenglish_lm.movie_harvester import (
+from extractor.movie_harvester import (
     SubtitleBlock,
     blocks_to_clean_srt,
     parse_srt_content,
 )
-from tenglish_lm.ncm_concept_hierarchy import build_ncm_scene_representation
+from extractor.ncm_concept_hierarchy import build_ncm_scene_representation
 
 
 # ---------------------------------------------------------------------------
