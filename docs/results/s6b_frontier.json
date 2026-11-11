@@ -1,0 +1,21 @@
+{
+ "claude": {
+  "normalization_word_accuracy": 0.8671,
+  "judge: real vs random (reliability)": {
+   "first": 136,
+   "second": 9,
+   "tie/inconsistent": 5,
+   "n": 150,
+   "first_win_rate": 0.9067,
+   "second_win_rate": 0.06
+  },
+  "judge: fine-tuned vs base (movie)": {
+   "first": 141,
+   "second": 6,
+   "tie/inconsistent": 3,
+   "n": 150,
+   "first_win_rate": 0.94,
+   "second_win_rate": 0.04
+  }
+ }
+}
