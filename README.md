@@ -433,6 +433,73 @@ What this shows:
 - **Remaining errors:** the misspelled `lete` was taken for English. `meeting` wasn't detected as English, so it was transliterated
   (మీటింగ్), which is acceptable Telugu but inconsistent.
 
+
+### Stage 5: a spoken-style reply model (`stages/s5_prepare.py`, `stages/s5_dialogue_lm.py`)
+
+With spelling handled by the normalizer, Stage 5 trains the part that **talks**: given the previous one or two lines of dialogue (in Telugu
+script), produce the next line in spoken, movie-style Telugu. The data is 29k context → next-line pairs from the training movies, tested on
+1,500 pairs from the 8 unseen movies.
+
+**Choosing a base model.** Tokenizer cost on Telugu decides a lot for a small model:
+
+| Candidate | Access | Tokens per Telugu word |
+|---|---|---|
+| **sarvam-1** (2B, Sarvam AI) | open | **2.1** |
+| Qwen2.5-0.5B | open | 9.8 |
+| GPT-2 | open | 17.8 |
+| Gemma-3-1B | gated | — |
+
+**Three models**, scored with the same metric: bits per character of the **real** next line given its context (lower means the model
+expected what was actually said):
+
+1. **sarvam-1 as-is**, no fine-tuning
+2. **sarvam-1 + LoRA**: about 24M trainable parameters (0.9% of the model), 1,200 steps on the dialogue pairs, with the loss computed on the
+   reply only; about 70 minutes on a Colab L4
+3. **A tiny GPT trained from scratch** (5M parameters, this project's Telugu Unigram tokenizer), as a small-model reference
+
+![next line](docs/plots/s5_next_line_bpc.png)
+
+| Model | bits per character ↓ |
+|---|---|
+| sarvam-1, no fine-tuning | 2.02 |
+| **sarvam-1 + LoRA on movie dialogue** | **1.60** |
+| tiny GPT from scratch (5M) | 2.61 |
+
+**Findings**
+
+1. **Fine-tuning on movie dialogue makes the real next lines 21% less surprising** to the model (2.02 → 1.60 bits per character).
+2. **It changes the register.** Before fine-tuning, sarvam-1 often answers like a news site or an essay, sometimes even opening with a date
+   ("2013 జూలై 12 - …"), which is its pretraining data showing through. After fine-tuning, the replies are spoken dialogue.
+3. **Pretraining matters.** The 5M from-scratch model is far behind (2.61), even though it uses a more efficient tokenizer. On 29k pairs,
+   general Telugu knowledge can't be learned from scratch.
+
+**Sample replies** ([all side-by-side examples](docs/results/s5_examples.md)):
+
+| last line | sarvam-1 as-is | sarvam-1 + LoRA |
+|---|---|---|
+| ఏంట్రా ఇంత లేట్ అయ్యింది? *(why are you so late?)* | 2013 జూలై 12 - ఏంట్రా ఎందుకు ఆలస్యమైంది? | నేను రాలేదు సార్. *(I didn't come, sir.)* |
+| అమ్మా, నేను సిటీకి వెళ్ళిపోతున్నాను. *(Mom, I'm leaving for the city.)* | 2013 జూలై 16 - మమ్మీకి ఒక బిడ్డ పుట్టబోతోంది! | నేను తిరిగి వచ్చినప్పుడు, మీరు మరియు మామయ్య మిమ్మల్ని తీసుకోవడానికి వస్తారు. |
+
+**End to end:** romanized input → Stage 4 normalizer → reply → canonical romanization:
+
+| typed | reply (romanized) |
+|---|---|
+| `nuvvu naaku nachchav` *(I like you)* | `nenu neeku nachchaana …` *(you like me? …)* |
+| `ekkadiki veltunnav ra?` *(where are you going?)* | `nenu velladam ledu. meeru nannu vellamani adigithe, nenu meetho velthaanu.` *(I'm not going. If you ask me to go, I'll go with you.)* |
+| `amma, nenu city ki vellipothunna` | `nenu sitee ki velthaanu amma. nuvvu sitee ki vellalevu please please` |
+
+**Honest limitations**
+
+- **Coherence is weak.** Replies are often generic ("నేను మీకు సహాయం చేశాను", *I helped you*), drift off-topic, or loop
+  (a devotional song context produced శివుడు repeated many times).
+  This is a small budget: 2B parameters, 0.66 of an epoch, short context.
+- **The demo uses the Stage 4 word normalizer** (the Stage 4b sentence model wasn't saved), so English words still get Telugu-ized there:
+  `late` → లాటే. Wiring in the Stage 4b pipeline fixes this.
+- **Lower bits per character means the model better predicts real dialogue. It doesn't guarantee good replies.** A human or
+  model-graded evaluation of reply quality is still missing.
+- **Engineering notes:** two out-of-memory crashes on the 22 GB L4 were fixed with gradient checkpointing and gradient accumulation
+  (4 × 4 micro-batches).
+
 ---
 
 ## 4. Roadmap
@@ -446,7 +513,8 @@ What this shows:
 | 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | ✅ |
 | 4 | Normalizer: any spelling → Telugu script (character seq2seq from scratch; Dakshina + synthetic) | ✅ word-level |
 | 4b | Normalizer with sentence context + English-word handling | ✅ |
-| 5 | Spoken-style language model on top of the normalizer (line → next line), fine-tuned from a small pretrained model | next |
+| 5 | Spoken-style reply model: sarvam-1 + LoRA on movie dialogue (next-line bits/char 2.02 → 1.60) | ✅ first version |
+| 5b | Better replies: longer training, full Stage 4b pipeline, reply-quality evaluation, reducing loops | next |
 | 6 | Real-world test set of romanized Telugu typed by people | planned |
 | 7 | Public demo | planned |
 
@@ -466,6 +534,7 @@ pip install torch && python stages/s3_tiny_lms.py && python stages/s3_plots.py  
 python stages/s4_prepare.py && python stages/s4_normalizer.py && python stages/s4_plots.py   # needs DAKSHINA_TE; GPU recommended
 python stages/s4b_langid.py && python stages/s4b_prepare.py
 python stages/s4b_sentence_normalizer.py --word-model path/to/normalizer.pt && python stages/s4b_plots.py   # GPU recommended
+python stages/s5_prepare.py && python stages/s5_dialogue_lm.py --word-model path/to/normalizer.pt && python stages/s5_plots.py   # L4/A100
 ```
 
 ## Repository layout
