@@ -269,6 +269,48 @@ The phonetic key makes text **~4.5× more spelling-robust and more efficient at 
 
 **Current choice:** Unigram (4k) with the phonetic key for input. Stage 3 tests whether this actually helps a model learn.
 
+
+### Stage 3: tiny language models from scratch: does the tokenizer matter? (`tlm/tinygpt.py`, `stages/s3_tiny_lms.py`)
+
+Tokenizer statistics only predict what *should* help. Stage 3 checks what actually helps a model learn: the **same tiny GPT**
+(4 layers, 256-dim, ~3–4M parameters, written from scratch in `tlm/tinygpt.py`), trained on the **same noisy romanized text**
+(train movies, ~11M characters), for the **same budget** (2 passes over the text), with only the tokenizer changing.
+It ran on a free-tier-sized Colab T4, in 1.5–4.5 minutes per model.
+
+**How models are compared:** loss per token isn't comparable across tokenizers, because a token can be one letter or a whole word.
+The fair measure is **bits per character (BPC)**: how many bits the model needs, on average, to predict each character of the *original*
+test text (8 unseen movies). Lower is better. **Spelling spread** feeds the same test sentence in 4 spellings and measures how much the
+model's BPC changes between the best and worst spelling. Lower means spelling throws the model less.
+
+![learning curves](docs/plots/s3_learning_curves.png)
+![final scores](docs/plots/s3_final_scores.png)
+
+| Tokenizer | test BPC ↓ | spelling spread ↓ | training steps |
+|---|---|---|---|
+| Character | 3.33 | **0.12** | 1,331 |
+| BPE 4k | 2.96 | 0.33 | 361 |
+| **Unigram 4k** | **2.82** | 0.33 | 357 |
+| Unigram 4k + subword sampling | 3.30 | 0.30 | 719 |
+| Unigram 4k + phonetic key *(lossy, see below)* | 2.49 | 0.25 | 314 |
+
+**Findings**
+
+1. **Unigram beats BPE, and both beat characters**, given the same model and the same text: 2.82 vs 2.96 vs 3.33 BPC. Subword tokens let a
+   small model see more text per step, and Unigram's segmentation fits Telugu's syllable structure slightly better than BPE's greedy merges.
+2. **Characters are by far the most spelling-robust** (spread 0.12 vs ~0.33): `enti` and `yenti` differ by a single token. But the
+   model learns the *language* worse.
+3. **Subword sampling didn't help at this scale.** It improved robustness only slightly and cost about 0.5 BPC. Sampling usually needs
+   longer training to pay off. (A first version of this run accidentally gave the sampling model only half the text; it was found from
+   the learning curve, fixed and rerun.)
+4. **Part of what the model "can't learn" is pure spelling randomness.** The romanizer picks spellings at random (`intha` vs `inta`), and no
+   model can predict a coin flip, so noisy romanized text has a built-in floor. The phonetic key removes that randomness before the model sees
+   it, which is why its BPC is much lower (2.49). Because it changes the text, the number isn't directly comparable. But it points to the
+   design decision for the next stages: **let a small normalizer deal with spelling, so the language model can spend its capacity on Telugu
+   itself.**
+
+**Caveats:** these are tiny models with a short budget; the curves are still slowly improving at the end. The ranking at this scale may not
+hold for much larger models. Equal *text* doesn't mean equal *compute*: the character model needs ~3.7× more steps.
+
 ---
 
 ## 4. Roadmap
@@ -279,8 +321,8 @@ The phonetic key makes text **~4.5× more spelling-robust and more efficient at 
 | 1 / 1b | Can we simulate how people type Telugu? Which generator is best? | ✅ |
 | 2 / 2b | Which tokenizer handles messy spelling? | ✅ |
 | 1c | Does synthetic text match real human spellings? (Dakshina benchmark + calibration) | ✅ |
-| 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | next |
-| 4 | Normalizer / converter: any spelling → native script and canonical romanized (small character model, from scratch) | planned |
+| 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | ✅ |
+| 4 | Normalizer / converter: any spelling → native script and canonical romanized (small character model, from scratch; Dakshina pairs + synthetic) | next |
 | 5 | Spoken-style model: fine-tune a small pretrained model on dialogue (line → next line) | planned |
 | 6 | Real-world test set of romanized Telugu typed by people | planned |
 | 7 | Public demo | planned |
@@ -297,6 +339,7 @@ python stages/s1b_generator_comparison.py
 DAKSHINA_TE=/path/to/dakshina_dataset_v1.0/te python stages/s1c_dakshina_benchmark.py   # optional; needs Dakshina
 python stages/s2_tokenizer_study.py --sarvam path/to/sarvam-2b/tokenizer.json
 python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --sarvam path/to/sarvam-2b/tokenizer.json
+pip install torch && python stages/s3_tiny_lms.py && python stages/s3_plots.py   # GPU recommended
 ```
 
 ## Repository layout
@@ -304,7 +347,7 @@ python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --s
 | Path | Contents |
 |---|---|
 | `extractor/` | YouTube Telugu subtitles → cleaned, scene-segmented corpus (Colab notebooks + scripts) |
-| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, plot style |
+| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, tiny GPT, plot style |
 | `stages/` | one reproducible script per stage |
 | `docs/plots/`, `docs/results/` | every figure and number shown above |
 | `docs/DATA_CARD.md`, `docs/ROMANIZATION.md` | detailed data description and romanization rules |

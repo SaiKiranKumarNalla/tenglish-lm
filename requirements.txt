@@ -1,3 +1,5 @@
 sentencepiece
 tokenizers
 matplotlib
+numpy
+torch  # stage 3
