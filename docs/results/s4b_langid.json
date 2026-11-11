@@ -1,0 +1,77 @@
+{
+ "accuracy": {
+  "English held-out (dictionary words)": 0.9596,
+  "Romanized Telugu, unseen movies": 0.9791,
+  "English loanwords used in the movies": 0.8718
+ },
+ "telugu_tokens_wrongly_english": 0.0096,
+ "top_false_english": [
+  [
+   "magesh",
+   64
+  ],
+  [
+   "rer",
+   26
+  ],
+  [
+   "phains",
+   21
+  ],
+  [
+   "sibisiaidi",
+   19
+  ],
+  [
+   "ole",
+   16
+  ],
+  [
+   "flor",
+   15
+  ],
+  [
+   "kembrij",
+   15
+  ],
+  [
+   "pimpuls",
+   14
+  ],
+  [
+   "jooblee",
+   13
+  ],
+  [
+   "fains",
+   13
+  ],
+  [
+   "french",
+   12
+  ],
+  [
+   "cd",
+   12
+  ],
+  [
+   "us",
+   12
+  ],
+  [
+   "eteto",
+   10
+  ],
+  [
+   "bring",
+   10
+  ]
+ ],
+ "missed_loanwords": [
+  "daddy",
+  "hi",
+  "madam",
+  "ok",
+  "thanks"
+ ]
+}

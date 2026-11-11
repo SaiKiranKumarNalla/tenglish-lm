@@ -1,0 +1,74 @@
+{
+ "Dakshina test (real human)": {
+  "word-level (Stage 4)": {
+   "word_acc": 0.6523,
+   "ambiguous_word_acc": 0.7731,
+   "ambiguous_words": 9520,
+   "sentence_cer": 0.0751
+  },
+  "sentence-level (Stage 4b)": {
+   "word_acc": 0.6429,
+   "ambiguous_word_acc": 0.8165,
+   "ambiguous_words": 9520,
+   "sentence_cer": 0.0789
+  }
+ },
+ "Movie test (unseen movies)": {
+  "word-level (Stage 4)": {
+   "word_acc": 0.8158,
+   "ambiguous_word_acc": 0.7722,
+   "ambiguous_words": 30736,
+   "sentence_cer": 0.0427
+  },
+  "sentence-level (Stage 4b)": {
+   "word_acc": 0.8813,
+   "ambiguous_word_acc": 0.908,
+   "ambiguous_words": 30736,
+   "sentence_cer": 0.0287
+  }
+ },
+ "demo": [
+  {
+   "input": "enti ra intha late ayyindi?",
+   "masked": "enti ra intha @ ayyindi?",
+   "output": "ఏంటి రా ఇంత late అయ్యింది?"
+  },
+  {
+   "input": "anti ra inta lete?",
+   "masked": "anti ra inta @?",
+   "output": "ఏంటి రా ఇంత lete?"
+  },
+  {
+   "input": "bro exam ela rasav, results eppudu?",
+   "masked": "@ @ ela rasav, @ eppudu?",
+   "output": "bro exam ఎలా రాసావ్, results ఎప్పుడు?"
+  },
+  {
+   "input": "nee phone number ivvu",
+   "masked": "nee @ @ ivvu",
+   "output": "నీ phone number ఇవ్వు"
+  },
+  {
+   "input": "ni peru enti?",
+   "masked": "ni peru enti?",
+   "output": "నీ పేరు ఏంటి?"
+  },
+  {
+   "input": "nenu office ki vellanu, meeting undi",
+   "masked": "nenu @ ki vellanu, meeting undi",
+   "output": "నేను office కి వెళ్ళాను, మీటింగ్ ఉంది"
+  },
+  {
+   "input": "sorry ra, traffic lo stuck ayya",
+   "masked": "@ ra, @ lo @ ayya",
+   "output": "sorry రా, traffic లో stuck అయ్యా"
+  },
+  {
+   "input": "amma ki call chey, worry avthundi",
+   "masked": "amma ki @ chey, @ avthundi",
+   "output": "అమ్మ కి call చెయ్, worry అవ్తుంది"
+  }
+ ],
+ "train_minutes": 21.2,
+ "params": 7648077
+}

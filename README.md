@@ -368,6 +368,71 @@ Character error rate for the best model: **9%** on Dakshina, **5%** on seen and 
 **Next steps for the normalizer:** sentence-level context (to resolve `anti`, `nee`/`ni`), handling English words (detect them and keep or
 transliterate them as English), and beam search instead of greedy decoding. The trained model (~22 MB) isn't committed to git.
 
+
+### Stage 4b: context and English words (`tlm/langid.py`, `stages/s4b_*.py`)
+
+The word-level normalizer has two blind spots: it can't use **context** (`anti` → అంటి, when in chat it usually means ఏంటి), and it forces
+**English words** into Telugu sounds (`late` → లాటే). Stage 4b adds two pieces:
+
+**1. English detection (token language ID).** A character n-gram Naive Bayes classifier learns which letter patterns are typical of English
+(`-tion`, `ck`, `ght`) versus romanized Telugu (`aa`, `-ndi`, words ending in vowels). It's trained on an English wordlist and on romanized
+words from the training movies.
+
+![language id](docs/plots/s4b_langid.png)
+
+It correctly identifies 96% of held-out English words and 98% of romanized Telugu words from unseen movies. Only **1% of Telugu words in
+running text** get wrongly flagged as English, and many of those are English words spelled phonetically (`kembrij`, `french`). It misses
+some very short chat words (`hi`, `ok`, `thanks`), which a small override list covers.
+
+**2. A sentence-level normalizer.** The same kind of character model as Stage 4 (4 + 4 layers, ~7M parameters), but it reads and writes
+**whole sentences**. Detected English words become a placeholder (`@`) and are put back unchanged afterwards:
+
+```
+"bro exam ela rasav, results eppudu?"
+  -> English detected:   "@ @ ela rasav, @ eppudu?"
+  -> sentence model:     "@ @ ఎలా రాసావ్, @ ఎప్పుడు?"
+  -> English restored:   "bro exam ఎలా రాసావ్, results ఎప్పుడు?"
+```
+
+It's trained on 136k sentence pairs: movie turns with synthetic spellings, plus Dakshina's 5k real human-romanized dev sentences.
+It's compared with the Stage 4 word model on Dakshina's real test sentences and on sentences from the unseen movies:
+
+![word vs sentence](docs/plots/s4b_word_vs_sentence.png)
+
+| Test set | Model | word accuracy | **ambiguous spellings** | character error rate |
+|---|---|---|---|---|
+| Movie sentences (unseen movies) | word-level | 82% | 77% | 4.3% |
+| | **sentence-level** | **88%** | **91%** | **2.9%** |
+| Dakshina sentences (real human, formal) | word-level | **65%** | 77% | **7.5%** |
+| | sentence-level | 64% | **82%** | 7.9% |
+
+"Ambiguous spellings" are words whose romanized form maps to two or more different Telugu words in the training data (`nee`/`ni`, `anti`).
+
+**Findings**
+
+1. **Context fixes ambiguity.** On ambiguous spellings, the sentence model is +14 points better on movie sentences and +4 on real Dakshina sentences.
+2. **On spoken movie text, the sentence model wins overall** (88% vs 82% of words, character error rate down by a third).
+3. **On formal real text, it's no better overall.** Its training data is mostly spoken movie dialogue (only 5k formal sentences), so on
+   formal Wikipedia sentences it gains on ambiguous words but loses slightly elsewhere. More real romanized sentences would help.
+   This is a data limitation, not a modeling one.
+
+**Full pipeline on code-mixed chat** (handwritten examples, [all here](docs/results/s4b_examples.md)):
+
+| typed | output |
+|---|---|
+| `anti ra inta lete?` | ఏంటి రా ఇంత lete? |
+| `ni peru enti?` | నీ పేరు ఏంటి? |
+| `bro exam ela rasav, results eppudu?` | bro exam ఎలా రాసావ్, results ఎప్పుడు? |
+| `nee phone number ivvu` | నీ phone number ఇవ్వు |
+| `sorry ra, traffic lo stuck ayya` | sorry రా, traffic లో stuck అయ్యా |
+| `nenu office ki vellanu, meeting undi` | నేను office కి వెళ్ళాను, మీటింగ్ ఉంది |
+
+What this shows:
+- `anti` is now correctly read as ఏంటి from context. The word-level model wrote అంటి.
+- English words survive untouched.
+- **Remaining errors:** the misspelled `lete` was taken for English. `meeting` wasn't detected as English, so it was transliterated
+  (మీటింగ్), which is acceptable Telugu but inconsistent.
+
 ---
 
 ## 4. Roadmap
@@ -380,8 +445,8 @@ transliterate them as English), and beam search instead of greedy decoding. The 
 | 1c | Does synthetic text match real human spellings? (Dakshina benchmark + calibration) | ✅ |
 | 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | ✅ |
 | 4 | Normalizer: any spelling → Telugu script (character seq2seq from scratch; Dakshina + synthetic) | ✅ word-level |
-| 4b | Normalizer with sentence context + English-word handling | next |
-| 5 | Spoken-style model: fine-tune a small pretrained model on dialogue (line → next line) | planned |
+| 4b | Normalizer with sentence context + English-word handling | ✅ |
+| 5 | Spoken-style language model on top of the normalizer (line → next line), fine-tuned from a small pretrained model | next |
 | 6 | Real-world test set of romanized Telugu typed by people | planned |
 | 7 | Public demo | planned |
 
@@ -399,6 +464,8 @@ python stages/s2_tokenizer_study.py --sarvam path/to/sarvam-2b/tokenizer.json
 python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --sarvam path/to/sarvam-2b/tokenizer.json
 pip install torch && python stages/s3_tiny_lms.py && python stages/s3_plots.py   # GPU recommended
 python stages/s4_prepare.py && python stages/s4_normalizer.py && python stages/s4_plots.py   # needs DAKSHINA_TE; GPU recommended
+python stages/s4b_langid.py && python stages/s4b_prepare.py
+python stages/s4b_sentence_normalizer.py --word-model path/to/normalizer.pt && python stages/s4b_plots.py   # GPU recommended
 ```
 
 ## Repository layout
@@ -406,7 +473,7 @@ python stages/s4_prepare.py && python stages/s4_normalizer.py && python stages/s
 | Path | Contents |
 |---|---|
 | `extractor/` | YouTube Telugu subtitles → cleaned, scene-segmented corpus (Colab notebooks + scripts) |
-| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, tiny GPT, character seq2seq, plot style |
+| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, tiny GPT, character seq2seq, English/Telugu language ID, plot style |
 | `stages/` | one reproducible script per stage |
 | `docs/plots/`, `docs/results/` | every figure and number shown above |
 | `docs/DATA_CARD.md`, `docs/ROMANIZATION.md` | detailed data description and romanization rules |
