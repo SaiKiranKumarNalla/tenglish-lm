@@ -16,9 +16,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tlm.corpus import ROOT, load_scenes, split_of, telugu_lines  # noqa: E402
 from tlm.plotstyle import INK2, SERIES, plt, save  # noqa: E402
 from tlm.romanizer import TELUGU_WORD, romanize, romanize_word  # noqa: E402
+from tlm.filters import drop_reason  # noqa: E402
 
 N_VARIANTS = 3  # noisy versions per line in the derived corpus
-scenes = load_scenes()
+scenes = [s for s in load_scenes() if drop_reason(s.lines) is None]  # same quality filters as Stage 0b
 lines = telugu_lines(scenes)
 words = Counter(w for l in lines for w in TELUGU_WORD.findall(l))
 

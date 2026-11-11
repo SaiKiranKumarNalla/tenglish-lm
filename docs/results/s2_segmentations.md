@@ -13,7 +13,7 @@
 
 Unigram can **sample** different segmentations of the same word (subword regularization):
 
-- `▁vellipo t h u n nan u`
-- `▁vellipo thunnanu`
-- `▁vel li po thunna nu`
-- `▁velli p o thunna nu`
+- `▁velli p o th u n na nu`
+- `▁velli p o thu nna nu`
+- `▁vellipo thunna n u`
+- `▁vellipo th u nna nu`

@@ -11,4 +11,4 @@
 | `ela` | `ela`, `ella` |
 | `ki` | `ki`, `kee` |
 | `vadu` | `vaadu`, `vaddu` |
-| `atani` | `athanni`, `athani` |
+| `anta` | `antha`, `anta` |

@@ -29,7 +29,7 @@ MATRAS = {  # vowel signs after a consonant
 }
 CONSONANTS = {
     "క": [("k", 1)], "ఖ": [("kh", .5), ("k", .5)], "గ": [("g", 1)], "ఘ": [("gh", .5), ("g", .5)],
-    "ఙ": [("n", 1)], "చ": [("ch", .9), ("c", .1)], "ఛ": [("chh", .4), ("ch", .6)], "జ": [("j", 1)],
+    "ఙ": [("n", 1)], "చ": [("ch", 1)], "ఛ": [("chh", .4), ("ch", .6)], "జ": [("j", 1)],
     "ఝ": [("jh", .5), ("j", .5)], "ఞ": [("n", 1)], "ట": [("t", 1)], "ఠ": [("th", .5), ("t", .5)],
     "డ": [("d", 1)], "ఢ": [("dh", .5), ("d", .5)], "ణ": [("n", 1)], "త": [("th", .6), ("t", .4)],
     "థ": [("th", 1)], "ద": [("d", .8), ("dh", .2)], "ధ": [("dh", .6), ("d", .4)], "న": [("n", 1)],
@@ -109,6 +109,21 @@ def romanize_word(word: str, rng: random.Random | None = None, canonical: bool =
     # Word-final long "aa" is almost always typed short: entra, ela, kada
     if w.endswith("aa") and (canonical or rng.random() < 0.85):
         w = w[:-1]
+    if canonical:
+        return w
+    # Chat shorthand, calibrated against the curated list in tlm/reference_spellings.py (Stage 1b):
+    lazy = 0.5 + style  # lazier typists use more shorthand
+    w = w.replace("chch", "cch") if rng.random() < 0.3 else w      # vachchava -> vacchava
+    r = rng.random()
+    if (w.endswith("aanu") and len(w) > 5) or (w.endswith("anu") and len(w) > 5):
+        if r < 0.08 * lazy:
+            return w[:w.rfind("anu") - (1 if w.endswith("aanu") else 0)] + "a"   # chesanu -> chesa
+    if len(w) > 3 and w.endswith("u") and w[-2] not in "aeiou" and r < 0.05 * lazy:
+        return w[:-1]                                                   # nuvvu -> nuvv, nenu -> nen
+    if len(w) > 3 and w.endswith("i") and w[-2] not in "aeiou" and r < 0.06 * lazy:
+        return w[:-1] + "y"                                             # enti -> enty
+    if len(w) > 3 and w.endswith("e") and w[-2] not in "aeiou" and r < 0.06 * lazy:
+        return w + "y"                                                  # anthe -> anthey
     return w
 
 

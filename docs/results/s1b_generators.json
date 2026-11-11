@@ -1,0 +1,46 @@
+{
+ "generators": {
+  "tiered (per sentence)": {
+   "spellings_per_word": 1.74,
+   "mixing_share": 0.001,
+   "curated_coverage": 0.545
+  },
+  "per-word (ours)": {
+   "spellings_per_word": 5.95,
+   "mixing_share": 0.816,
+   "curated_coverage": 0.985
+  },
+  "hybrid": {
+   "spellings_per_word": 4.63,
+   "mixing_share": 0.506,
+   "curated_coverage": 0.955
+  }
+ },
+ "cross_generator_tokens_per_word": {
+  "canonical only": {
+   "tiered (per sentence)": 2.186,
+   "per-word (ours)": 2.415,
+   "hybrid": 2.266
+  },
+  "tiered (per sentence)": {
+   "tiered (per sentence)": 1.862,
+   "per-word (ours)": 2.252,
+   "hybrid": 1.98
+  },
+  "per-word (ours)": {
+   "tiered (per sentence)": 1.948,
+   "per-word (ours)": 2.006,
+   "hybrid": 1.966
+  },
+  "hybrid": {
+   "tiered (per sentence)": 1.871,
+   "per-word (ours)": 2.054,
+   "hybrid": 1.927
+  }
+ },
+ "never_generated": {
+  "చూడు": [
+   "chuudu"
+  ]
+ }
+}

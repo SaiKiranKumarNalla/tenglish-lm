@@ -133,6 +133,22 @@ Those labels are not used.
 
 ![keyword tags](docs/plots/s0_keyword_tags_unreliable.png)
 
+### Stage 0b: data card (`stages/s0b_data_card.py`, full details in [docs/DATA_CARD.md](docs/DATA_CARD.md))
+
+What the corpus actually is, and what to keep in mind when reading every later number:
+
+- **Cleaning funnel:** 177,815 raw subtitle blocks → 161,925 after cleaning → merged into 54,989 dialogue turns →
+  **51,662 turns** after quality filters (979 scenes removed, mostly leftover sound/music tags).
+- **A "line" is a dialogue turn, not one speaker.** 33% of turns contain more than one sentence.
+- **Caption quality:** 13 of 76 movies have almost no punctuation, which points to auto-generated (speech-recognition) captions.
+- **English inside Telugu:** between **3% and 13%** of Telugu-script words are English loanwords (సార్, ఫోన్, ప్లీజ్).
+- **Vocabulary:** 64% of words appear only once, and **11.5% of words in the test movies never occur in training**.
+  Word-level vocabularies can't work here.
+
+![funnel](docs/plots/s0b_cleaning_funnel.png)
+![english mixing](docs/plots/s0b_english_mixing.png)
+![vocabulary](docs/plots/s0b_vocabulary.png)
+
 ### Stage 1: simulate how people type (`tlm/romanizer.py`, `stages/s1_romanizer.py`)
 
 Real romanized data is scarce, so the project generates it. The romanizer converts Telugu script to Latin letters by choosing
@@ -147,7 +163,36 @@ It also gives each sentence a "typing habit", from careful (`raasaanu`) to lazy 
 | నువ్వు | `nuvvu` | `nuvvu`, `nuwwu`, `nuvu`, `nuwu` |
 | లేదు | `ledu` | `ledu`, `ledhu`, `leedu` |
 
-Frequent words get **~5.9 different spellings** on average. More examples: [docs/results/s1_examples.md](docs/results/s1_examples.md)
+Frequent words get **~6.7 different spellings** on average, including chat shorthand (`nen`, `nuvv`, `enty`, `chesa`).
+The complete rules and probabilities are in [docs/ROMANIZATION.md](docs/ROMANIZATION.md); more examples in
+[docs/results/s1_examples.md](docs/results/s1_examples.md).
+
+### Stage 1b: which way of generating synthetic text? (`tlm/tiers.py`, `stages/s1b_generator_comparison.py`)
+
+There's more than one way to fake human typing. Three strategies were compared:
+
+| Strategy | How it varies | Assumption |
+|---|---|---|
+| **Tiered** (a design proposed by Gemini) | one fixed style **per sentence**: P1 standard, P2 minimal, P4 lazy | each person types consistently |
+| **Per-word** (this project) | every **word** gets its own random spelling, plus a per-sentence habit | people aren't consistent, even within a sentence |
+| **Hybrid** | a tier per sentence, with 30% of words re-sampled per word | somewhere in between |
+
+![generator properties](docs/plots/s1b_generator_properties.png)
+
+- **Diversity:** the tiered approach gives only ~1.7 spellings per word; per-word gives ~6.
+- **Mixing:** real messages often mix careful and lazy spellings (`intha late ayyindi, nuvu chepu`). Tiered sentences never do (0%);
+  per-word sentences do 82% of the time.
+- **Curated real spellings:** against a small hand-curated list of common real spellings ([tlm/reference_spellings.py](tlm/reference_spellings.py)),
+  the tiered approach produces 55%. Per-word produced 86% before calibration and **98.5% after shorthand rules were added**.
+  *Caution:* the rules were calibrated against this same list, so the post-calibration number isn't an independent test.
+
+**The more useful test: does training on one generator prepare a tokenizer for another generator's spellings?**
+
+![cross generator](docs/plots/s1b_cross_generator.png)
+
+A tokenizer trained on **tiered** text handles tiered text well (1.86 tokens per word) but struggles with per-word spellings (2.25).
+A tokenizer trained on **per-word** text is nearly equally good on all three (1.95–2.01). Training only on canonical spellings is worst everywhere.
+**Per-word generation is kept as the default**, because it prepares the model for spelling styles it hasn't seen. The hybrid is a close second.
 
 ### Stage 2: which tokenizer? (`stages/s2_tokenizer_study.py`)
 
@@ -167,7 +212,7 @@ Three tokenizer types:
 
 **Finding 2: efficiency and spelling robustness pull in opposite directions.** With a large vocabulary, each spelling becomes its own
 whole-word token (`enti`, `yenti` and `anti` share nothing). Smaller vocabularies share more pieces but need more tokens.
-Characters are the most robust, but cost ~7 tokens per word. ([segmentation examples](docs/results/s2_segmentations.md))
+Characters are the most robust (0.76 overlap), but cost ~7 tokens per word. ([segmentation examples](docs/results/s2_segmentations.md))
 
 ![trade-off](docs/plots/s2_vocab_tradeoff.png)
 
@@ -177,17 +222,17 @@ Characters are the most robust, but cost ~7 tokens per word. ([segmentation exam
 | Method (Unigram, 4k vocab) | tokens per word ↓ | spelling consistency ↑ |
 |---|---|---|
 | plain | 2.02 | 0.10 |
-| + morphology split (`intlo → int ##lo`) | 2.16 | 0.13 |
-| **+ phonetic key** | **1.77** | **0.50** |
-| + phonetic key + morphology | 1.91 | 0.52 |
-| Character-level (reference) | 7.30 | 0.78 |
-| Sarvam-2B pretrained (reference) | 3.34 | 0.33 |
+| + morphology split (`intlo → int ##lo`) | 2.16 | 0.12 |
+| **+ phonetic key** | **1.77** | **0.44** |
+| + phonetic key + morphology | 1.90 | 0.46 |
+| Character-level (reference) | 7.30 | 0.76 |
+| Sarvam-2B pretrained (reference) | 3.33 | 0.33 |
 
-The phonetic key makes text **5× more spelling-robust and more efficient at the same time**. Morphology splitting alone barely helps.
+The phonetic key makes text **~4.5× more spelling-robust and more efficient at the same time**. Morphology splitting alone barely helps.
 
 ![transforms frontier](docs/plots/s2_transforms_frontier.png)
 
-**The cost:** **7.3%** of common words collapse onto another real word: `nee`/`ni` ("you" vs "your"), `oka`/`okka`,
+**The cost:** **7.2%** of common words collapse onto another real word: `nee`/`ni` ("you" vs "your"), `oka`/`okka`,
 `vaadu`/`vaddu` ("he" vs "don't"). The model then has to tell them apart from context. Full list: [docs/results/s2_phonetic_collisions.md](docs/results/s2_phonetic_collisions.md)
 
 **Current choice:** Unigram (4k) with the phonetic key for input. Stage 3 tests whether this actually helps a model learn.
@@ -198,9 +243,10 @@ The phonetic key makes text **5× more spelling-robust and more efficient at the
 
 | Stage | Question | Status |
 |---|---|---|
-| 0 | What's in the corpus? | ✅ |
-| 1 | Can we simulate how people type Telugu? | ✅ |
-| 2 | Which tokenizer handles messy spelling? | ✅ |
+| 0 / 0b | What's in the corpus? (data card) | ✅ |
+| 1 / 1b | Can we simulate how people type Telugu? Which generator is best? | ✅ |
+| 2 / 2b | Which tokenizer handles messy spelling? | ✅ |
+| — | Validate the romanizer against human romanizations (e.g. Google's Dakshina) | planned |
 | 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | next |
 | 4 | Normalizer / converter: any spelling → native script and canonical romanized (small character model, from scratch) | planned |
 | 5 | Spoken-style model: fine-tune a small pretrained model on dialogue (line → next line) | planned |
@@ -213,7 +259,9 @@ The phonetic key makes text **5× more spelling-robust and more efficient at the
 pip install -r requirements.txt
 export TLM_CORPUS=/path/to/movie_corpus       # built with extractor/ (see extractor/01_YouTube_Movie_Corpus_Extractor.ipynb)
 python stages/s0_corpus_stats.py
+python stages/s0b_data_card.py
 python stages/s1_romanizer.py
+python stages/s1b_generator_comparison.py
 python stages/s2_tokenizer_study.py --sarvam path/to/sarvam-2b/tokenizer.json
 python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --sarvam path/to/sarvam-2b/tokenizer.json
 ```
@@ -223,15 +271,16 @@ python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --s
 | Path | Contents |
 |---|---|
 | `extractor/` | YouTube Telugu subtitles → cleaned, scene-segmented corpus (Colab notebooks + scripts) |
-| `tlm/` | library: corpus loader, noisy romanizer, phonetic key and morphology splitter, plot style |
+| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, plot style |
 | `stages/` | one reproducible script per stage |
 | `docs/plots/`, `docs/results/` | every figure and number shown above |
+| `docs/DATA_CARD.md`, `docs/ROMANIZATION.md` | detailed data description and romanization rules |
 | `data/split_manifest.json` | the fixed movie-level train/val/test split |
 
 ## Limitations
 
-- The romanized training text is **synthetic**: generated by rules from native-script subtitles. Real typing habits may differ
-  (Stage 6 addresses this).
+- The romanized training text is **synthetic**: generated by hand-set rules from native-script subtitles, and **not yet validated
+  against human romanizations**. Real typing habits may differ (Stage 6 and the Dakshina validation address this).
 - Subtitles come partly from automatic speech recognition and contain errors and some song lyrics.
 - Movie dialogue isn't everyday conversation: it's scripted and dramatized.
 - For research and education only; see the note at the top.

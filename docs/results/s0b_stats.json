@@ -1,0 +1,51 @@
+{
+ "funnel": {
+  "raw subtitle blocks": 177815,
+  "after extractor cleaning": 161925,
+  "merged into dialogue turns": 54989,
+  "after quality filters": 51662
+ },
+ "dropped_scenes": {
+  "sound/music tag left": 736,
+  "too short": 155,
+  "repetitive (likely lyrics)": 67,
+  "mostly non-Telugu": 21
+ },
+ "likely_auto_caption_movies": 13,
+ "share_lines_multi_sentence": 0.328,
+ "english_share_bounds": [
+  0.0296,
+  0.1343
+ ],
+ "top_consonant_final_words": [
+  "సార్",
+  "రేయ్",
+  "ఏయ్",
+  "ఫోన్",
+  "సర్",
+  "ప్లీజ్",
+  "లవ్",
+  "హాయ్",
+  "ఇస్",
+  "బాయ్",
+  "అరేయ్",
+  "ఫ్రెండ్",
+  "వన్",
+  "అండ్",
+  "ఒరేయ్",
+  "గుడ్",
+  "ఆఫ్",
+  "పోలీస్",
+  "చెయ్",
+  "ఆర్",
+  "థాంక్స్",
+  "కరెక్ట్",
+  "ఎస్",
+  "ఫస్ట్",
+  "డాక్టర్"
+ ],
+ "vocab_train": 77586,
+ "hapax_share": 0.64,
+ "test_oov_token_rate": 0.1154,
+ "test_oov_type_rate": 0.3798
+}
