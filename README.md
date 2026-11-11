@@ -126,7 +126,7 @@ the time**. Out of the film, subtitles often merge two speakers, jump between sc
 | Claude Sonnet | 5.5 | 8.2 |
 | Gemini Flash | 3.8 | 8.4 |
 | Claude Opus | 5.5 (largest) | 8.7 |
-| Claude Haiku / Sonnet / Opus | **4.5 (previous generation)** | *test running, added soon* |
+| Claude Haiku / Sonnet / Opus | **4.5 (previous generation)** | *not yet measured* |
 
 🎯 **Our goal: 6.9 out of 10**, which is 80% of the best. We're close.
 

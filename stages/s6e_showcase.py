@@ -91,8 +91,13 @@ if a.phase == "gpu":
 elif a.phase == "cli":
     res = {}
     items = "\n".join(f"{i + 1}. {m}" for i, m in enumerate(msgs))
-    for name, mid in [("Claude Haiku 5.5", "claude-haiku-5-5"), ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
-                      ("Claude Opus 5.5", "claude-opus-5-5")]:
+    gen45 = Path(OUT / "claude.json").exists()
+    if gen45:
+        res = json.load(open(OUT / "claude.json", encoding="utf-8"))
+    todo = ([("Claude Haiku 4.5", "claude-haiku-4-5"), ("Claude Sonnet 4.5", "claude-sonnet-4-5"), ("Claude Opus 4.5", "claude-opus-4-5")]
+            if gen45 else [("Claude Haiku 5.5", "claude-haiku-5-5"), ("Claude Sonnet 5.5", "claude-sonnet-5-5"),
+                           ("Claude Opus 5.5", "claude-opus-5-5")])
+    for name, mid in todo:
         for _ in range(3):
             out = subprocess.run(["claude", "-p", FRONTIER.format(n=len(msgs), items=items), "--model", mid,
                                   "--output-format", "text"], cwd=ROOT / "data" / "realworld" / "frontier" / "cli_workdir",

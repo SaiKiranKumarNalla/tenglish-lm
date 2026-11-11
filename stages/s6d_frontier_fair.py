@@ -31,6 +31,9 @@ train = [json.loads(l) for l in open(ROOT / "data" / "dialogue" / "train.jsonl",
 shots = [r for r in random.Random(3).sample(train, 200) if 15 <= len(r["target"]) <= 80][:6]
 
 MODELS = {"Claude Haiku 5.5": "claude-haiku-5-5", "Claude Sonnet 5.5": "claude-sonnet-5-5", "Claude Opus 5.5": "claude-opus-5-5"}
+GEN45 = "--gen45" in sys.argv  # Tier 2: the previous Claude generation
+if GEN45:
+    MODELS = {"Claude Haiku 4.5": "claude-haiku-4-5", "Claude Sonnet 4.5": "claude-sonnet-4-5", "Claude Opus 4.5": "claude-opus-4-5"}
 NORM = ("Convert each romanized Telugu sentence below into Telugu script. Keep the meaning and words exactly; do not translate "
         "or add anything. Return ONLY a JSON list of {n} strings, in the same order.\n\n{items}")
 REPLY = ("Each item is a short excerpt of a Telugu movie conversation (one or two lines, the last line is the most recent). "
@@ -83,7 +86,7 @@ SHOTS = (" Here are examples of real exchanges from Telugu movies, to show the s
          "\n".join(f"   {fmt_ctx(s['context'])}  ->  \"{s['target']}\"" for s in shots) + "\n")
 res = {}
 for name, mid in MODELS.items():
-    key = mid.replace("claude-", "").replace("-5-5", "")
+    key = mid.replace("claude-", "").replace("-5-5", "").replace("-4-5", "_45")
     nf = F / f"claude_{key}_normalization.json"
     if mid == "claude-opus-5-5" and (F / "claude_normalization.json").exists():
         preds = json.load(open(F / "claude_normalization.json", encoding="utf-8"))  # Stage 6b already ran Opus
@@ -96,6 +99,13 @@ for name, mid in MODELS.items():
     res[name] = {"normalization_word_accuracy": word_acc(preds), "replies": sum(1 for r in replies if r.strip())}
     print(name, res[name], flush=True)
 
+if GEN45:
+    old = json.load(open(ROOT / "docs" / "results" / "s6d_frontier_fair.json"))
+    old.update(res)
+    json.dump(old, open(ROOT / "docs" / "results" / "s6d_frontier_fair.json", "w"), indent=1)
+    print(json.dumps(res, indent=1))
+    print("DONE")
+    sys.exit(0)
 few = batched("claude-opus-5-5", ctxs, lambda c: REPLY.format(shots=SHOTS, n=len(c), items=numbered([fmt_ctx(x) for x in c])),
               "Opus few-shot replies")
 json.dump(few, open(F / "claude_opus_replies_fewshot.json", "w"), ensure_ascii=False)
