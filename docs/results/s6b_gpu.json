@@ -1,0 +1,19 @@
+{
+ "our_normalizer_word_accuracy_dak300": 0.6525,
+ "Sarvam-M judge: fine-tuned vs claude": {
+  "first": 8,
+  "second": 94,
+  "tie/inconsistent": 48,
+  "n": 150,
+  "first_win_rate": 0.0533,
+  "second_win_rate": 0.6267
+ },
+ "Sarvam-M judge: claude vs real reply": {
+  "first": 99,
+  "second": 7,
+  "tie/inconsistent": 44,
+  "n": 150,
+  "first_win_rate": 0.66,
+  "second_win_rate": 0.0467
+ }
+}

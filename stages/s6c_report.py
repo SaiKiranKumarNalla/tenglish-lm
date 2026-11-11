@@ -26,11 +26,20 @@ load = lambda p: json.load(open(p, encoding="utf-8")) if Path(p).exists() else N
 
 dak = load(F / "dakshina_300.json")
 movie = load(ROOT / "data" / "realworld" / "generated.json")["movie"]
-norm_out = {"ours (7.6M normalizer)": load(F / "ours_normalization.json"), "Claude": load(F / "claude_normalization.json"),
-            "ChatGPT": load(F / "chatgpt_normalization.json"), "Gemini": load(F / "gemini_normalization.json")}
+norm_out = {"ours (7.6M normalizer)": load(F / "ours_normalization.json"),
+            "Claude Haiku 5.5": load(F / "claude_haiku_normalization.json"),
+            "Claude Sonnet 5.5": load(F / "claude_sonnet_normalization.json"),
+            "Claude Opus 5.5": load(F / "claude_normalization.json"),
+            "Gemini 3.8 Flash": load(F / "gemini_normalization.json"), "ChatGPT": load(F / "chatgpt_normalization.json")}
 norm_out = {k: v for k, v in norm_out.items() if v}
-rep_out = {"Claude": load(F / "claude_replies.json"), "ChatGPT": load(F / "chatgpt_replies.json"),
-           "Gemini": load(F / "gemini_replies.json")}
+# Replies given the SAME 1-2 lines of context as our model (Stage 6d). Stage 6b's last-line-only replies are left out
+# of the side-by-side table, because they saw less context than our model.
+rep_out = {"Claude Haiku 5.5": load(F / "claude_haiku_replies_ctx.json"),
+           "Claude Sonnet 5.5": load(F / "claude_sonnet_replies_ctx.json"),
+           "Claude Opus 5.5": load(F / "claude_opus_replies_ctx.json"),
+           "Claude Opus 5.5 + 6 movie examples": load(F / "claude_opus_replies_fewshot.json"),
+           "Gemini 3.8 Flash": load(F / "gemini_replies_ctx.json"),
+           "ChatGPT": load(F / "chatgpt_replies_ctx.json")}
 rep_out = {k: v for k, v in rep_out.items() if v}
 
 
@@ -61,15 +70,16 @@ for i, (r, g) in enumerate(dak[:40]):
 
 # ---- replies: a 50-item sample ------------------------------------------------------------------
 sample = list(range(0, min(50, len(movie))))
+test_ctx = [json.loads(l)["context"] for l in open(ROOT / "data" / "dialogue" / "test.jsonl", encoding="utf-8")][:len(movie)]
 with open(E / "replies_movie_sample.jsonl", "w", encoding="utf-8") as f:
     for i in sample:
         m = movie[i]
-        f.write(json.dumps({"last_line": m["message"], "real_next_line": m["real"], "sarvam-1 untuned": m["base"],
+        f.write(json.dumps({"context": test_ctx[i], "real_next_line": m["real"], "sarvam-1 untuned": m["base"],
                             "fine-tuned (ours)": m["tuned"], **{k: v[i] for k, v in rep_out.items()}},
                            ensure_ascii=False) + "\n")
 rc = ["sarvam-1 untuned", "fine-tuned (ours)"] + list(rep_out)
 md = ["# Replies: 50 lines from unseen movies", "",
-      "Each model sees the last line and writes the next one. *Real* is what the movie actually says next; it's one good answer "
+      "Each model sees the same 1-2 previous lines and writes the next one. The table shows the last line. *Real* is what the movie actually says next; it's one good answer "
       "among many, not the only right one.", "",
       "| last line | real next line | " + " | ".join(rc) + " |", "|---|---|" + "---|" * len(rc)]
 for i in sample:
@@ -117,7 +127,12 @@ for name, r in s6g.items():
 for model, res in s6b.items():
     for name, r in res.items():
         if name.startswith("judge:"):
-            row(model.capitalize(), name.replace("judge: ", ""), r)
+            row("Claude Opus 5.5" if model == "claude" else model.capitalize(), name.replace("judge: ", ""), r)
+for name, r in (load(RES / "s6b_cross.json") or {}).items():
+    judge, comp = name.split(" judges: ")
+    lines.append(f"| {judge.capitalize()} | {comp} (first = ours) | {r['ours_win_rate']:.0%} | "
+                 f"{[v for k, v in r.items() if k.endswith('_win_rate') and k != 'ours_win_rate'][0]:.0%} | "
+                 f"{r['tie/inconsistent'] / r['n']:.0%} | {r['n']} |")
 for app, res in s6m.items():
     for name, r in res.items():
         if name.startswith("judge:"):

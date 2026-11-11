@@ -1,0 +1,10 @@
+{
+ "claude judges: fine-tuned vs gemini": {
+  "ours": 0,
+  "gemini": 149,
+  "tie/inconsistent": 1,
+  "n": 150,
+  "ours_win_rate": 0.0,
+  "gemini_win_rate": 0.9933
+ }
+}

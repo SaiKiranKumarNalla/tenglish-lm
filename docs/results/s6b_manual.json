@@ -1,0 +1,15 @@
+{
+ "gemini": {
+  "normalization_word_accuracy": 0.8423,
+  "normalization_items_answered": 300,
+  "replies_answered": 150,
+  "judge: fine-tuned vs claude": {
+   "ours": 0,
+   "claude": 146,
+   "tie/inconsistent": 4,
+   "n": 150,
+   "ours_win_rate": 0.0,
+   "claude_win_rate": 0.9733
+  }
+ }
+}

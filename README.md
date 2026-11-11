@@ -1,239 +1,123 @@
-# tenglish-lm: a small AI that understands Telugu the way people actually type it
+# tenglish-lm: teaching a small AI to read Telugu typed in English letters
 
-> **About this project.** This is a **learning project**. Its main aim is to understand, hands-on, **how language models are built,
-> trained, fine-tuned and evaluated**, from tokenizers and small models trained from scratch up to fine-tuning an open model and comparing it
-> with frontier systems. It's a small guided project **inspired by the Google DeepMind AI Foundations course**, for **research and
-> educational purposes only**. It is not a product, and it is not affiliated with Google, DeepMind, Sarvam AI, Anthropic or any other
-> organisation mentioned. Movie subtitles and YouTube comments are used only to compute statistics and to train or evaluate
-> experimental models; they are **not** redistributed here, and the trained weights are kept private.
->
-> **For a deeper understanding of the problem** (Indian languages written in the Latin script), read Google Research's **Dakshina**
-> study, which this project builds on: B. Roark et al., *"Processing South Asian Languages Written in the Latin Script: the Dakshina
-> Dataset"*, LREC 2020 ([dataset and paper](https://github.com/google-research-datasets/dakshina)).
+> 📚 **A learning project.** It was built to understand, hands-on, how AI language models are made, trained and tested.
+> It's inspired by the **Google DeepMind AI Foundations** course and is for **research and learning only**: not a product, and not
+> linked to any company named here. The trained models are kept private.
 
 ---
 
-## The problem, in one minute
+## What's the problem?
 
-Millions of Telugu speakers chat in **English letters**, mixed with English words, with **no spelling rules**:
+Lots of people text in Telugu using **English letters**, like this:
+
+> **`enti ra intha late ayyindi?`** → *"Why are you so late, man?"*
+
+But everyone spells it differently:
+
+> `enti` · `yenti` · `anti` → they all mean **ఏంటి** (*"what"*)
+
+Computers get confused: to them, those look like three different words.
+
+## What did we build?
+
+A small AI helper that works in **3 steps**:
 
 ```
-"enti ra intha late ayyindi?"      "yenti ra inta lete?"      "anti ra inta late?"
+  1. READ            "enti ra intha late?"   →   ఏంటి రా ఇంత లేట్?      (fix the spelling, write it in Telugu)
+  2. THINK & REPLY   ఏంటి రా ఇంత లేట్?      →   "Sorry ra, traffic!"   (answer like a real person would)
+  3. SHOW            the reply in Telugu, or in English letters
 ```
 
-All three mean the same thing: **ఏంటి రా ఇంత లేట్ అయ్యింది?**, "Why are you so late, man?"
+To learn how people really talk, it studied the **dialogue of 76 Telugu movies**.
 
-That's hard for AI models, for three reasons:
-1. **Spelling chaos:** `enti`, `yenti` and `anti` look like three different words to a computer.
-2. **Formal training data:** most Telugu text that models learn from (news, Wikipedia) is formal and in Telugu script, not how people talk.
-3. **Size:** big chat models (ChatGPT, Gemini, Claude) can handle this, but they're huge and remote for such a narrow job.
+### Which parts are AI, and which are simple code?
 
-**Goal: learn how such a system is built by actually building one: a *small* model that understands romanized, mixed, spoken Telugu typed
-any way, and replies in natural, everyday Telugu.**
-It's built step by step, measuring each step, using the dialogue of 76 Telugu movies (2000–2025) as a record of how people really talk.
+| Part | What it does | AI or simple code? |
+|---|---|---|
+| **Spelling normalizer** (step 1) | reads messy English-letter text and writes proper Telugu | 🤖 **AI model**: a neural network trained **from scratch** in this project (7.6 million parameters) |
+| **Reply model** (step 2) | writes the answer | 🤖 **AI model**: *sarvam-1*, an existing open AI (2.5 billion parameters), **fine-tuned** here on movie dialogue |
+| **English detector** (part of step 1) | spots English words like `exam` so they're left alone | 📊 **simple statistics**: counts of letter patterns, not a neural network |
+| **Romanizer** | turns Telugu into English letters in realistic random spellings, to **make practice data** for the normalizer and to show replies in English letters (step 3) | ⚙️ **simple code**: spelling rules plus percentages **counted** from real people's typing |
+| **Phonetic key** | simplifies spellings (`th`→`t`, `aa`→`a`) for experiments | ⚙️ **simple code**: a few replace rules |
+
+**In one sentence:** simple code *makes the practice data*, and the two AI models *learn from it* and do the real work.
+
+## How do we test it? Two simple tests
+
+**🔤 Test 1: the reading test** (like a school spelling test)
+We give the AI 300 sentences typed in English letters. We already know the correct Telugu answers, so we just count:
+*out of every 10 words, how many did it write correctly?*
+
+**💬 Test 2: the reply matchup** (like a talent show with a referee)
+Two AIs answer the same message. A **referee** (another, strong AI) reads both answers, without knowing who wrote which, and picks the
+better one. We check the referee first on easy cases where we *know* the right answer, to make sure it isn't guessing.
+
+## How did we do?
+
+### 🔤 Reading test
+
+![reading test](docs/plots/simple_reading_test.png)
+
+- **Our small model gets about 6.5 words out of 10 right.**
+- The big AIs (Claude, Gemini) get **8 to 9 out of 10**.
+- 🎯 **Our goal:** reach **6.9 out of 10**, which is 80% of the best. We're close.
+
+### 💬 Reply matchups
+
+![reply matchups](docs/plots/simple_reply_matchups.png)
+
+- After training, our model's replies **beat its old self 94 times out of 100**. The training clearly worked.
+- But **Claude and Gemini still win almost every matchup** against us. Big AIs are still much better at chatting.
+
+### 📏 But our model is small
+
+| | Size | Runs on |
+|---|---|---|
+| **Our model** | about **2.5 billion** "brain connections" (parameters), plus a **tiny 7.6 million** one for spelling | one gaming PC, or a laptop |
+| Claude, Gemini | not made public, but **much, much bigger** | giant data centres |
+
+So the real question this project explores is: **how close can a *small* AI get to a big one?** Right now: close on reading, far on chatting.
+
+## See it for yourself (no download needed)
+
+- 👀 **[Real examples](docs/eval/SHOWCASE.md):** 20 everyday messages (greetings, plans, food, jokes, apologies…) with every AI's answer side by side.
+- 🎬 **[Movie dialogue tests](docs/eval/replies_movie_sample.md):** 50 lines from movies the AI never saw, showing what each AI replied next.
+- ▶️ **Try the basic tools in seconds:** `python examples/quickstart.py` shows one sentence typed 6 different ways, and how the AI cleans it up.
+
+## What's next?
+
+To reach our goal, the plan is:
+1. Feed the reading model **much more real spelling data** (open datasets with millions of examples).
+2. Let a **bigger open AI act as a teacher** that writes good example replies for our small model to learn from.
+3. Let a **referee pick the better of two replies** many times over, and train the model to prefer the winners.
+4. Then **shrink** the model so it runs even on smaller devices.
 
 ---
 
-## How it works
+## Want the details?
 
-```
- you type (any spelling)         1. spot English words      2. fix the spelling          3. reply                    4. show it
- "bro exam ela rasav?"   ──►    "bro", "exam" stay   ──►   ఎలా రాసావ్?   ──►   small fine-tuned model  ──►   Telugu script
-                                 as they are                (Telugu script)       writes the next line      or readable romanized
-```
-
-| Step | What it does | The model behind it | Size |
-|---|---|---|---|
-| 1. English detector | decides, word by word, whether it's English or Telugu | letter-pattern classifier (Naive Bayes) | tiny |
-| 2. Spelling normalizer | turns any romanized spelling into proper Telugu script, using the whole sentence as context | small transformer, **built from scratch** | 7.6M parameters |
-| 3. Reply model | writes the next line of the conversation in spoken Telugu | **sarvam-1** (an open Indian-language model), **fine-tuned** on movie dialogue | 2.5B + 24M trained |
-| 4. Output | writes the reply back in Telugu script or clean romanized Telugu | fixed rules | — |
-
----
-
-## The key ideas, explained simply
-
-### What is a "token", and why does it matter for Telugu?
-AI models don't read letters or words; they read **tokens**, small chunks of text from a fixed list. `"intha late enduku"` might become
-`intha · late · enduku` (3 tokens) or `in · th · a · la · te · end · uku` (7 tokens). **Fewer tokens = faster, cheaper, and the model sees
-more context.**
-
-Many popular models were built mainly for English, so they cut Telugu into tiny pieces. This project measured it on the same sentences:
-
-| Tokenizer | Tokens per Telugu word | Tokens per romanized word |
-|---|---|---|
-| GPT-2 (English-focused) | **18.0** | 2.9 |
-| Sarvam-2B (built for Indian scripts) | **2.1** | 3.3 |
-| This project's tokenizer | — | **1.8** |
-
-Indian-language models like Sarvam fix the *script* problem (8× better than GPT-2), but they're no better on *romanized* text,
-which is how most people actually type.
-
-### Why does spelling make it harder?
-If `enti`, `yenti` and `anti` become three unrelated tokens, the model has to learn three times that they mean the same thing. This
-project tested several fixes and found that a simple **phonetic key** (treating `th`=`t`, `aa`=`a`, `w`=`v`, doubled letters = single)
-makes spellings **4.5× more consistent** while also using fewer tokens. The best overall solution was a dedicated **spelling normalizer**
-(step 2 above) that turns any spelling into Telugu script before anything else happens.
-
-### Where did training data come from?
-- **Telugu movie dialogue** from YouTube subtitles: 54,656 lines from 76 movies. Real spoken Telugu.
-- **Synthetic romanized text:** the movie lines, re-typed in many random but realistic spellings by a "romanizer" whose habits were
-  **measured from real people's typing** (Google's Dakshina dataset).
-- **Real human romanizations** (Dakshina): Telugu words and sentences typed in English letters by native speakers.
-
-### What does "fine-tuning" (LoRA) mean?
-Instead of building a large model from zero (impossible with 1.2M words of data), we take an existing open model (**sarvam-1**) and adjust
-it a little. **LoRA** freezes the original 2.5 billion numbers and trains a small add-on of 24 million (about 1%), which was enough to change
-the model from answering like a news site to talking like a movie character.
-
-### How do you test replies when there's no single right answer?
-For "why are you so late?", *traffic*, *I overslept* and *why do you care?* are all good replies. So no single test is used. Instead there are several:
-- Where a correct answer **does** exist (spelling → Telugu script), it's checked directly against human data.
-- The reply that **actually** came next in the movie is one good answer: how strongly does the model expect it, and can it pick it out of
-  10 options?
-- **Behaviour checks:** does the model react to what was said, avoid repeating itself, and understand 4 spellings of the same message the same way?
-- **A judge model** (Claude, and Sarvam-M) compares replies. The judge is **tested first** on an easy case (real reply vs a random one).
-
----
-
-## Results at a glance
-
-| Question | Answer | Details |
-|---|---|---|
-| How badly do common tokenizers handle Telugu? | GPT-2 needs 18 tokens per Telugu word; Sarvam 2.1; on romanized text, a tokenizer trained on this data needs 1.8 | [Stage 2](docs/STAGES.md#stage-2-which-tokenizer-stagess2_tokenizer_studypy) |
-| Can we fake realistic typing? | Yes: the generator produces **76%** of real human spellings, with habits measured from Dakshina | [Stage 1c](docs/STAGES.md#stage-1c-benchmark-against-real-human-spellings-stagess1c_dakshina_benchmarkpy) |
-| Can a small model fix spelling? | **68%** of words exactly right on real human typing, **91%** on ambiguous words in movie sentences, **9%** for a dictionary lookup on unseen words | [Stage 4, 4b](docs/STAGES.md#stage-4-a-spelling-normalizer-trained-from-scratch-tlmseq2seqpy-stagess4_preparepy-stagess4_normalizerpy) |
-| …and how does Claude do on the same task? | **87%**, still clearly better than our 7.6M-parameter normalizer | [Stage 6](#stage-6-in-progress) |
-| Does fine-tuning make replies sound like real dialogue? | Yes: real next lines become **21% less surprising** to the model, and it uses context **50% more** | [Stage 5, 5b](docs/STAGES.md#stage-5-a-spoken-style-reply-model-stagess5_preparepy-stagess5_dialogue_lmpy) |
-| Can it pick the real reply out of 10? | **26%** of the time (chance: 10%; untuned model: 16%) | [Stage 5c](docs/STAGES.md#stage-5c-evaluating-the-whole-system-automatically-stagess5c_evaluationpy) |
-| Does a judge prefer the fine-tuned replies? | Claude (which passed its reliability test 91% of the time) preferred them over the untuned model's in **94%** of pairs | [Stage 6](#stage-6-in-progress) |
-| Does it still loop or repeat itself? | **0.5%** of replies, with the right generation settings (32% with the naive setting) | [Stage 5b](docs/STAGES.md#stage-5b-better-replies-stagess5b_better_repliespy) |
-
-
-### In pictures
-
-**1. Tokenizers:** English-focused GPT-2 shreds Telugu script (18 tokens per word). Sarvam fixes the script, but not romanized typing.
-![tokenizers](docs/plots/s2b_reference_tokenizers.png)
-
-**2. Spelling robustness:** a simple phonetic key (orange) makes different spellings share tokens without costing efficiency.
-![phonetic key](docs/plots/s2_transforms_frontier.png)
-
-**3. Realistic fake typing:** synthetic spellings checked against real people's spellings from Google's Dakshina dataset.
-![dakshina benchmark](docs/plots/s1c_dakshina_benchmark.png)
-
-**4. Fixing spelling:** reading the whole sentence (orange) resolves ambiguous words much better than word by word.
-![normalizer](docs/plots/s4b_word_vs_sentence.png)
-
-**5. Replies:** fine-tuning makes real dialogue less surprising to the model, and makes it respond more to what was said.
-![context usage](docs/plots/s5b_context_usage.png)
-
-**6. Picking the real reply out of 10** (chance is 10%):
-![pick the right reply](docs/plots/s5c_pick_the_right_reply.png)
-
-**7. No more loops:** blocking repeated 3-word phrases nearly eliminates repetitive replies.
-![decoding](docs/plots/s5b_decoding.png)
-
-### What it can do now
-| You type | It understands | It replies |
-|---|---|---|
-| `nuvvu naaku nachchav` | నువ్వు నాకు నచ్చావ్ *(I like you)* | `nannu premisthunnaava?` *(do you love me?)* |
-| `repu movie ki veldama?` | రేపు movie కి వెళ్దామా? *(movie tomorrow?)* | `… sare veldaam` *(… ok, let's go)* |
-| `sorry ra, traffic lo stuck ayya` | sorry రా, traffic లో stuck అయ్యా | `nuvvu bas ekkuthaava …` *(will you take the bus? …)* |
-
-### Honest limitations
-- Replies are often **generic or drift off-topic**; this is a small model with a short training budget.
-- The spelling normalizer is still **well behind Claude** (68% vs 87% of words on real typing).
-- The romanized training data is **synthetic** (realistic, but generated), and movie dialogue is scripted, not everyday chat.
-- English words are detected about 96% of the time; very short chat words (`hi`, `ok`) need a small fixed list.
-
----
-
-## Stage 6 (in progress)
-
-Testing on **real-world** data and against **frontier models**:
-- **4,071 real romanized-Telugu YouTube comments** (kept locally, never committed) test whether the system holds up on genuine typing.
-- **Claude** (through its command-line app) and **ChatGPT / Gemini** (through their apps) are compared on the same tasks.
-- **Sarvam-M** acts as an independent judge.
-
-First results from Claude:
-- It converts **87%** of words in real romanized sentences to the correct Telugu.
-- As a judge, it picks the real movie reply over a random one **91%** of the time, so it can be trusted.
-- It prefers our fine-tuned replies over the untuned model's in **94%** of pairs.
-
-The remaining results will be added as they arrive.
-
----
-
-## The full story
-
-- **[docs/STAGES.md](docs/STAGES.md):** the complete lab notebook. Every stage, plot, number and mistake, in the order the project was built.
-- **[docs/DATA_CARD.md](docs/DATA_CARD.md):** where the data comes from, how it was cleaned and what's inside.
-- **[docs/ROMANIZATION.md](docs/ROMANIZATION.md):** exactly how the synthetic romanized text is generated.
-- **[docs/MODELS.md](docs/MODELS.md):** every model used, its architecture and its size.
-- **[Google's Dakshina study](https://github.com/google-research-datasets/dakshina):** the research background on Indian languages written in Latin script.
-
-| Stage | Question | Status |
-|---|---|---|
-| 0 / 0b | What's in the data? | ✅ |
-| 1 / 1b / 1c | Can we simulate how people type, and does it match real typing? | ✅ |
-| 2 / 2b | Which tokenizer handles Telugu and messy spelling? | ✅ |
-| 3 | Does the tokenizer change how well a small model learns? | ✅ |
-| 4 / 4b | Spelling normalizer (word-level, then sentence-level with English detection) | ✅ |
-| 5 / 5b / 5c | Reply model (sarvam-1 + LoRA), better decoding, automatic evaluation | ✅ |
-| 6 / 6b | Real-world comments, judged replies, comparison with frontier models | 🔄 |
-| 7 | Reproducible demo script (weights kept private) | planned |
-
-## What you can do with this repository (no 5 GB download needed)
-
-The trained weights are private, and a 2.5B-parameter model isn't something most visitors want to download anyway. Here's what you
-*can* do, from easiest to most involved:
-
-| You want to… | Do this | Needs |
-|---|---|---|
-| **See how the models behave** | read [docs/eval/](docs/eval/): the exact prompts, plus every model's answer side by side (ours, untuned, Claude, Gemini) on the same test items | a browser |
-| **Play with the core ideas in seconds** | `python examples/quickstart.py`: realistic spelling variants, the phonetic key, and tokenizers trained on the spot | Python + `sentencepiece` |
-| **Understand each step** | [docs/STAGES.md](docs/STAGES.md) walks through every stage with plots and the reasoning, including the mistakes | a browser |
-| **Rebuild the models yourself** | build a corpus with `extractor/`, then run `stages/` in order; the GPU stages run on free or paid Google Colab | Colab, a few hours |
-| **Reuse it for another language** | the romanizer, phonetic key, normalizer and evaluation code are language-agnostic in design (e.g. Hinglish, Tamil, Kannada) | your own data |
-
-## Model weights
-
-The trained weights are **not published**. The reply model was trained on movie subtitles (copyrighted material), and this is a
-research and learning project, so the weights are kept private. Everything needed to **reproduce** them is here: the code, the
-data-building scripts, and every training setting. Each stage script lists its inputs, and `docs/STAGES.md` records the settings and results.
-
-## Run it yourself
-
-```bash
-pip install -r requirements.txt
-export TLM_CORPUS=/path/to/movie_corpus     # built with extractor/ (YouTube subtitles → scenes)
-python stages/s0_corpus_stats.py            # each stage is one script; see docs/STAGES.md for the full list
-```
-GPU stages (3–6) were run on Google Colab (T4 / L4 / A100). Each script's header lists its inputs and outputs.
-
-| Folder | Contents |
+| Page | What's in it |
 |---|---|
-| `extractor/` | YouTube Telugu subtitles → cleaned, scene-segmented corpus |
-| `tlm/` | the library: romanizer, filters, phonetic key, English detector, tiny GPT, seq2seq normalizer |
-| `stages/` | one script per stage |
-| `docs/` | plots, result files, the detailed stage write-up, the data card and the romanization rules |
+| [📊 Results in detail](docs/RESULTS.md) | the technical explanation (tokens, fine-tuning, evaluation) and every main chart |
+| [🔬 Step-by-step lab notebook](docs/STAGES.md) | all 6 stages, every experiment, plot and mistake, in order |
+| [🧪 Evaluation report](docs/eval/README.md) | exact prompts, every AI's answers, all scores |
+| [🧠 Models](docs/MODELS.md) | every model used, its design and its size |
+| [📁 Data card](docs/DATA_CARD.md) | where the data came from and how it was cleaned |
+| [⌨️ Romanization rules](docs/ROMANIZATION.md) | how realistic "typed" text was generated |
+| [📖 Google's Dakshina study](https://github.com/google-research-datasets/dakshina) | the research background on Indian languages written in English letters (Roark et al., LREC 2020) |
 
----
+**Run it yourself:** `pip install -r requirements.txt`, build a corpus with `extractor/`, then run the scripts in `stages/` in order
+(heavy steps were run on Google Colab). Each script explains its inputs and outputs at the top.
 
-## Glossary
+**Glossary**
 
-| Term | Plain meaning |
+| Word | Simple meaning |
 |---|---|
-| **Romanized Telugu / Tenglish** | Telugu written in English letters, often mixed with English words |
-| **Token / tokenizer** | the small text chunks a model reads, and the tool that cuts text into them |
-| **Fertility** | tokens per word; lower means more efficient |
-| **BPE / Unigram** | two standard ways of building a tokenizer's chunk list |
-| **Phonetic key** | a simplified spelling that merges choices like `th`/`t` and `aa`/`a` |
-| **Normalizer** | the model that turns any spelling into proper Telugu script |
-| **Transformer** | the neural-network design behind modern language models |
-| **Fine-tuning / LoRA** | adapting an existing model with a small amount of extra training; LoRA trains a small add-on instead of the whole model |
-| **Bits per character (BPC)** | how surprised a model is by real text; lower means it predicts real text better |
-| **Decoding** | how a model turns its predictions into actual text (greedy, sampling, …) |
-| **Judge model** | a strong model asked to compare two replies, itself checked on cases where the answer is known |
-| **Dakshina** | a public Google Research dataset of Indian-language text typed in English letters by native speakers |
-| **Sarvam-1 / Sarvam-M** | open Indian-language models from Sarvam AI (2B and 24B parameters) |
+| **AI model** | a program that learned patterns from lots of examples |
+| **Parameters** | the model's adjustable "knobs" (more knobs = bigger model) |
+| **Training / fine-tuning** | showing the model examples so it adjusts its knobs; fine-tuning = adjusting an existing model a little |
+| **Tokens** | the small chunks of text an AI reads, a bit like syllables |
+| **Romanized Telugu / Tenglish** | Telugu written with English letters, often mixed with English words |
+| **Referee / judge** | an AI that compares two answers and picks the better one |
+
+*Movie subtitles and YouTube comments were used only for training and testing, and are not shared here.*

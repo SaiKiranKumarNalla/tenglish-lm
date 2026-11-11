@@ -1,0 +1,61 @@
+{
+ "engine": "transformers 4-bit",
+ "judge": "sarvamai/sarvam-m",
+ "understanding": {
+  "real YouTube comments": {
+   "messages": 250,
+   "aligned": 229,
+   "round_trip_word_match": 0.8487,
+   "english_word_share": 0.3833
+  },
+  "Dakshina sentences (gold known)": {
+   "messages": 300,
+   "aligned": 298,
+   "round_trip_word_match": 0.8528,
+   "true_word_accuracy": 0.4318
+  }
+ },
+ "pairwise": {
+  "real vs random (reliability)": {
+   "first": 77,
+   "second": 22,
+   "tie/inconsistent": 51,
+   "n": 150,
+   "first_win_rate": 0.5133,
+   "second_win_rate": 0.1467
+  },
+  "fine-tuned vs random": {
+   "first": 87,
+   "second": 15,
+   "tie/inconsistent": 48,
+   "n": 150,
+   "first_win_rate": 0.58,
+   "second_win_rate": 0.1
+  },
+  "fine-tuned vs real": {
+   "first": 44,
+   "second": 37,
+   "tie/inconsistent": 69,
+   "n": 150,
+   "first_win_rate": 0.2933,
+   "second_win_rate": 0.2467
+  },
+  "fine-tuned vs base (movie)": {
+   "first": 72,
+   "second": 22,
+   "tie/inconsistent": 56,
+   "n": 150,
+   "first_win_rate": 0.48,
+   "second_win_rate": 0.1467
+  },
+  "fine-tuned vs base (real comments)": {
+   "first": 153,
+   "second": 45,
+   "tie/inconsistent": 52,
+   "n": 250,
+   "first_win_rate": 0.612,
+   "second_win_rate": 0.18
+  }
+ },
+ "unparsed_share": 0.0
+}
