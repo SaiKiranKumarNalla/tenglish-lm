@@ -1,9 +1,15 @@
 # tenglish-lm: a small AI that understands Telugu the way people actually type it
 
-> **About this project.** A small, guided learning project based on the **Google DeepMind AI Foundations** course,
-> **for research and educational purposes only**. It is not a product, and it is not affiliated with Google, DeepMind, Sarvam AI,
-> Anthropic or any other organisation mentioned. Movie subtitles and YouTube comments are used only to compute statistics and
-> train or evaluate experimental models; they are **not** redistributed here.
+> **About this project.** This is a **learning project**. Its main aim is to understand, hands-on, **how language models are built,
+> trained, fine-tuned and evaluated**, from tokenizers and small models trained from scratch up to fine-tuning an open model and comparing it
+> with frontier systems. It's a small guided project **inspired by the Google DeepMind AI Foundations course**, for **research and
+> educational purposes only**. It is not a product, and it is not affiliated with Google, DeepMind, Sarvam AI, Anthropic or any other
+> organisation mentioned. Movie subtitles and YouTube comments are used only to compute statistics and to train or evaluate
+> experimental models; they are **not** redistributed here, and the trained weights are kept private.
+>
+> **For a deeper understanding of the problem** (Indian languages written in the Latin script), read Google Research's **Dakshina**
+> study, which this project builds on: B. Roark et al., *"Processing South Asian Languages Written in the Latin Script: the Dakshina
+> Dataset"*, LREC 2020 ([dataset and paper](https://github.com/google-research-datasets/dakshina)).
 
 ---
 
@@ -22,7 +28,8 @@ That's hard for AI models, for three reasons:
 2. **Formal training data:** most Telugu text that models learn from (news, Wikipedia) is formal and in Telugu script, not how people talk.
 3. **Size:** big chat models (ChatGPT, Gemini, Claude) can handle this, but they're huge and remote for such a narrow job.
 
-**Goal: build a *small* model that understands romanized, mixed, spoken Telugu typed any way, and replies in natural, everyday Telugu.**
+**Goal: learn how such a system is built by actually building one: a *small* model that understands romanized, mixed, spoken Telugu typed
+any way, and replies in natural, everyday Telugu.**
 It's built step by step, measuring each step, using the dialogue of 76 Telugu movies (2000–2025) as a record of how people really talk.
 
 ---
@@ -162,6 +169,8 @@ The remaining results will be added as they arrive.
 - **[docs/STAGES.md](docs/STAGES.md):** the complete lab notebook. Every stage, plot, number and mistake, in the order the project was built.
 - **[docs/DATA_CARD.md](docs/DATA_CARD.md):** where the data comes from, how it was cleaned and what's inside.
 - **[docs/ROMANIZATION.md](docs/ROMANIZATION.md):** exactly how the synthetic romanized text is generated.
+- **[docs/MODELS.md](docs/MODELS.md):** every model used, its architecture and its size.
+- **[Google's Dakshina study](https://github.com/google-research-datasets/dakshina):** the research background on Indian languages written in Latin script.
 
 | Stage | Question | Status |
 |---|---|---|
@@ -173,6 +182,19 @@ The remaining results will be added as they arrive.
 | 5 / 5b / 5c | Reply model (sarvam-1 + LoRA), better decoding, automatic evaluation | ✅ |
 | 6 / 6b | Real-world comments, judged replies, comparison with frontier models | 🔄 |
 | 7 | Reproducible demo script (weights kept private) | planned |
+
+## What you can do with this repository (no 5 GB download needed)
+
+The trained weights are private, and a 2.5B-parameter model isn't something most visitors want to download anyway. Here's what you
+*can* do, from easiest to most involved:
+
+| You want to… | Do this | Needs |
+|---|---|---|
+| **See how the models behave** | read [docs/eval/](docs/eval/): the exact prompts, plus every model's answer side by side (ours, untuned, Claude, Gemini) on the same test items | a browser |
+| **Play with the core ideas in seconds** | `python examples/quickstart.py`: realistic spelling variants, the phonetic key, and tokenizers trained on the spot | Python + `sentencepiece` |
+| **Understand each step** | [docs/STAGES.md](docs/STAGES.md) walks through every stage with plots and the reasoning, including the mistakes | a browser |
+| **Rebuild the models yourself** | build a corpus with `extractor/`, then run `stages/` in order; the GPU stages run on free or paid Google Colab | Colab, a few hours |
+| **Reuse it for another language** | the romanizer, phonetic key, normalizer and evaluation code are language-agnostic in design (e.g. Hinglish, Tamil, Kannada) | your own data |
 
 ## Model weights
 
