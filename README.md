@@ -42,25 +42,33 @@ To learn how people really talk, it studied the **dialogue of 76 Telugu movies**
 
 **In one sentence:** simple code *makes the practice data*, and the two AI models *learn from it* and do the real work.
 
-## How do we test it? Two simple tests
+## How do we test it? Three simple tests
 
 **🔤 Test 1: the reading test** (like a school spelling test)
-We give the AI 300 sentences typed in English letters. We already know the correct Telugu answers, so we just count:
+We give the AI 300 sentences typed in English letters by real people. We already know the correct Telugu, so we just count:
 *out of every 10 words, how many did it write correctly?*
 
 **💬 Test 2: the reply matchup** (like a talent show with a referee)
 Two AIs answer the same message. A **referee** (another, strong AI) reads both answers, without knowing who wrote which, and picks the
-better one. We check the referee first on easy cases where we *know* the right answer, to make sure it isn't guessing.
+better one. We use **two different referees** (Claude and Gemini), and test each one first on easy cases where we know the right answer.
 
-## How did we do?
+**✅ Test 3: does the reply make sense?** (the strictest test)
+For each reply, a referee answers yes or no: *"Is the whole reply a sensible message a real person would send back?"* Any rambling or going
+off-topic counts as **no**.
 
-### 🔤 Reading test
+The results come in **two tiers**:
+- **Tier 1: did our own training work?** Our small models compared with where they started.
+- **Tier 2: how far are we from the big AIs?** Our models compared with frontier AIs of different sizes and generations.
 
-![reading test](docs/plots/simple_reading_test.png)
+---
 
-- **Our small model gets about 6.5 words out of 10 right.**
-- The big AIs (Claude, Gemini) get **8 to 9 out of 10**.
-- 🎯 **Our goal:** reach **6.9 out of 10**, which is 80% of the best. We're close.
+## Tier 1: did our own training work?
+
+### 1a. Reading: the spelling normalizer (7.6M) and the romanizer
+
+- The **normalizer** (AI, trained from scratch) gets **6.5 words out of 10** right on real people's typing.
+- The **romanizer** (simple code that makes practice data) produces **76%** of the spellings real people actually use (checked against
+  Google's Dakshina dataset), so the practice data is realistic.
 
 **What that looks like: real examples from the test**
 
@@ -77,12 +85,62 @@ better one. We check the referee first on easy cases where we *know* the right a
 make fewer of these, but not zero: Claude also wrote వుంటాయి where the answer was ఉంటాయి. All 300 sentences, with every model's
 answer, are in [the evaluation report](docs/eval/normalization_examples.md).
 
-### 💬 Reply matchups
+
+### 1b. Replies: our trained model vs the same model before training
+
+Both models are the same 2.5-billion-parameter AI (*sarvam-1*). Ours has **24 million extra parameters trained on movie dialogue**.
+
+| Referee | Ours won | Before training won | Draw |
+|---|---|---|---|
+| Claude (150 movie scenes) | **94** | 4 | 2 |
+| Gemini (150 movie scenes) | **85** | 3 | 12 |
+| Gemini (20 everyday messages) | **95** | 0 | 5 |
+
+**Both referees agree: training made a big difference.** But the strict test shows how far there still is to go:
+
+| Does the whole reply make sense? (referee: Claude) | 20 everyday messages | 150 movie scenes |
+|---|---|---|
+| **Ours** | **5 / 20** | **26 / 150** (17%) |
+| Before training | 0 / 20 | 9 / 150 (6%) |
+| *The real line from the movie* | — | *68 / 150 (45%)* |
+
+**So: better than before, but only about 1 reply in 4 or 5 is fully sensible.**
+
+**Why movie dialogue, and why it's only part of the answer.** Movies are real back-and-forth **conversations**, so every line comes with
+the lines before it: the model always learns *in context*. But look at the last row above: **even the real movie lines make sense as a reply only 45% of
+the time**. Out of the film, subtitles often merge two speakers, jump between scenes, or include songs. So the model partly learned to
+*continue a scene* rather than *answer a message*. The next step fixes exactly this (see "What's next").
+
+---
+
+## Tier 2: how far are we from the big AIs?
+
+### Reading
+
+![reading test](docs/plots/simple_reading_test.png)
+
+| Model | Generation | Words right, out of 10 |
+|---|---|---|
+| **Ours** | this project | **6.5** |
+| Claude Haiku | 5.5 (smallest) | 7.9 |
+| Claude Sonnet | 5.5 | 8.2 |
+| Gemini Flash | 3.8 | 8.4 |
+| Claude Opus | 5.5 (largest) | 8.7 |
+| Claude Haiku / Sonnet / Opus | **4.5 (previous generation)** | *test running, added soon* |
+
+🎯 **Our goal: 6.9 out of 10**, which is 80% of the best. We're close.
+
+### Replies
 
 ![reply matchups](docs/plots/simple_reply_matchups.png)
 
-- After training, our model's replies **beat its old self 94 times out of 100**. The training clearly worked.
-- But **Claude and Gemini still win almost every matchup** against us. Big AIs are still much better at chatting.
+| Does the whole reply make sense? | 20 everyday messages | 150 movie scenes |
+|---|---|---|
+| Gemini 3.8 Flash *(referee: Claude)* | 20 / 20 | 142 / 150 (95%) |
+| Claude Opus 5.5 *(referee: Gemini)* | 20 / 20 | — |
+| **Ours** *(referee: Claude)* | **5 / 20** | **26 / 150** (17%) |
+
+**The big AIs reply sensibly almost every time; ours rarely does.** That's the gap the next steps target.
 
 **What that looks like: real replies** (English meaning in *italics*)
 
@@ -94,7 +152,7 @@ answer, are in [the evaluation report](docs/eval/normalization_examples.md).
 | `sorry ra, traffic lo stuck ayya` *(sorry, stuck in traffic)* | నమస్కారం మా బాబు నాన్నగారు బాగున్నారా? … *(hello, is your father well? …)* | పర్లేదు రా, నెమ్మదిగా రా. నేను వెయిట్ చేస్తా. *(no problem, take your time, I'll wait)* | ❌ ours goes completely off-topic |
 | `nanna, nenu exam lo fail ayyanu` *(dad, I failed the exam)* | అది కాకపోతే నువ్వు నన్ను ఎలా చూస్తావు? … *(if not that, how will you see me? …)* | పర్లేదు రా, బాధపడకు. ఈసారి బాగా చదువు, తప్పకుండా పాస్ అవుతావ్. *(it's okay, don't worry; study well and you'll pass next time)* | ❌ ours doesn't comfort or respond |
 
-**Pattern:** our model sounds like Telugu movie dialogue, but it often **loses track of what was said**. That's the main thing to fix next.
+**Pattern:** our model sounds like Telugu movie dialogue, but it often **loses track of what was said**.
 See all 20 everyday messages with 6 AIs side by side in [the showcase](docs/eval/SHOWCASE.md), and 50 movie scenes in
 [the movie dialogue tests](docs/eval/replies_movie_sample.md).
 
@@ -116,8 +174,9 @@ So the real question this project explores is: **how close can a *small* AI get 
 ## What's next?
 
 To reach our goal, the plan is:
-1. Feed the reading model **much more real spelling data** (open datasets with millions of examples).
-2. Let a **bigger open AI act as a teacher** that writes good example replies for our small model to learn from.
+1. **Clean conversations:** repair the movie scenes into proper back-and-forth conversations, write new ones in the styles of
+   different genres and directors, and add a large set of everyday conversations, so every training reply really answers its message.
+2. Feed the reading model **much more real spelling data** (open datasets with millions of examples).
 3. Let a **referee pick the better of two replies** many times over, and train the model to prefer the winners.
 4. Then **shrink** the model so it runs even on smaller devices.
 

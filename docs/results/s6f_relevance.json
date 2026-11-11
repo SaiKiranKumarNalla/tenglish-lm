@@ -1,0 +1,100 @@
+{
+ "showcase (20 everyday messages)": {
+  "ours": {
+   "yes": 11,
+   "n": 20,
+   "per_message": [
+    false,
+    true,
+    true,
+    false,
+    true,
+    true,
+    false,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    true,
+    false,
+    true,
+    false
+   ]
+  },
+  "sarvam-1 untuned": {
+   "yes": 6,
+   "n": 20,
+   "per_message": [
+    false,
+    true,
+    false,
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+    false,
+    false,
+    false,
+    true,
+    false
+   ]
+  },
+  "Gemini 3.8 Flash": {
+   "yes": 20,
+   "n": 20,
+   "per_message": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  }
+ },
+ "movie lines (150 unseen scenes)": {
+  "ours": {
+   "yes": 94,
+   "n": 150
+  },
+  "sarvam-1 untuned": {
+   "yes": 47,
+   "n": 150
+  },
+  "real movie line": {
+   "yes": 130,
+   "n": 150
+  },
+  "Gemini 3.8 Flash": {
+   "yes": 150,
+   "n": 150
+  }
+ }
+}

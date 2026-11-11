@@ -1,0 +1,22 @@
+{
+ "showcase": {
+  "ours": 19,
+  "untuned": 0,
+  "tie/inconsistent": 1,
+  "n": 20,
+  "ours_win_rate": 0.95,
+  "untuned_win_rate": 0.0
+ },
+ "movie": {
+  "ours": 127,
+  "untuned": 4,
+  "tie/inconsistent": 19,
+  "n": 150,
+  "ours_win_rate": 0.8467,
+  "untuned_win_rate": 0.0267
+ },
+ "claude_opus_showcase_relevance_by_gemini": {
+  "yes": 20,
+  "n": 20
+ }
+}
