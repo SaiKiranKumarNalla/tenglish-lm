@@ -140,3 +140,21 @@ if __name__ == "__main__":
     for line in ["ఏంట్రా, ఇంత లేట్ అయ్యింది?", "అంతే కదా, నువ్వు ఎగ్జామ్ ఎలా రాసావ్?", "నేను నిన్ను వదలను"]:
         print("canonical:", romanize(line, canonical=True))
         print("   noisy :", " | ".join(romanize(line, random.Random(s)) for s in range(5)))
+
+
+def _load_calibration():
+    """Replace the hand-set weights above with ones measured from human romanizations (Stage 1c,
+    Google's Dakshina lexicon). Set TLM_HANDSET=1 to keep the hand-set guesses instead."""
+    import json
+    import os
+    from pathlib import Path
+
+    f = Path(__file__).with_name("romanizer_calibrated.json")
+    if os.environ.get("TLM_HANDSET") or not f.exists():
+        return False
+    for table, entries in json.loads(f.read_text(encoding="utf-8")).items():
+        globals()[table].update({k: [tuple(o) for o in v] for k, v in entries.items()})
+    return True
+
+
+CALIBRATED = _load_calibration()

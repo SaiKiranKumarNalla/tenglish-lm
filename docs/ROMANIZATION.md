@@ -16,22 +16,29 @@ Real romanized Telugu (the way people type it in chats and comments) is scarce a
 Calling the romanizer several times on the same sentence gives several different, plausible spellings. Each turn in the
 derived corpus gets 3 noisy versions plus 1 canonical version. Seeds are fixed, so the output is reproducible.
 
-## The variation table (main entries)
+## The variation table (main entries, calibrated on Dakshina, Stage 1c)
 
-| Sound | Spellings (canonical first, approximate weights) | Example |
+Probabilities were measured from ~58k human spelling entries for 25k Telugu words in Google's Dakshina lexicon (train split).
+The original hand-set guesses are kept in the code and can be restored with `TLM_HANDSET=1`.
+
+| Sound | Spellings (canonical first, measured share) | Example |
 |---|---|---|
-| long ā (ా, ఆ) | `aa` 50–55% · `a` 45–50% | `raasaanu` / `rasanu` |
-| long ī (ీ, ఈ) | `ee` 55–60% · `i` 40–45% | `neeku` / `niku` |
-| long ū (ూ, ఊ) | `oo` 50% · `u` 42% · `uu` 8% | `choodu` / `chudu` / `chuudu` |
-| long ē (ే, ఏ) | `e` 70% · `ee` 30% (word-initial ఏ: `e` 50% · `ye` 35% · `a` 15%) | `enti` / `yenti` / `anti` |
-| త, ద, ధ | `th`/`t`, `d`/`dh`, `dh`/`d` | `intha` / `inta` |
-| aspirates ఖ ఘ ఠ ఢ భ ఫ | aspirated or plain (`bh`/`b`, `ph`/`f`) | `bhayam` / `bayam` |
-| వ | `v` 65% · `w` 35% | `vellu` / `wellu` |
-| శ, ష | `sh` 80% · `s` 20% | |
-| ం anusvara | `n` (or `m` before p/b/m) 90% · the other 10% | `anthe` / `amthe` |
-| doubled consonant | kept (same spelling both times) 85% · single 15% | `nuvvu` / `nuvu`, never `nuwvu` |
+| long ā (ా, ఆ) | `aa` 66% · `a` 34% | `raasaanu` / `rasanu` |
+| long ī (ీ, ఈ) | `ee` 43% · `i` 57% | `neeku` / `niku` |
+| long ū (ూ, ఊ) | `oo` 34% · `uu` 37% · `u` 29% | `choodu` / `chuudu` / `chudu` |
+| ే (long ē sign) | `e` 83% · `ee` 17% | `ledu` / `leedu` |
+| word-initial ఏ/ఎ | `e` ~78% · `ye` 17% · `a` 5% | `enti` / `yenti` / `anti` |
+| త | `th` 45% · `t` 55% | `intha` / `inta` |
+| ద | `d` 77% · `dh` 23% | `adi` / `adhi` |
+| ధ, భ | aspirate kept ~95% | `dhairyam`, `bhayam` |
+| వ | `v` 93% · `w` 7% | `vellu` / `wellu` |
+| శ, ష | `sh` 67% · `s` 33% | `shivudu` / `sivudu` |
+| ం anusvara | `n` (or `m` before p/b/m), with the other letter used in the rest of cases* | `anthe` / `amthe` |
+| doubled consonant | kept 85%* · single 15% | `nuvvu` / `nuvu` |
 | చ్చ | `chch` or `cch` | `vachchava` / `vacchava` |
-| word-final ā | shortened 85% | `entra`, `ela`, `kada` |
+| word-final ā | shortened 85%* | `entra`, `ela`, `kada` |
+
+\* Not yet calibrated. Dakshina measures anusvara as `m` 25% of the time and doubled consonants kept 95%; these rules still use the hand-set values.
 
 ## Word-level shorthand (added after Stage 1b calibration)
 
@@ -56,8 +63,8 @@ See the README's Stage 1b section for the plots and numbers, and for why per-wor
 
 ## Limitations
 
-- The weights are **hand-set**, informed by common spellings, and **not estimated from real data**. The next step is
-  calibrating against human romanizations such as Google's Dakshina dataset, which includes Telugu.
+- Sound-level weights are calibrated on Dakshina, but Dakshina's words come from Wikipedia (formal vocabulary) and its annotators
+  typed carefully. The shorthand rules, and several word-level rules, are still hand-set and unvalidated against real chat text.
 - Some real habits are missing: numbers for sounds, vowel-less abbreviations (`nvu`, `chpu`), English slang inside words,
   and inconsistent capitalization.
 - Telugu–English code-mixing is limited to English words already present in the subtitles.

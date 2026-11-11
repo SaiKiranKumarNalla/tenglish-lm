@@ -1,0 +1,41 @@
+{
+ "feature_rates_from_humans": {
+  "ā as aa": 0.661,
+  "ī as ee": 0.426,
+  "ū as oo": 0.343,
+  "ū as uu": 0.374,
+  "ē as ee": 0.174,
+  "త as th": 0.446,
+  "ద as dh": 0.228,
+  "ధ as dh": 0.945,
+  "భ as bh": 0.954,
+  "వ as w": 0.073,
+  "శ/ష as sh": 0.669,
+  "initial ఏ/ఎ as ye": 0.174,
+  "doubled consonant kept": 0.946,
+  "ం as m (not before p/b/m)": 0.251
+ },
+ "benchmark_test_words": {
+  "tiered (per sentence)": {
+   "recall_weighted": 0.544,
+   "attested": 0.614,
+   "top1": 0.323
+  },
+  "per-word, hand-set": {
+   "recall_weighted": 0.738,
+   "attested": 0.344,
+   "top1": 0.362
+  },
+  "per-word, calibrated on Dakshina": {
+   "recall_weighted": 0.757,
+   "attested": 0.362,
+   "top1": 0.464
+  }
+ },
+ "vocab_overlap": {
+  "movie_top5k_in_dakshina": 0.583,
+  "movie_tokens_in_dakshina": 0.591
+ },
+ "n_train_words": 25000,
+ "n_test_words": 2500
+}

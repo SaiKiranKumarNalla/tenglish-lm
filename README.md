@@ -60,7 +60,7 @@ language into tiny fragments makes every model built on it slower and worse at t
 - **GPT-2** (an English-centric tokenizer) needs **~18 tokens for each Telugu-script word**: it is effectively reading raw bytes.
 - **Sarvam-2B**, an Indic-language model from Sarvam AI with a tokenizer designed for Indian scripts, needs **~2.1**: about **8× more efficient**.
   This is why Indic-specific models matter.
-- **But on romanized Telugu, Sarvam's advantage disappears (3.3 tokens per word, worse than GPT-2's 2.9).** Its tokenizer was built
+- **But on romanized Telugu, Sarvam's advantage disappears (3.4 tokens per word, worse than GPT-2's 2.9).** Its tokenizer was built
   for native script, while most people type in Latin letters. Sarvam splits `chesanu` into `c` `hes` `an` `u`.
 - A small tokenizer trained on this project's corpus (**Unigram 4k + phonetic key**, Stage 2 below) needs **~1.8**.
 
@@ -163,7 +163,7 @@ It also gives each sentence a "typing habit", from careful (`raasaanu`) to lazy 
 | నువ్వు | `nuvvu` | `nuvvu`, `nuwwu`, `nuvu`, `nuwu` |
 | లేదు | `ledu` | `ledu`, `ledhu`, `leedu` |
 
-Frequent words get **~6.7 different spellings** on average, including chat shorthand (`nen`, `nuvv`, `enty`, `chesa`).
+Frequent words get **~6.5 different spellings** on average, including chat shorthand (`nen`, `nuvv`, `enty`, `chesa`).
 The complete rules and probabilities are in [docs/ROMANIZATION.md](docs/ROMANIZATION.md); more examples in
 [docs/results/s1_examples.md](docs/results/s1_examples.md).
 
@@ -179,20 +179,52 @@ There's more than one way to fake human typing. Three strategies were compared:
 
 ![generator properties](docs/plots/s1b_generator_properties.png)
 
-- **Diversity:** the tiered approach gives only ~1.7 spellings per word; per-word gives ~6.
+- **Diversity:** the tiered approach gives only ~1.7 spellings per word; per-word gives ~5.7.
 - **Mixing:** real messages often mix careful and lazy spellings (`intha late ayyindi, nuvu chepu`). Tiered sentences never do (0%);
-  per-word sentences do 82% of the time.
+  per-word sentences do 84% of the time.
 - **Curated real spellings:** against a small hand-curated list of common real spellings ([tlm/reference_spellings.py](tlm/reference_spellings.py)),
-  the tiered approach produces 55%. Per-word produced 86% before calibration and **98.5% after shorthand rules were added**.
+  the tiered approach produces 55%. Per-word produced 86% before calibration and **100% after shorthand rules were added**.
   *Caution:* the rules were calibrated against this same list, so the post-calibration number isn't an independent test.
 
 **The more useful test: does training on one generator prepare a tokenizer for another generator's spellings?**
 
 ![cross generator](docs/plots/s1b_cross_generator.png)
 
-A tokenizer trained on **tiered** text handles tiered text well (1.86 tokens per word) but struggles with per-word spellings (2.25).
-A tokenizer trained on **per-word** text is nearly equally good on all three (1.95–2.01). Training only on canonical spellings is worst everywhere.
+A tokenizer trained on **tiered** text handles tiered text well (1.86 tokens per word) but struggles with per-word spellings (2.18).
+A tokenizer trained on **per-word** text is nearly equally good on all three (1.95–1.99). Training only on canonical spellings is worst everywhere.
 **Per-word generation is kept as the default**, because it prepares the model for spelling styles it hasn't seen. The hybrid is a close second.
+
+### Stage 1c: benchmark against real human spellings (`stages/s1c_dakshina_benchmark.py`)
+
+Synthetic text is only useful if it resembles real typing. Google's **Dakshina dataset** includes ~30k Telugu words, each romanized
+by several native speakers, with how many typed each spelling (అంకిత → `ankita` ×2, `ankitha` ×2, `amkita` ×1). This is real
+human spelling variation, and it was used in two ways:
+
+**1. Measure real habits (from Dakshina's 25k *train* words) and replace the hand-set guesses with them.**
+
+![calibration](docs/plots/s1c_calibration.png)
+
+Several guesses were clearly off. People type long ū as `uu` far more often than expected (`chuudu`, 37%), rarely use `w`
+for వ (7%), and keep `dh` and `bh` almost always (~95%). The romanizer now uses these measured probabilities by default
+(`tlm/romanizer_calibrated.json`; set `TLM_HANDSET=1` for the original guesses).
+
+**2. Score the generators on 2,500 *held-out test* words.**
+
+![dakshina benchmark](docs/plots/s1c_dakshina_benchmark.png)
+
+| Generator | human spellings it produces | its spellings a human typed | most-common spelling matches |
+|---|---|---|---|
+| tiered (per sentence) | 54% | **61%** | 32% |
+| per-word, hand-set | 74% | 34% | 36% |
+| **per-word, calibrated** | **76%** | 36% | **46%** |
+
+- Calibration mostly helps the generator get the **most common** spelling right (36% → 46%).
+- The per-word generator covers far more of the human variation than tiers, but it also invents spellings no annotator typed.
+  Part of that is measurement (only 2–3 annotators per word), and part is real over-generation, including chat shorthand
+  that careful annotators don't use.
+- **Caveat:** Dakshina's words come from **Wikipedia** and cover only **58% of the movie corpus's 5,000 most frequent words**.
+  It validates spelling *rules*, not colloquial vocabulary or chat shorthand.
+
 
 ### Stage 2: which tokenizer? (`stages/s2_tokenizer_study.py`)
 
@@ -208,11 +240,11 @@ Three tokenizer types:
 
 ![fertility](docs/plots/s2_fertility.png)
 
-**Finding 1: a corpus-trained tokenizer is about 2× more efficient than Sarvam's on romanized text** (1.8 vs. 3.3 tokens per word).
+**Finding 1: a corpus-trained tokenizer is about 2× more efficient than Sarvam's on romanized text** (1.8 vs. 3.4 tokens per word).
 
 **Finding 2: efficiency and spelling robustness pull in opposite directions.** With a large vocabulary, each spelling becomes its own
 whole-word token (`enti`, `yenti` and `anti` share nothing). Smaller vocabularies share more pieces but need more tokens.
-Characters are the most robust (0.76 overlap), but cost ~7 tokens per word. ([segmentation examples](docs/results/s2_segmentations.md))
+Characters are the most robust (0.78 overlap), but cost ~7 tokens per word. ([segmentation examples](docs/results/s2_segmentations.md))
 
 ![trade-off](docs/plots/s2_vocab_tradeoff.png)
 
@@ -221,12 +253,12 @@ Characters are the most robust (0.76 overlap), but cost ~7 tokens per word. ([se
 
 | Method (Unigram, 4k vocab) | tokens per word ↓ | spelling consistency ↑ |
 |---|---|---|
-| plain | 2.02 | 0.10 |
-| + morphology split (`intlo → int ##lo`) | 2.16 | 0.12 |
-| **+ phonetic key** | **1.77** | **0.44** |
+| plain | 2.01 | 0.10 |
+| + morphology split (`intlo → int ##lo`) | 2.15 | 0.12 |
+| **+ phonetic key** | **1.77** | **0.45** |
 | + phonetic key + morphology | 1.90 | 0.46 |
-| Character-level (reference) | 7.30 | 0.76 |
-| Sarvam-2B pretrained (reference) | 3.33 | 0.33 |
+| Character-level (reference) | 7.30 | 0.78 |
+| Sarvam-2B pretrained (reference) | 3.36 | 0.34 |
 
 The phonetic key makes text **~4.5× more spelling-robust and more efficient at the same time**. Morphology splitting alone barely helps.
 
@@ -246,7 +278,7 @@ The phonetic key makes text **~4.5× more spelling-robust and more efficient at 
 | 0 / 0b | What's in the corpus? (data card) | ✅ |
 | 1 / 1b | Can we simulate how people type Telugu? Which generator is best? | ✅ |
 | 2 / 2b | Which tokenizer handles messy spelling? | ✅ |
-| — | Validate the romanizer against human romanizations (e.g. Google's Dakshina) | planned |
+| 1c | Does synthetic text match real human spellings? (Dakshina benchmark + calibration) | ✅ |
 | 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | next |
 | 4 | Normalizer / converter: any spelling → native script and canonical romanized (small character model, from scratch) | planned |
 | 5 | Spoken-style model: fine-tune a small pretrained model on dialogue (line → next line) | planned |
@@ -262,6 +294,7 @@ python stages/s0_corpus_stats.py
 python stages/s0b_data_card.py
 python stages/s1_romanizer.py
 python stages/s1b_generator_comparison.py
+DAKSHINA_TE=/path/to/dakshina_dataset_v1.0/te python stages/s1c_dakshina_benchmark.py   # optional; needs Dakshina
 python stages/s2_tokenizer_study.py --sarvam path/to/sarvam-2b/tokenizer.json
 python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --sarvam path/to/sarvam-2b/tokenizer.json
 ```
@@ -279,8 +312,9 @@ python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --s
 
 ## Limitations
 
-- The romanized training text is **synthetic**: generated by hand-set rules from native-script subtitles, and **not yet validated
-  against human romanizations**. Real typing habits may differ (Stage 6 and the Dakshina validation address this).
+- The romanized training text is **synthetic**: generated by rules from native-script subtitles. Its spelling probabilities are calibrated on
+  Dakshina's human romanizations (formal Wikipedia vocabulary), but chat-style shorthand and colloquial words remain unvalidated
+  (Stage 6 addresses this).
 - Subtitles come partly from automatic speech recognition and contain errors and some song lyrics.
 - Movie dialogue isn't everyday conversation: it's scripted and dramatized.
 - For research and education only; see the note at the top.
