@@ -62,12 +62,41 @@ better one. We check the referee first on easy cases where we *know* the right a
 - The big AIs (Claude, Gemini) get **8 to 9 out of 10**.
 - 🎯 **Our goal:** reach **6.9 out of 10**, which is 80% of the best. We're close.
 
+**What that looks like: real examples from the test**
+
+| Typed in English letters | Correct Telugu | Our model wrote | Result |
+|---|---|---|---|
+| `tandri muggurikee samaanangaa aasti ichchi poyaadu` *(the father left his property equally to all three)* | తండ్రి ముగ్గురికీ సమానంగా ఆస్తి ఇచ్చి పోయాడు | తండ్రి ముగ్గురికీ సమానంగా ఆస్తి ఇచ్చి పోయాడు | ✅ every word right |
+| `weekend lo goa trip plan cheddama bro?` | — | వీకెండ్ లో goa ట్రిప్ ప్లాన్ చేద్దామా bro? | ✅ Telugu fixed, English kept |
+| `idi poortigaa nivaasa pradhaanamayina peta` *(this is a fully residential neighbourhood)* | … ప్రధానమయిన **పేట** | … ప్రధానమయిన **పెట్టాను** *("I put")* | ❌ guessed a common movie word instead of "neighbourhood" |
+| `nuvvu eppudu ilaage chestav, naaku chiraku vastundi` *(you always do this, it irritates me)* | … నాకు **చిరాకు** వస్తుంది | … నాకు **చీరకు** వస్తుంది | ❌ "irritation" became "saree" 😄 |
+| `nanna, nenu exam lo fail ayyanu` *(dad, I failed the exam)* | … **ఫెయిల్** అయ్యాను | … **ఫైల్** అయ్యాను | ❌ "fail" became "file" |
+| `asialo muslimlu adhikangaa vunna desaale ekkuva` | **ఆసియా**లో … | **అసియా**లో … | ❌ long "aa" sound missed; typing doesn't show vowel length |
+
+**Typical mistakes:** long vs short vowels (people type `a` for both), similar-sounding words, and borrowed English words. The big AIs
+make fewer of these, but not zero: Claude also wrote వుంటాయి where the answer was ఉంటాయి. All 300 sentences, with every model's
+answer, are in [the evaluation report](docs/eval/normalization_examples.md).
+
 ### 💬 Reply matchups
 
 ![reply matchups](docs/plots/simple_reply_matchups.png)
 
 - After training, our model's replies **beat its old self 94 times out of 100**. The training clearly worked.
 - But **Claude and Gemini still win almost every matchup** against us. Big AIs are still much better at chatting.
+
+**What that looks like: real replies** (English meaning in *italics*)
+
+| Someone says | Our model replied | Claude replied | Verdict |
+|---|---|---|---|
+| `repu movie ki veldama?` *(shall we go to a movie tomorrow?)* | సరే రేయ్ *(sure, man)* | సరే, వెళ్దాం! ఏ మూవీ? ఏ షోకి? *(sure, let's go! which movie? which show?)* | ✅ both good; Claude is more natural |
+| `biryani tinadaniki ekkadiki veldam?` *(where shall we go for biryani?)* | నేను కూడా వస్తాను *(I'll come too)* | పారడైజ్ కి వెళ్దాం రా, లేదంటే బావర్చి *(let's go to Paradise, or else Bawarchi)* | 🟡 ours makes sense but doesn't answer the question |
+| `nuvvu gym ki velthunnava leka selfie kosam veltunnava?` *(going to the gym, or just for selfies?)* | ఈరోజు నేను gym లో ఉన్నాను *(I'm at the gym today)* | రెండింటికీ రా! సెల్ఫీ లేకపోతే వర్కౌట్ చేశానని ఎవరు నమ్ముతారు? *(both! without a selfie, who'd believe I worked out?)* | 🟡 ours is on-topic but misses the joke |
+| `sorry ra, traffic lo stuck ayya` *(sorry, stuck in traffic)* | నమస్కారం మా బాబు నాన్నగారు బాగున్నారా? … *(hello, is your father well? …)* | పర్లేదు రా, నెమ్మదిగా రా. నేను వెయిట్ చేస్తా. *(no problem, take your time, I'll wait)* | ❌ ours goes completely off-topic |
+| `nanna, nenu exam lo fail ayyanu` *(dad, I failed the exam)* | అది కాకపోతే నువ్వు నన్ను ఎలా చూస్తావు? … *(if not that, how will you see me? …)* | పర్లేదు రా, బాధపడకు. ఈసారి బాగా చదువు, తప్పకుండా పాస్ అవుతావ్. *(it's okay, don't worry; study well and you'll pass next time)* | ❌ ours doesn't comfort or respond |
+
+**Pattern:** our model sounds like Telugu movie dialogue, but it often **loses track of what was said**. That's the main thing to fix next.
+See all 20 everyday messages with 6 AIs side by side in [the showcase](docs/eval/SHOWCASE.md), and 50 movie scenes in
+[the movie dialogue tests](docs/eval/replies_movie_sample.md).
 
 ### 📏 But our model is small
 
