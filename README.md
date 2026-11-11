@@ -102,6 +102,30 @@ For "why are you so late?", *traffic*, *I overslept* and *why do you care?* are 
 | Does a judge prefer the fine-tuned replies? | Claude (which passed its reliability test 91% of the time) preferred them over the untuned model's in **94%** of pairs | [Stage 6](#stage-6-in-progress) |
 | Does it still loop or repeat itself? | **0.5%** of replies, with the right generation settings (32% with the naive setting) | [Stage 5b](docs/STAGES.md#stage-5b-better-replies-stagess5b_better_repliespy) |
 
+
+### In pictures
+
+**1. Tokenizers:** English-focused GPT-2 shreds Telugu script (18 tokens per word). Sarvam fixes the script, but not romanized typing.
+![tokenizers](docs/plots/s2b_reference_tokenizers.png)
+
+**2. Spelling robustness:** a simple phonetic key (orange) makes different spellings share tokens without costing efficiency.
+![phonetic key](docs/plots/s2_transforms_frontier.png)
+
+**3. Realistic fake typing:** synthetic spellings checked against real people's spellings from Google's Dakshina dataset.
+![dakshina benchmark](docs/plots/s1c_dakshina_benchmark.png)
+
+**4. Fixing spelling:** reading the whole sentence (orange) resolves ambiguous words much better than word by word.
+![normalizer](docs/plots/s4b_word_vs_sentence.png)
+
+**5. Replies:** fine-tuning makes real dialogue less surprising to the model, and makes it respond more to what was said.
+![context usage](docs/plots/s5b_context_usage.png)
+
+**6. Picking the real reply out of 10** (chance is 10%):
+![pick the right reply](docs/plots/s5c_pick_the_right_reply.png)
+
+**7. No more loops:** blocking repeated 3-word phrases nearly eliminates repetitive replies.
+![decoding](docs/plots/s5b_decoding.png)
+
 ### What it can do now
 | You type | It understands | It replies |
 |---|---|---|

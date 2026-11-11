@@ -220,6 +220,7 @@ else:
     # Only statistics go into the repository: no comment text (real people's words stay in data/realworld/, local only)
     out = {"engine": engine, "judge": a.judge, "understanding": G["understanding"], "pairwise": results,
            "unparsed_share": round(verdicts.count("?") / len(verdicts), 4)}
+    OUT.parent.mkdir(parents=True, exist_ok=True)  # results folder
     json.dump(out, open(OUT, "w"), indent=1, ensure_ascii=False)
     print(json.dumps(out["pairwise"], indent=1))
     print("JUDGE_DONE")

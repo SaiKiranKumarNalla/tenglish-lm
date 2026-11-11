@@ -47,6 +47,7 @@ for p, (_, g) in zip(preds, dak):
     hit += sum(x == y for x, y in zip(pw, gw))
     tot += len(gw)
 R["our_normalizer_word_accuracy_dak300"] = round(hit / tot, 4)
+json.dump(preds, open(F / "ours_normalization.json", "w"), ensure_ascii=False)  # per-sentence outputs, for the public report
 del norm
 torch.cuda.empty_cache()
 
@@ -91,6 +92,7 @@ for fm in a.frontier:
     ok = [(m, r) for m, r in zip(movie, rep) if r.strip()]
     R[f"Sarvam-M judge: fine-tuned vs {fm}"] = compare([(m["message"], m["tuned"], r) for m, r in ok])
     R[f"Sarvam-M judge: {fm} vs real reply"] = compare([(m["message"], r, m["real"]) for m, r in ok])
+(ROOT / "docs" / "results").mkdir(parents=True, exist_ok=True)  # results folder
 json.dump(R, open(ROOT / "docs" / "results" / "s6b_gpu.json", "w"), indent=1)
 print(json.dumps(R, indent=1))
 print("DONE")
