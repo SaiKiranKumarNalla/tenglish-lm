@@ -148,12 +148,13 @@ The remaining results will be added as they arrive.
 | 4 / 4b | Spelling normalizer (word-level, then sentence-level with English detection) | ✅ |
 | 5 / 5b / 5c | Reply model (sarvam-1 + LoRA), better decoding, automatic evaluation | ✅ |
 | 6 / 6b | Real-world comments, judged replies, comparison with frontier models | 🔄 |
-| 7 | Public demo and downloadable model weights | planned |
+| 7 | Reproducible demo script (weights kept private) | planned |
 
 ## Model weights
 
-The trained weights are **not in this repository** yet: GitHub repositories are meant for code, and the files are 20–100 MB each.
-The plan is to publish them separately (as a GitHub Release or on Hugging Face) together with a small "try it" script. See Stage 7.
+The trained weights are **not published**. The reply model was trained on movie subtitles (copyrighted material), and this is a
+research and learning project, so the weights are kept private. Everything needed to **reproduce** them is here: the code, the
+data-building scripts, and every training setting. Each stage script lists its inputs, and `docs/STAGES.md` records the settings and results.
 
 ## Run it yourself
 
