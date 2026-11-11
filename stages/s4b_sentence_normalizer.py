@@ -90,6 +90,8 @@ for step in range(1, a.steps + 1):
         print(f"sentence model step {step}/{a.steps} loss {loss.item():.3f}", flush=True)
 model.eval()
 train_min = round((time.time() - t0) / 60, 1)
+torch.save({"model": model.state_dict(), "src": src_v.chars, "tgt": tgt_v.chars, "d": model.t.d_model,
+            "layers": len(model.t.encoder.layers), "maxlen": ML}, N / "sentence_normalizer.pt")
 
 
 def sent_normalize(sents):

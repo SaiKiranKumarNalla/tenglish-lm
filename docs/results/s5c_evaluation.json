@@ -1,0 +1,35 @@
+{
+ "pick_the_right_reply": {
+  "chance": {
+   "accuracy_at_1": 0.1,
+   "mrr": 0.2929
+  },
+  "sarvam-1 (no fine-tuning)": {
+   "accuracy_at_1": 0.16,
+   "mrr": 0.3679
+  },
+  "LoRA, 1200 steps": {
+   "accuracy_at_1": 0.24,
+   "mrr": 0.4437
+  },
+  "LoRA, 3000 steps": {
+   "accuracy_at_1": 0.262,
+   "mrr": 0.4566
+  }
+ },
+ "spelling_robustness": {
+  "messages": 300,
+  "all_4_spellings_agree": 0.2167,
+  "understood_exactly_right": 0.2217,
+  "avg_char_difference_between_spellings": 0.0321,
+  "avg_char_error_vs_original": 0.0607
+ },
+ "efficiency": {
+  "base_params": 2525087744,
+  "adapter_params": 23969792,
+  "adapter_mb_bf16": 47.9,
+  "normalizer_params": 7648077,
+  "seconds_per_reply_30_tokens": 2.056,
+  "gpu": "NVIDIA A100-SXM4-40GB"
+ }
+}

@@ -500,6 +500,96 @@ expected what was actually said):
 - **Engineering notes:** two out-of-memory crashes on the 22 GB L4 were fixed with gradient checkpointing and gradient accumulation
   (4 × 4 micro-batches).
 
+
+### Stage 5b: better replies (`stages/s5b_better_replies.py`)
+
+Stage 5's replies were spoken-style but often looped or drifted. Stage 5b tackles four things, on an A100 (about 1.5 hours including the
+Stage 4b retrain):
+
+**1. More training:** the Stage 5 adapter was trained for 1,800 more steps (3,000 in total, ~1.6 epochs).
+
+**2. A context-usage test.** A reply model should respond to *what was said*. The real reply is scored twice: once after its **true**
+previous line, and once after a **random** line from another scene. The gap in bits per character measures how much the model uses the context.
+
+![context usage](docs/plots/s5b_context_usage.png)
+
+| Model | real reply, true context | real reply, random context | context gain ↑ |
+|---|---|---|---|
+| sarvam-1, no fine-tuning | 2.02 | 2.17 | 0.16 |
+| LoRA, 1,200 steps | 1.60 | 1.82 | 0.23 |
+| **LoRA, 3,000 steps** | **1.59** | 1.82 | **0.24** |
+
+Fine-tuning on dialogue makes the model use context about **50% more**: it learns to *respond*, not just to produce movie-style text.
+Training beyond 1,200 steps gives only a small extra gain, so this data is close to exhausted at this model size.
+
+**3. Decoding: how text is generated from the model.** The same model and the same 200 unseen contexts were run with three settings:
+
+![decoding](docs/plots/s5b_decoding.png)
+
+| Setting | replies that loop ↓ | distinct word pairs ↑ |
+|---|---|---|
+| sampling, temperature 0.8 (Stage 5) | 5.5% | 91% |
+| **sampling + no repeated 3-word phrases** | **0.5%** | **93%** |
+| greedy (always the most likely word) | 32.5% | 53% |
+
+Blocking repeated 3-word phrases nearly eliminates loops. **Greedy decoding** loops in a third of replies; it's the classic failure
+for small models ([examples](docs/results/s5b_examples.md): `ఓకే ఓకే ఓకే …`). It's now the default.
+
+**4. The full pipeline:** English detection → sentence normalizer (Stage 4b) → reply model → canonical romanization:
+
+| typed | understood as | reply (romanized) |
+|---|---|---|
+| `nuvvu naaku nachchav` | నువ్వు నాకు నచ్చావ్ | `nannu premisthunnaava?` *(do you love me?)* |
+| `repu movie ki veldama?` | రేపు movie కి వెళ్దామా? | `… sare veldaam` *(… ok, let's go)* |
+| `sorry ra, traffic lo stuck ayya` | sorry రా, traffic లో stuck అయ్యా | `nuvvu bas ekkuthaava nenu bas ekkestha veldaam` *(will you take the bus? I'll take it, let's go)* |
+| `enti ra intha late ayyindi?` | ఏంటి రా ఇంత late అయ్యింది? | `eeroju nenu late ayana …` *(even though I'm late today …)* |
+| `bro exam ela rasav, results eppudu?` | bro exam ఎలా రాసావ్, results ఎప్పుడు? | `eeroju udayam. randi. hello, mee peru emiti?` ❌ *(off-topic)* |
+
+English words now pass through unchanged (`late`, `movie`, `traffic`), which fixes the Stage 5 demo. More replies fit the message, but
+some still drift off-topic.
+
+### Stage 5c: evaluating the whole system automatically (`stages/s5c_evaluation.py`)
+
+Dialogue is hard to grade: for "why are you so late?", *traffic*, *I overslept* and *why do you care?* are all good replies, and only one of them
+is in the movie. So, besides the component tests above, two automatic tests were added that don't need anyone to label data.
+
+**Pick the right reply.** For 500 unseen-movie contexts, the real reply is hidden among 9 replies from other scenes. The model scores all 10
+and should rank the real one first. Chance is 10%.
+
+![pick the right reply](docs/plots/s5c_pick_the_right_reply.png)
+
+| Model | ranked first | mean reciprocal rank |
+|---|---|---|
+| chance | 10% | 0.29 |
+| sarvam-1, no fine-tuning | 16% | 0.37 |
+| LoRA, 1,200 steps | 24% | 0.44 |
+| **LoRA, 3,000 steps** | **26%** | **0.46** |
+
+The fine-tuned model picks the true reply **2.6× more often than chance**, and 1.6× more often than the untuned model.
+
+**Same message, four spellings.** 300 messages from unseen movies, each romanized 4 different ways, are passed through the normalizer.
+
+| Measure | Result |
+|---|---|
+| Character difference between the 4 understood versions | **3.2%** |
+| Character error versus the real sentence | 6.1% |
+| All 4 versions *exactly* identical | 22% |
+| Understood *exactly* right (whole sentence) | 22% |
+
+At character level, spelling barely matters (3% difference). But whole sentences rarely come out *perfectly* identical: one wrong vowel
+anywhere in a 10-word sentence counts as a miss. This is the clearest remaining weakness, and the target for a stronger normalizer.
+
+**Efficiency**
+
+| | |
+|---|---|
+| Reply model | sarvam-1, 2.5B parameters (base) + a 24M-parameter adapter (48 MB in bf16) |
+| Normalizer | 7.6M parameters |
+| Speed | ~2 seconds per 30-token reply on an A100 with the adapter unmerged. Merging the adapter and batching would be much faster. |
+
+**Not yet done:** a judgment of reply *quality* (naturalness, relevance, register) by humans or by a strong judge model, and a comparison with
+frontier models on the same contexts.
+
 ---
 
 ## 4. Roadmap
@@ -514,8 +604,9 @@ expected what was actually said):
 | 4 | Normalizer: any spelling → Telugu script (character seq2seq from scratch; Dakshina + synthetic) | ✅ word-level |
 | 4b | Normalizer with sentence context + English-word handling | ✅ |
 | 5 | Spoken-style reply model: sarvam-1 + LoRA on movie dialogue (next-line bits/char 2.02 → 1.60) | ✅ first version |
-| 5b | Better replies: longer training, full Stage 4b pipeline, reply-quality evaluation, reducing loops | next |
-| 6 | Real-world test set of romanized Telugu typed by people | planned |
+| 5b | Better replies: more training, decoding without loops, context-usage test, full pipeline | ✅ |
+| 5c | Automatic evaluation: pick-the-right-reply, spelling robustness, efficiency | ✅ |
+| 6 | Real-world test set (romanized Telugu typed by people) + judged reply quality | next |
 | 7 | Public demo | planned |
 
 ## 5. Run it yourself
@@ -535,6 +626,8 @@ python stages/s4_prepare.py && python stages/s4_normalizer.py && python stages/s
 python stages/s4b_langid.py && python stages/s4b_prepare.py
 python stages/s4b_sentence_normalizer.py --word-model path/to/normalizer.pt && python stages/s4b_plots.py   # GPU recommended
 python stages/s5_prepare.py && python stages/s5_dialogue_lm.py --word-model path/to/normalizer.pt && python stages/s5_plots.py   # L4/A100
+python stages/s5b_better_replies.py --adapter ... --sentence-normalizer ... && python stages/s5b_plots.py
+python stages/s5c_evaluation.py --adapter-1200 ... --adapter-3000 ... --sentence-normalizer ... && python stages/s5c_plots.py
 ```
 
 ## Repository layout
