@@ -311,6 +311,63 @@ model's BPC changes between the best and worst spelling. Lower means spelling th
 **Caveats:** these are tiny models with a short budget; the curves are still slowly improving at the end. The ranking at this scale may not
 hold for much larger models. Equal *text* doesn't mean equal *compute*: the character model needs ~3.7× more steps.
 
+
+### Stage 4: a spelling normalizer trained from scratch (`tlm/seq2seq.py`, `stages/s4_prepare.py`, `stages/s4_normalizer.py`)
+
+Stage 3 showed that random spelling variation wastes a language model's capacity. Stage 4 builds the fix: a small model that turns
+**any romanized spelling into Telugu script** (`yenti` / `enti` → ఏంటి). Once a word is in Telugu script, its canonical romanization
+is a fixed rule, so this one model is also the core of the **converter**.
+
+**Model:** a character-level **encoder–decoder transformer** (3 + 3 layers, 256-dim, ~5M parameters), trained from scratch. The encoder
+reads the Latin letters; the decoder writes Telugu characters one at a time while attending to the input (cross-attention).
+
+**Data:** the same model is trained on three data mixes, for the same number of steps:
+- **Dakshina only:** 58k real human spellings of formal (Wikipedia) words.
+- **Synthetic only:** 247k spellings of the 75k words in the training movies, from the calibrated romanizer.
+- **Both.**
+
+**Tests:**
+- Dakshina's held-out words (real people, words never seen in training).
+- Words from the **8 unseen movies**: "seen" words also occur in the training movies; "unseen" words never do.
+
+**Baseline:** a lookup table (phonetic key → most frequent Telugu word). It can only handle words it has already seen.
+
+![normalizer accuracy](docs/plots/s4_normalizer_accuracy.png)
+
+| Method | Dakshina test (real spellings) | Movie words, seen | Movie words, **unseen** |
+|---|---|---|---|
+| Lookup baseline (both datasets) | 22% | 78% | 9% |
+| Normalizer: Dakshina only | 64% | 60% | 45% |
+| Normalizer: synthetic only | 57% | **85%** | 66% |
+| **Normalizer: Dakshina + synthetic** | **68%** | 84% | **67%** |
+
+Character error rate for the best model: **9%** on Dakshina, **5%** on seen and **8%** on unseen movie words.
+
+**Findings**
+
+1. **The model generalizes; the lookup can't.** On movie words never seen in training, the lookup gets 9% and the normalizer 67%.
+   It has learned how sounds map to letters, not just a list of words.
+2. **Each data source covers the other's blind spot.** Real human spellings (Dakshina) teach how people actually type; the synthetic movie
+   data teaches spoken vocabulary. Combining them is best on real spellings (68%) and on unseen words (67%).
+3. **Real-spelling accuracy is the honest number**, and 68% exact-match on real human spellings leaves clear room to improve. Many
+   errors are a single character (CER 9%), often the long/short vowel ambiguity that typing hides (`chesanu` → చేశను instead of చేసాను).
+
+**What it gets right and wrong** ([more examples](docs/results/s4_examples.md)):
+
+| typed | output | |
+|---|---|---|
+| `yenti`, `enti` | ఏంటి | ✅ both spellings map to the same word |
+| `intha`, `inta` | ఇంత | ✅ |
+| `nuvvu`, `nuwu` | నువ్వు | ✅ even with a dropped double letter |
+| `chuudu`, `choodu` | చూడు | ✅ |
+| `vellipothunna` | వెళ్ళిపోతున్నా | ✅ a long colloquial verb form |
+| `anti` | అంటి | ⚠️ plausible, but in chat it usually means ఏంటి. That needs **sentence context** |
+| `chesanu` | చేశను | ❌ vowel length lost, and శ vs స is ambiguous |
+| `late`, `exam` | లాటే, ఎక్స్కం | ❌ **English words** are read as Telugu sounds; they need an English-aware path |
+
+**Next steps for the normalizer:** sentence-level context (to resolve `anti`, `nee`/`ni`), handling English words (detect them and keep or
+transliterate them as English), and beam search instead of greedy decoding. The trained model (~22 MB) isn't committed to git.
+
 ---
 
 ## 4. Roadmap
@@ -322,7 +379,8 @@ hold for much larger models. Equal *text* doesn't mean equal *compute*: the char
 | 2 / 2b | Which tokenizer handles messy spelling? | ✅ |
 | 1c | Does synthetic text match real human spellings? (Dakshina benchmark + calibration) | ✅ |
 | 3 | Tiny language models from scratch: does the tokenizer choice change perplexity on unseen movies? | ✅ |
-| 4 | Normalizer / converter: any spelling → native script and canonical romanized (small character model, from scratch; Dakshina pairs + synthetic) | next |
+| 4 | Normalizer: any spelling → Telugu script (character seq2seq from scratch; Dakshina + synthetic) | ✅ word-level |
+| 4b | Normalizer with sentence context + English-word handling | next |
 | 5 | Spoken-style model: fine-tune a small pretrained model on dialogue (line → next line) | planned |
 | 6 | Real-world test set of romanized Telugu typed by people | planned |
 | 7 | Public demo | planned |
@@ -340,6 +398,7 @@ DAKSHINA_TE=/path/to/dakshina_dataset_v1.0/te python stages/s1c_dakshina_benchma
 python stages/s2_tokenizer_study.py --sarvam path/to/sarvam-2b/tokenizer.json
 python stages/s2b_reference_tokenizers.py --gpt2 path/to/gpt2/tokenizer.json --sarvam path/to/sarvam-2b/tokenizer.json
 pip install torch && python stages/s3_tiny_lms.py && python stages/s3_plots.py   # GPU recommended
+python stages/s4_prepare.py && python stages/s4_normalizer.py && python stages/s4_plots.py   # needs DAKSHINA_TE; GPU recommended
 ```
 
 ## Repository layout
@@ -347,7 +406,7 @@ pip install torch && python stages/s3_tiny_lms.py && python stages/s3_plots.py  
 | Path | Contents |
 |---|---|
 | `extractor/` | YouTube Telugu subtitles → cleaned, scene-segmented corpus (Colab notebooks + scripts) |
-| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, tiny GPT, plot style |
+| `tlm/` | library: corpus loader, quality filters, romanizers (per-word, tiered, hybrid), phonetic key and morphology splitter, tiny GPT, character seq2seq, plot style |
 | `stages/` | one reproducible script per stage |
 | `docs/plots/`, `docs/results/` | every figure and number shown above |
 | `docs/DATA_CARD.md`, `docs/ROMANIZATION.md` | detailed data description and romanization rules |

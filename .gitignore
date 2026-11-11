@@ -4,3 +4,4 @@ __pycache__/
 .env
 data/romanized/
 data/tok/
+data/normalizer/

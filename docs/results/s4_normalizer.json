@@ -1,0 +1,1067 @@
+{
+ "device": "cuda",
+ "quick": false,
+ "steps": 8000,
+ "results": {
+  "Lookup baseline (Dakshina only)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.0,
+     "cer": 0.9402,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.3163,
+     "cer": 0.612,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.0951,
+     "cer": 0.8557,
+     "n": 526
+    }
+   }
+  },
+  "Lookup baseline (Synthetic only)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.2304,
+     "cer": 0.7028,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.7536,
+     "cer": 0.1335,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.0,
+     "cer": 0.881,
+     "n": 526
+    }
+   }
+  },
+  "Lookup baseline (Dakshina + synthetic)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.2166,
+     "cer": 0.69,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.777,
+     "cer": 0.1162,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.0913,
+     "cer": 0.7833,
+     "n": 526
+    }
+   }
+  },
+  "Normalizer (Dakshina only)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.6372,
+     "cer": 0.0883,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.5952,
+     "cer": 0.113,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.4487,
+     "cer": 0.1355,
+     "n": 526
+    }
+   },
+   "params": 5582146,
+   "loss_curve": [
+    [
+     1000,
+     0.5958
+    ],
+    [
+     2000,
+     0.5308
+    ],
+    [
+     3000,
+     0.483
+    ],
+    [
+     4000,
+     0.4601
+    ],
+    [
+     5000,
+     0.441
+    ],
+    [
+     6000,
+     0.4383
+    ],
+    [
+     7000,
+     0.4353
+    ],
+    [
+     8000,
+     0.4369
+    ]
+   ],
+   "minutes": 12.2,
+   "errors": [
+    [
+     "Dakshina test (real human spellings)",
+     "antarani",
+     "అంటారని",
+     "అంతరని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antava",
+     "అంటావా",
+     "అంతవ"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "andar",
+     "అండర్",
+     "ఆండర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "undar",
+     "అండర్",
+     "ఉండర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "under",
+     "అండర్",
+     "ఉండర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antagaa",
+     "అంతగా",
+     "అంటగా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antamavutondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "anthamavuthondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtu",
+     "అంతు",
+     "అంటు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "ampair",
+     "అంపైర్",
+     "అంపెయిర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpair",
+     "అంపైర్",
+     "ఉంపైర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpire",
+     "అంపైర్",
+     "ఉంపైర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akkineeni",
+     "అక్కినేని",
+     "అక్కినీని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akkineni",
+     "అక్కినేని",
+     "అక్కినెని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akrama",
+     "అక్రమ",
+     "ఆక్రమ"
+    ],
+    [
+     "Movie test: seen words",
+     "mitrud",
+     "మిత్రుడు",
+     "మిత్రుడ్"
+    ],
+    [
+     "Movie test: seen words",
+     "cheesukunnaara",
+     "చేసుకున్నారా",
+     "చేసుకున్నార"
+    ],
+    [
+     "Movie test: seen words",
+     "chesukunnaara",
+     "చేసుకున్నారా",
+     "చేసుకున్నార"
+    ],
+    [
+     "Movie test: seen words",
+     "pheevar",
+     "ఫీవర్",
+     "ఫేవర్"
+    ],
+    [
+     "Movie test: seen words",
+     "fivar",
+     "ఫీవర్",
+     "ఫైవర్"
+    ],
+    [
+     "Movie test: seen words",
+     "idanta",
+     "ఇదంతా",
+     "ఇదంత"
+    ],
+    [
+     "Movie test: seen words",
+     "idantha",
+     "ఇదంతా",
+     "ఇదంత"
+    ],
+    [
+     "Movie test: seen words",
+     "veladhu",
+     "వెళ్ళదు",
+     "వేలాదు"
+    ],
+    [
+     "Movie test: seen words",
+     "velladu",
+     "వెళ్ళదు",
+     "వెళ్ళాడు"
+    ],
+    [
+     "Movie test: seen words",
+     "peerents",
+     "పేరెంట్స్",
+     "పీరెంట్స్"
+    ],
+    [
+     "Movie test: seen words",
+     "thoduga",
+     "తోడుగా",
+     "తొడుగా"
+    ],
+    [
+     "Movie test: seen words",
+     "vallani",
+     "వాళ్ళని",
+     "వల్లని"
+    ],
+    [
+     "Movie test: seen words",
+     "milaanti",
+     "మీలాంటి",
+     "మిలాంతి"
+    ],
+    [
+     "Movie test: seen words",
+     "meelaanti",
+     "మీలాంటి",
+     "మేలాంతి"
+    ],
+    [
+     "Movie test: seen words",
+     "adu",
+     "ఆడు",
+     "అడు"
+    ],
+    [
+     "Movie test: unseen words",
+     "aafare",
+     "ఆఫరే",
+     "ఆఫేర్"
+    ],
+    [
+     "Movie test: unseen words",
+     "aapharey",
+     "ఆఫరే",
+     "ఆఫీరీ"
+    ],
+    [
+     "Movie test: unseen words",
+     "kanipettesano",
+     "కనిపెట్టేసానో",
+     "కనిపెట్టేషనో"
+    ],
+    [
+     "Movie test: unseen words",
+     "kanipettesaano",
+     "కనిపెట్టేసానో",
+     "కనిపెట్టేశానో"
+    ],
+    [
+     "Movie test: unseen words",
+     "mikuu",
+     "మీకూ",
+     "మికూ"
+    ],
+    [
+     "Movie test: unseen words",
+     "dapeepul",
+     "దపీపుల్",
+     "డేపీపుల్"
+    ],
+    [
+     "Movie test: unseen words",
+     "maarchana",
+     "మార్చనా",
+     "మార్చన"
+    ],
+    [
+     "Movie test: unseen words",
+     "magapillada",
+     "మగపిల్లాడా",
+     "మాగపిల్లడ"
+    ],
+    [
+     "Movie test: unseen words",
+     "magapillaada",
+     "మగపిల్లాడా",
+     "మగపిల్లాడ"
+    ],
+    [
+     "Movie test: unseen words",
+     "min",
+     "మీను",
+     "మిన్"
+    ],
+    [
+     "Movie test: unseen words",
+     "minu",
+     "మీను",
+     "మిను"
+    ],
+    [
+     "Movie test: unseen words",
+     "utsahaparichela",
+     "ఉత్సాహపరిచేలా",
+     "ఉత్సాహపరిచేల"
+    ],
+    [
+     "Movie test: unseen words",
+     "paraakara",
+     "పరాకరా",
+     "పరాకర"
+    ],
+    [
+     "Movie test: unseen words",
+     "daivasaakshiga",
+     "దైవసాక్షిగా",
+     "దైవశాక్షిగా"
+    ],
+    [
+     "Movie test: unseen words",
+     "dayvasaakshiga",
+     "దైవసాక్షిగా",
+     "దేవశాక్షిగా"
+    ]
+   ]
+  },
+  "Normalizer (Synthetic only)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.5702,
+     "cer": 0.1344,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.8457,
+     "cer": 0.0462,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.6635,
+     "cer": 0.0897,
+     "n": 526
+    }
+   },
+   "params": 5582146,
+   "loss_curve": [
+    [
+     1000,
+     0.5704
+    ],
+    [
+     2000,
+     0.5516
+    ],
+    [
+     3000,
+     0.5053
+    ],
+    [
+     4000,
+     0.5053
+    ],
+    [
+     5000,
+     0.4986
+    ],
+    [
+     6000,
+     0.4738
+    ],
+    [
+     7000,
+     0.4753
+    ],
+    [
+     8000,
+     0.4763
+    ]
+   ],
+   "minutes": 13.5,
+   "errors": [
+    [
+     "Dakshina test (real human spellings)",
+     "ankela",
+     "అంకెల",
+     "అంకెలా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "angikarinchay",
+     "అంగీకరించే",
+     "అంగీకరించాయ్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antarani",
+     "అంటారని",
+     "అంతరాని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "ander",
+     "అండర్",
+     "అండేర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "undar",
+     "అండర్",
+     "ఉండర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "under",
+     "అండర్",
+     "ఉండేరు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtagaa",
+     "అంతగా",
+     "అంటగా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antagaa",
+     "అంతగా",
+     "అంటగా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antamavutondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "anthamavuthondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtaloenae",
+     "అంతలోనే",
+     "అంతలోఏనఏ"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtu",
+     "అంతు",
+     "అంటు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpair",
+     "అంపైర్",
+     "ఉంపైర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpire",
+     "అంపైర్",
+     "ఉంపిరే"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akkineeni",
+     "అక్కినేని",
+     "ఎక్కినీని"
+    ],
+    [
+     "Movie test: seen words",
+     "fivar",
+     "ఫీవర్",
+     "ఫివర్"
+    ],
+    [
+     "Movie test: seen words",
+     "velladu",
+     "వెళ్ళదు",
+     "వెళ్ళాడు"
+    ],
+    [
+     "Movie test: seen words",
+     "thoduga",
+     "తోడుగా",
+     "తొడుగా"
+    ],
+    [
+     "Movie test: seen words",
+     "adu",
+     "ఆడు",
+     "అద్దు"
+    ],
+    [
+     "Movie test: seen words",
+     "kurcheelo",
+     "కుర్చీలో",
+     "కూర్చీలో"
+    ],
+    [
+     "Movie test: seen words",
+     "bari",
+     "భారీ",
+     "బరి"
+    ],
+    [
+     "Movie test: seen words",
+     "kastha",
+     "కాస్త",
+     "కస్త"
+    ],
+    [
+     "Movie test: seen words",
+     "chesavu",
+     "చేసావు",
+     "చేశవు"
+    ],
+    [
+     "Movie test: seen words",
+     "chee",
+     "చే",
+     "చీ"
+    ],
+    [
+     "Movie test: seen words",
+     "ayi",
+     "అయ్యి",
+     "అయి"
+    ],
+    [
+     "Movie test: seen words",
+     "raathripoota",
+     "రాత్రిపూట",
+     "రాత్రిపోతా"
+    ],
+    [
+     "Movie test: seen words",
+     "raatriputa",
+     "రాత్రిపూట",
+     "రాత్రిపుట"
+    ],
+    [
+     "Movie test: seen words",
+     "deeny",
+     "దీని",
+     "డీని"
+    ],
+    [
+     "Movie test: seen words",
+     "hat",
+     "హాట్",
+     "హట్"
+    ],
+    [
+     "Movie test: seen words",
+     "amanu",
+     "అమ్మను",
+     "ఏమను"
+    ],
+    [
+     "Movie test: unseen words",
+     "aapharey",
+     "ఆఫరే",
+     "ఆఫర్ే"
+    ],
+    [
+     "Movie test: unseen words",
+     "dapeepul",
+     "దపీపుల్",
+     "డాపీపులు"
+    ],
+    [
+     "Movie test: unseen words",
+     "maarchana",
+     "మార్చనా",
+     "మార్చన"
+    ],
+    [
+     "Movie test: unseen words",
+     "magapillada",
+     "మగపిల్లాడా",
+     "మగపిల్లడా"
+    ],
+    [
+     "Movie test: unseen words",
+     "min",
+     "మీను",
+     "మిన్"
+    ],
+    [
+     "Movie test: unseen words",
+     "utsahaparichela",
+     "ఉత్సాహపరిచేలా",
+     "ఉత్సహపరిచేలా"
+    ],
+    [
+     "Movie test: unseen words",
+     "dinna",
+     "దిన్న",
+     "దీన్న"
+    ],
+    [
+     "Movie test: unseen words",
+     "pravahisthunna",
+     "ప్రవహిస్తున్నాను",
+     "ప్రవహిస్తున్న"
+    ],
+    [
+     "Movie test: unseen words",
+     "bairagi",
+     "బైరాగి",
+     "భైరాగి"
+    ],
+    [
+     "Movie test: unseen words",
+     "bayraagi",
+     "బైరాగి",
+     "భైరాగి"
+    ],
+    [
+     "Movie test: unseen words",
+     "atagaadu",
+     "ఆటగాడు",
+     "అత్తగాడు"
+    ],
+    [
+     "Movie test: unseen words",
+     "adala",
+     "ఏడలా",
+     "ఆడాల"
+    ],
+    [
+     "Movie test: unseen words",
+     "yedala",
+     "ఏడలా",
+     "ఏడల"
+    ],
+    [
+     "Movie test: unseen words",
+     "tidhdhaama",
+     "తీద్దామా",
+     "తిద్దామా"
+    ],
+    [
+     "Movie test: unseen words",
+     "halyoosineshan",
+     "హల్యూసినేషన్",
+     "హాల్యూసినేషన్"
+    ]
+   ]
+  },
+  "Normalizer (Dakshina + synthetic)": {
+   "scores": {
+    "Dakshina test (real human spellings)": {
+     "word_acc": 0.6779,
+     "cer": 0.0907,
+     "n": 5747
+    },
+    "Movie test: seen words": {
+     "word_acc": 0.8398,
+     "cer": 0.0471,
+     "n": 3933
+    },
+    "Movie test: unseen words": {
+     "word_acc": 0.673,
+     "cer": 0.0809,
+     "n": 526
+    }
+   },
+   "params": 5582146,
+   "loss_curve": [
+    [
+     1000,
+     0.6347
+    ],
+    [
+     2000,
+     0.5854
+    ],
+    [
+     3000,
+     0.5432
+    ],
+    [
+     4000,
+     0.5151
+    ],
+    [
+     5000,
+     0.5111
+    ],
+    [
+     6000,
+     0.4906
+    ],
+    [
+     7000,
+     0.5033
+    ],
+    [
+     8000,
+     0.497
+    ]
+   ],
+   "minutes": 13.4,
+   "errors": [
+    [
+     "Dakshina test (real human spellings)",
+     "ankela",
+     "అంకెల",
+     "అంకెలా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "angikarinchay",
+     "అంగీకరించే",
+     "అంగీకరించాయ్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antarani",
+     "అంటారని",
+     "అంతరాని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "undar",
+     "అండర్",
+     "ఉండరు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "under",
+     "అండర్",
+     "ఉండరు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtagaa",
+     "అంతగా",
+     "అంటగా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antagaa",
+     "అంతగా",
+     "అంటగా"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "antamavutondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "anthamavuthondi",
+     "అంతమవుతుంది",
+     "అంతమవుతోంది"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "amtu",
+     "అంతు",
+     "అంటు"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpair",
+     "అంపైర్",
+     "ఉంపైర్"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "umpire",
+     "అంపైర్",
+     "ఉంపిరే"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akkineeni",
+     "అక్కినేని",
+     "ఎక్కినీని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "akkineni",
+     "అక్కినేని",
+     "ఎక్కినేని"
+    ],
+    [
+     "Dakshina test (real human spellings)",
+     "ajiz",
+     "అజీజ్",
+     "అజిజ్"
+    ],
+    [
+     "Movie test: seen words",
+     "fivar",
+     "ఫీవర్",
+     "ఫివర్"
+    ],
+    [
+     "Movie test: seen words",
+     "velladu",
+     "వెళ్ళదు",
+     "వెళ్ళాడు"
+    ],
+    [
+     "Movie test: seen words",
+     "thoduga",
+     "తోడుగా",
+     "తొడుగా"
+    ],
+    [
+     "Movie test: seen words",
+     "adu",
+     "ఆడు",
+     "అద్దు"
+    ],
+    [
+     "Movie test: seen words",
+     "kurcheelo",
+     "కుర్చీలో",
+     "కూర్చీలో"
+    ],
+    [
+     "Movie test: seen words",
+     "bari",
+     "భారీ",
+     "బరి"
+    ],
+    [
+     "Movie test: seen words",
+     "kastha",
+     "కాస్త",
+     "కస్త"
+    ],
+    [
+     "Movie test: seen words",
+     "chesavu",
+     "చేసావు",
+     "చేశవు"
+    ],
+    [
+     "Movie test: seen words",
+     "awar",
+     "అవర్",
+     "ఎవర్"
+    ],
+    [
+     "Movie test: seen words",
+     "chee",
+     "చే",
+     "చీ"
+    ],
+    [
+     "Movie test: seen words",
+     "ayi",
+     "అయ్యి",
+     "అయి"
+    ],
+    [
+     "Movie test: seen words",
+     "raathripoota",
+     "రాత్రిపూట",
+     "రాత్రిపోతా"
+    ],
+    [
+     "Movie test: seen words",
+     "raatriputa",
+     "రాత్రిపూట",
+     "రాత్రిపుతా"
+    ],
+    [
+     "Movie test: seen words",
+     "amanu",
+     "అమ్మను",
+     "ఏమను"
+    ],
+    [
+     "Movie test: seen words",
+     "amma",
+     "అమ్మను",
+     "అమ్మ"
+    ],
+    [
+     "Movie test: unseen words",
+     "dapeepul",
+     "దపీపుల్",
+     "డపీపుల్"
+    ],
+    [
+     "Movie test: unseen words",
+     "maarchana",
+     "మార్చనా",
+     "మార్చన"
+    ],
+    [
+     "Movie test: unseen words",
+     "magapillada",
+     "మగపిల్లాడా",
+     "మగపిల్లడా"
+    ],
+    [
+     "Movie test: unseen words",
+     "min",
+     "మీను",
+     "మిన్"
+    ],
+    [
+     "Movie test: unseen words",
+     "utsahaparichela",
+     "ఉత్సాహపరిచేలా",
+     "ఉత్సహపరిచేలా"
+    ],
+    [
+     "Movie test: unseen words",
+     "dinna",
+     "దిన్న",
+     "దీన్న"
+    ],
+    [
+     "Movie test: unseen words",
+     "daivasaakshiga",
+     "దైవసాక్షిగా",
+     "దైవశాక్షిగా"
+    ],
+    [
+     "Movie test: unseen words",
+     "dayvasaakshiga",
+     "దైవసాక్షిగా",
+     "దైవశాక్షిగా"
+    ],
+    [
+     "Movie test: unseen words",
+     "pravahisthunna",
+     "ప్రవహిస్తున్నాను",
+     "ప్రవహిస్తున్న"
+    ],
+    [
+     "Movie test: unseen words",
+     "bairagi",
+     "బైరాగి",
+     "భైరాగి"
+    ],
+    [
+     "Movie test: unseen words",
+     "atagaadu",
+     "ఆటగాడు",
+     "అత్తగాడు"
+    ],
+    [
+     "Movie test: unseen words",
+     "adala",
+     "ఏడలా",
+     "ఆడాల"
+    ],
+    [
+     "Movie test: unseen words",
+     "yedala",
+     "ఏడలా",
+     "ఎడల"
+    ],
+    [
+     "Movie test: unseen words",
+     "kembrij",
+     "కేంబ్రిజ్",
+     "కెంబ్రిజ్"
+    ],
+    [
+     "Movie test: unseen words",
+     "tidhdhaama",
+     "తీద్దామా",
+     "తిద్దామా"
+    ]
+   ]
+  },
+  "demo": {
+   "yenti": "ఏంటి",
+   "enti": "ఏంటి",
+   "anti": "అంటి",
+   "intha": "ఇంత",
+   "inta": "ఇంత",
+   "nuvvu": "నువ్వు",
+   "nuwu": "నువ్వు",
+   "chesanu": "చేశను",
+   "chesa": "చేశ",
+   "vacchava": "వచ్చావా",
+   "ekkada": "ఎక్కడ",
+   "yekkada": "ఎక్కడ",
+   "late": "లాటే",
+   "exam": "ఎక్స్కం",
+   "bro": "బ్రో",
+   "intlo": "ఇంట్లో",
+   "vellipothunna": "వెళ్ళిపోతున్నా",
+   "chuudu": "చూడు",
+   "choodu": "చూడు",
+   "bagundi": "బాగుంది"
+  }
+ }
+}
