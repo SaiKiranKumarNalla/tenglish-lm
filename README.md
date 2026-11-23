@@ -4,6 +4,10 @@
 > It's inspired by the **Google DeepMind AI Foundations** course and is for **research and learning only**: not a product, and not
 > linked to any company named here. The trained models are kept private.
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![Status](https://img.shields.io/badge/status-learning%20project-orange) ![Models](https://img.shields.io/badge/models-private-lightgrey)
+
+![How well each AI reads Tenglish](docs/plots/simple_reading_test.png)
+
 ---
 
 ## What's the problem?
@@ -209,3 +213,10 @@ To reach our goal, the plan is:
 | **Referee / judge** | an AI that compares two answers and picks the better one |
 
 *Movie subtitles and YouTube comments were used only for training and testing, and are not shared here.*
+
+## Contact
+**Sai Kiran Kumar Nalla, PhD** · Toulouse, France ·
+[LinkedIn](https://www.linkedin.com/in/sai-kiran-kumar-nalla-3a325314a/) · [Portfolio](https://saikirankumarnalla.github.io) ·
+saikirankumarnalla@gmail.com
+
+Questions or ideas: open a [GitHub issue](https://github.com/SaiKiranKumarNalla/tenglish-lm/issues).
