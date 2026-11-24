@@ -14,18 +14,12 @@
    "Telugu script": 6.74,
    "canonical Latin": 7.61,
    "noisy Latin": 7.3
-  },
-  "Sarvam-2B (pretrained)": {
-   "Telugu script": 2.12,
-   "canonical Latin": 3.49,
-   "noisy Latin": 3.36
   }
  },
  "consistency": {
   "BPE": 0.045,
-  "Unigram": 0.059,
-  "Char": 0.781,
-  "Sarvam-2B (pretrained)": 0.343
+  "Unigram": 0.06,
+  "Char": 0.782
  },
  "vocab_sweep_fertility": {
   "BPE": {
@@ -47,30 +41,30 @@
  },
  "vocab_sweep_consistency": {
   "BPE": {
-   "500": 0.317,
+   "500": 0.319,
    "1000": 0.217,
    "2000": 0.133,
-   "4000": 0.079,
+   "4000": 0.078,
    "8000": 0.045,
    "16000": 0.021
   },
   "Unigram": {
-   "500": 0.369,
+   "500": 0.37,
    "1000": 0.231,
-   "2000": 0.146,
-   "4000": 0.095,
-   "8000": 0.059,
-   "16000": 0.037
+   "2000": 0.148,
+   "4000": 0.097,
+   "8000": 0.06,
+   "16000": 0.038
   }
  },
  "transforms_frontier": {
   "Unigram 4k": [
    2.009,
-   0.095
+   0.097
   ],
   "Unigram 4k + phonetic": [
    1.768,
-   0.45
+   0.449
   ],
   "Unigram 4k + morph": [
    2.146,
@@ -78,15 +72,11 @@
   ],
   "Unigram 4k + phonetic+morph": [
    1.899,
-   0.464
+   0.463
   ],
   "Char": [
    7.3,
-   0.781
-  ],
-  "Sarvam-2B (pretrained)": [
-   3.36,
-   0.343
+   0.782
   ]
  },
  "phonetic_collision_rate_top5k": 0.072
